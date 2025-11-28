@@ -32,6 +32,27 @@ export const LanguageSwitcher = ({ currentLang }: { currentLang: Language }) => 
   )
 }
 
+// Mobile Menu Button
+const MobileMenuButton = () => {
+  return (
+    <button 
+      id="mobile-menu-btn"
+      class="md:hidden p-2 text-ink-600 hover:text-gold transition-colors"
+      aria-label="Menu"
+      onclick="toggleMobileMenu()"
+    >
+      {/* Hamburger icon */}
+      <svg id="menu-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      {/* Close icon (hidden by default) */}
+      <svg id="menu-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  )
+}
+
 // Header Component
 export const Header = ({ 
   currentLang, 
@@ -56,20 +77,21 @@ export const Header = ({
 
   return (
     <header class={baseClass}>
-      <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href={`/?lang=${currentLang}`} class="flex items-center gap-3">
-          <div class={`w-8 h-8 rounded-full gradient-gold ${variant === 'transparent' ? 'opacity-80' : ''}`}></div>
-          <span class={`text-xl font-medium ${textClass}`}>KINTSUGI MIND</span>
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <a href={`/?lang=${currentLang}`} class="flex items-center gap-2 sm:gap-3">
+          <div class={`w-7 h-7 sm:w-8 sm:h-8 rounded-full gradient-gold ${variant === 'transparent' ? 'opacity-80' : ''}`}></div>
+          <span class={`text-lg sm:text-xl font-medium ${textClass}`}>KINTSUGI MIND</span>
         </a>
         
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 sm:gap-4">
           {roomName && roomIcon && (
             <div class={`flex items-center gap-2 ${variant === 'transparent' ? 'text-ecru/60' : 'text-ink-600'}`}>
-              <span class="text-2xl">{roomIcon}</span>
+              <span class="text-xl sm:text-2xl">{roomIcon}</span>
               <span class="font-jp hidden sm:inline">{roomName}</span>
             </div>
           )}
           
+          {/* Desktop Navigation */}
           {variant !== 'transparent' && (
             <nav class="hidden md:flex items-center gap-6 text-ink-600">
               <a href={`/?lang=${currentLang}#about`} class="hover:text-gold transition-colors">
@@ -87,8 +109,26 @@ export const Header = ({
             </nav>
           )}
           
+          {/* Mobile: Vessel icon link (always visible, more prominent) */}
+          {variant !== 'transparent' && (
+            <a 
+              href={`/profile?lang=${currentLang}`} 
+              class="md:hidden flex items-center gap-1 px-2 py-1 text-ink-600 hover:text-gold transition-colors rounded-full bg-ecru-100 border border-wabi"
+              title={currentLang === 'en' ? 'My Vessel' : '器'}
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-xs font-medium">{currentLang === 'en' ? 'Vessel' : '器'}</span>
+            </a>
+          )}
+          
           <LanguageSwitcher currentLang={currentLang} />
           
+          {/* Mobile Menu Button */}
+          {variant !== 'transparent' && <MobileMenuButton />}
+          
+          {/* Desktop: Begin button */}
           {variant === 'fixed' && (
             <a 
               href={`/check-in?lang=${currentLang}`} 
@@ -99,6 +139,32 @@ export const Header = ({
           )}
         </div>
       </div>
+      
+      {/* Mobile Menu (hidden by default, toggled by JS) */}
+      {variant !== 'transparent' && (
+        <div id="mobile-menu" class="hidden md:hidden bg-ecru border-t border-wabi">
+          <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-4">
+            <a href={`/?lang=${currentLang}#about`} class="text-ink-600 hover:text-gold transition-colors py-2">
+              {currentLang === 'en' ? 'About' : '概要'}
+            </a>
+            <a href={`/?lang=${currentLang}#philosophy`} class="text-ink-600 hover:text-gold transition-colors py-2">
+              {currentLang === 'en' ? 'Philosophy' : '哲学'}
+            </a>
+            <a href={`/profile?lang=${currentLang}`} class="text-ink-600 hover:text-gold transition-colors py-2 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {currentLang === 'en' ? 'My Vessel' : '器'}
+            </a>
+            <a 
+              href={`/check-in?lang=${currentLang}`} 
+              class="px-5 py-3 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors text-center"
+            >
+              {currentLang === 'en' ? 'Begin' : '始める'}
+            </a>
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

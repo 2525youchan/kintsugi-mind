@@ -769,6 +769,35 @@ async function showKoan(container, lang) {
 }
 
 // ========================================
+// Mobile Menu Toggle
+// ========================================
+
+function toggleMobileMenu() {
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+  
+  if (mobileMenu) {
+    const isHidden = mobileMenu.classList.contains('hidden');
+    
+    if (isHidden) {
+      mobileMenu.classList.remove('hidden');
+      mobileMenu.classList.add('animate-fade-in');
+      if (iconOpen) iconOpen.classList.add('hidden');
+      if (iconClose) iconClose.classList.remove('hidden');
+    } else {
+      mobileMenu.classList.add('hidden');
+      mobileMenu.classList.remove('animate-fade-in');
+      if (iconOpen) iconOpen.classList.remove('hidden');
+      if (iconClose) iconClose.classList.add('hidden');
+    }
+  }
+}
+
+// Make toggleMobileMenu available globally (for onclick attribute)
+window.toggleMobileMenu = toggleMobileMenu;
+
+// ========================================
 // Initialize based on current page
 // ========================================
 
