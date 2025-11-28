@@ -587,7 +587,12 @@ app.get('/profile', (c) => {
     cracks: { en: 'Cracks', ja: 'ヒビ' },
     repaired: { en: 'Repaired', ja: '修復済み' },
     unrepaired: { en: 'Unrepaired', ja: '未修復' },
-    days: { en: 'days', ja: '日' }
+    days: { en: 'days', ja: '日' },
+    whatIsKintsugi: { en: 'What is Kintsugi?', ja: '金継ぎとは？' },
+    kintsugiDescription: { 
+      en: 'Learn about the Japanese art of golden repair and its connection to mental wellness', 
+      ja: '壊れたものを金で繋ぐ日本の伝統技法と、心のウェルネスとの関係を学ぶ' 
+    }
   }
   
   return c.render(
@@ -660,6 +665,17 @@ app.get('/profile', (c) => {
               <p id="vessel-message" class="text-ink-500 text-sm mt-6 italic">
                 {t.emptyMessage[lang]}
               </p>
+              
+              {/* What is Kintsugi link */}
+              <a 
+                href={`/about/kintsugi?lang=${lang}`}
+                class="inline-flex items-center gap-2 mt-6 text-gold hover:text-gold-600 transition-colors group"
+              >
+                <span class="text-lg">✦</span>
+                <span class="border-b border-gold/30 group-hover:border-gold transition-colors">
+                  {t.whatIsKintsugi[lang]}
+                </span>
+              </a>
             </div>
             
             {/* Statistics */}
@@ -747,6 +763,202 @@ app.get('/profile', (c) => {
       <Footer currentLang={lang} />
     </div>,
     { title: lang === 'en' ? 'Your Vessel — KINTSUGI MIND' : 'あなたの器 — KINTSUGI MIND' }
+  )
+})
+
+// About Kintsugi Page - Philosophy explanation
+app.get('/about/kintsugi', (c) => {
+  const lang = getLanguage(c)
+  
+  const t = {
+    title: { 
+      en: 'What is Kintsugi?', 
+      ja: '金継ぎとは？' 
+    },
+    subtitle: {
+      en: 'The Japanese Art of Golden Repair',
+      ja: '壊れたものを金で繋ぐ日本の伝統技法'
+    },
+    section1Title: {
+      en: 'The Ancient Craft',
+      ja: '伝統の技'
+    },
+    section1Text: {
+      en: `Kintsugi (金継ぎ) is a centuries-old Japanese art of repairing broken pottery with lacquer mixed with powdered gold, silver, or platinum. Rather than disguising the breakage, kintsugi illuminates it — treating the repair as part of the object's history, not something to hide.
+
+The practice is believed to have originated in the 15th century when a Japanese shogun sent a damaged tea bowl to China for repairs. When it returned with ugly metal staples, Japanese craftsmen sought a more aesthetic solution, leading to the birth of kintsugi.`,
+      ja: `金継ぎは、割れた陶器を金・銀・プラチナの粉を混ぜた漆で修復する、数百年の歴史を持つ日本の伝統技法です。破損を隠すのではなく、むしろ際立たせる。修復の跡を隠すべきものではなく、その器の歴史の一部として扱います。
+
+この技法は15世紀、ある将軍が傷ついた茶碗を中国に修理に出したことから始まったと言われています。金属の鉤で見苦しく修理されて戻ってきたため、日本の職人たちがより美しい解決法を求め、金継ぎが生まれました。`
+    },
+    section2Title: {
+      en: 'The Philosophy',
+      ja: '金継ぎの哲学'
+    },
+    section2Text: {
+      en: `Kintsugi is deeply connected to the Japanese philosophy of wabi-sabi (侘寂) — finding beauty in imperfection and impermanence. It also embodies the concept of mushin (無心), the acceptance of change.
+
+Instead of throwing away broken things, kintsugi teaches us that:
+• Scars and repairs are part of the story
+• Imperfections can become beautiful
+• What was broken can become stronger and more valuable
+• There is no need to hide our damage`,
+      ja: `金継ぎは、不完全さや無常に美を見出す「侘び寂び」の精神と深く結びついています。また、変化を受け入れる「無心」の概念も体現しています。
+
+壊れたものを捨てるのではなく、金継ぎは私たちに教えてくれます：
+• 傷や修復は物語の一部である
+• 不完全さは美しくなりうる
+• 壊れたものは、より強く、より価値あるものになれる
+• 自分のダメージを隠す必要はない`
+    },
+    section3Title: {
+      en: 'Kintsugi & Your Mind',
+      ja: '金継ぎと心'
+    },
+    section3Text: {
+      en: `KINTSUGI MIND applies this philosophy to mental wellness. In a world obsessed with "fixing" ourselves, eliminating anxiety, and appearing perfect, we offer a different path.
+
+Your emotional struggles are not flaws to be erased. They are cracks that, when acknowledged and tended to with care, can become sources of strength and beauty.
+
+This is what the three rooms of our Tea House help you do:`,
+      ja: `KINTSUGI MINDはこの哲学をメンタルウェルネスに適用します。自分を「直す」こと、不安を消すこと、完璧に見せることに取り憑かれた世界で、私たちは別の道を提案します。
+
+あなたの感情的な苦しみは、消すべき欠点ではありません。それらは、認め、丁寧に向き合うことで、強さと美しさの源となりうる「ヒビ」なのです。
+
+これが、心の茶室の3つの部屋があなたを助けることです：`
+    },
+    gardenTitle: { en: '🌱 GARDEN — Morita Therapy', ja: '🌱 GARDEN — 森田療法' },
+    gardenText: {
+      en: 'Accept anxiety as natural. Act alongside it, not against it. Your cracks don\'t stop you from growing.',
+      ja: '不安を自然なものとして受け入れる。それに逆らわず、共に行動する。ヒビがあっても成長できます。'
+    },
+    studyTitle: { en: '📚 STUDY — Naikan', ja: '📚 STUDY — 内観法' },
+    studyText: {
+      en: 'Rediscover connections with others. See the golden threads that bind you to the world. You are not alone.',
+      ja: '他者との繋がりを再発見する。あなたを世界に結びつける金色の糸を見る。あなたは一人じゃない。'
+    },
+    tatamiTitle: { en: '🧘 TATAMI — Zen', ja: '🧘 TATAMI — 禅' },
+    tatamiText: {
+      en: 'Stop trying to fix. Just breathe. Just be. In stillness, the cracks heal themselves with gold.',
+      ja: '直そうとするのをやめる。ただ呼吸する。ただ在る。静けさの中で、ヒビは金で自ら癒える。'
+    },
+    section4Title: {
+      en: 'Your Vessel',
+      ja: 'あなたの器'
+    },
+    section4Text: {
+      en: `In this app, your profile shows a "vessel" — your personal kintsugi bowl. As you engage with the therapy modes:
+
+• Cracks appear when you face difficulties or miss days
+• Golden repairs form when you complete sessions and take action
+• Over time, your vessel becomes uniquely beautiful — a map of your journey
+
+The goal is not a perfect, crack-free vessel. The goal is a vessel that tells YOUR story, with golden seams that prove you've lived, struggled, and grown.`,
+      ja: `このアプリでは、あなたのプロフィールに「器」が表示されます — あなた自身の金継ぎの器です。セラピーモードに取り組むにつれて：
+
+• 困難に直面したり、日を空けるとヒビが入る
+• セッションを完了し、行動を起こすと金の修復が形成される
+• 時間とともに、あなたの器は独自の美しさを持つようになる — あなたの歩みの地図
+
+目標は、ヒビのない完璧な器ではありません。目標は、あなたが生き、苦しみ、成長したことを証明する金の継ぎ目を持つ、あなたの物語を語る器です。`
+    },
+    closing: {
+      en: '"Your scars make you beautiful."',
+      ja: '「傷は、あなたを美しくする。」'
+    },
+    backToProfile: {
+      en: '← Back to Your Vessel',
+      ja: '← 器に戻る'
+    }
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+      <Header currentLang={lang} />
+      
+      <main class="flex-1 py-12 px-6">
+        <div class="max-w-3xl mx-auto">
+          {/* Hero */}
+          <div class="text-center mb-16">
+            <div class="w-24 h-24 mx-auto mb-6">
+              <KintsugiVessel />
+            </div>
+            <h1 class="text-4xl md:text-5xl text-indigo-800 mb-4">{t.title[lang]}</h1>
+            <p class="text-xl text-gold">{t.subtitle[lang]}</p>
+          </div>
+          
+          {/* Section 1: The Craft */}
+          <section class="mb-12">
+            <h2 class="text-2xl text-indigo-800 mb-4 flex items-center gap-2">
+              <span class="text-gold">◆</span> {t.section1Title[lang]}
+            </h2>
+            <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+              <p class="text-ink-600 whitespace-pre-line leading-relaxed">{t.section1Text[lang]}</p>
+            </div>
+          </section>
+          
+          {/* Section 2: Philosophy */}
+          <section class="mb-12">
+            <h2 class="text-2xl text-indigo-800 mb-4 flex items-center gap-2">
+              <span class="text-gold">◆</span> {t.section2Title[lang]}
+            </h2>
+            <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+              <p class="text-ink-600 whitespace-pre-line leading-relaxed">{t.section2Text[lang]}</p>
+            </div>
+          </section>
+          
+          {/* Section 3: Kintsugi & Mind */}
+          <section class="mb-12">
+            <h2 class="text-2xl text-indigo-800 mb-4 flex items-center gap-2">
+              <span class="text-gold">◆</span> {t.section3Title[lang]}
+            </h2>
+            <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-wabi mb-6">
+              <p class="text-ink-600 whitespace-pre-line leading-relaxed">{t.section3Text[lang]}</p>
+            </div>
+            
+            {/* Three Rooms */}
+            <div class="grid gap-4">
+              <div class="bg-green-50 rounded-xl p-5 border-l-4 border-green-400">
+                <h3 class="font-medium text-indigo-800 mb-2">{t.gardenTitle[lang]}</h3>
+                <p class="text-ink-600 text-sm">{t.gardenText[lang]}</p>
+              </div>
+              <div class="bg-amber-50 rounded-xl p-5 border-l-4 border-amber-400">
+                <h3 class="font-medium text-indigo-800 mb-2">{t.studyTitle[lang]}</h3>
+                <p class="text-ink-600 text-sm">{t.studyText[lang]}</p>
+              </div>
+              <div class="bg-indigo-50 rounded-xl p-5 border-l-4 border-indigo-400">
+                <h3 class="font-medium text-indigo-800 mb-2">{t.tatamiTitle[lang]}</h3>
+                <p class="text-ink-600 text-sm">{t.tatamiText[lang]}</p>
+              </div>
+            </div>
+          </section>
+          
+          {/* Section 4: Your Vessel */}
+          <section class="mb-12">
+            <h2 class="text-2xl text-indigo-800 mb-4 flex items-center gap-2">
+              <span class="text-gold">◆</span> {t.section4Title[lang]}
+            </h2>
+            <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+              <p class="text-ink-600 whitespace-pre-line leading-relaxed">{t.section4Text[lang]}</p>
+            </div>
+          </section>
+          
+          {/* Closing */}
+          <div class="text-center py-12">
+            <p class="text-2xl text-gold italic mb-8">{t.closing[lang]}</p>
+            <a 
+              href={`/profile?lang=${lang}`} 
+              class="inline-block px-6 py-3 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors"
+            >
+              {t.backToProfile[lang]}
+            </a>
+          </div>
+        </div>
+      </main>
+      
+      <Footer currentLang={lang} />
+    </div>,
+    { title: lang === 'en' ? 'What is Kintsugi? — KINTSUGI MIND' : '金継ぎとは？ — KINTSUGI MIND' }
   )
 })
 
