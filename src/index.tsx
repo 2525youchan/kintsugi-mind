@@ -400,8 +400,8 @@ app.get('/garden', (c) => {
           
           {/* Garden Growth Visualization */}
           <div class="mt-6">
-            <div class="flex items-end justify-center gap-2 h-20" id="garden-plants">
-              <div class="text-center text-ink-400 dark:text-[#78716c] text-sm">
+            <div class="flex flex-wrap items-end justify-center gap-1 sm:gap-2 min-h-[3rem] max-h-24 overflow-hidden" id="garden-plants">
+              <div class="text-center text-ink-400 dark:text-[#78716c] text-sm w-full">
                 {tx('garden', 'plantGrowth', lang)}
               </div>
             </div>

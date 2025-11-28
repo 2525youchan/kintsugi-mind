@@ -602,6 +602,7 @@ function updateProfileUI(profile, lang) {
 let clouds = [];
 let plants = [];
 let gardenActionCount = 0;
+let completedActionIds = new Set(); // Track completed actions to prevent duplicate plants
 
 // All possible micro-actions with categories
 // 豊富なバリエーションでユーザーが飽きないように
@@ -917,28 +918,40 @@ function getRandomActions(lang, count = 5) {
 function renderActionList(actions, container, gardenPlants, lang) {
   container.innerHTML = '';
   
-  actions.forEach(action => {
+  actions.forEach((action, index) => {
+    // Create unique ID for this action instance
+    const actionUniqueId = `${action.id}-${index}-${Date.now()}`;
+    
     const label = document.createElement('label');
-    label.className = 'flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors';
+    label.className = 'flex items-center gap-3 p-3 bg-white/60 dark:bg-[#2d2d2d]/60 rounded-lg cursor-pointer hover:bg-white/80 dark:hover:bg-[#3d3d3d]/80 transition-colors';
     label.innerHTML = `
-      <input type="checkbox" class="w-5 h-5 accent-gold" data-action="${action.id}" />
-      <span class="text-ink-700">${action.text}</span>
-      <span class="text-ink-400 text-xs ml-auto">${action.time}</span>
+      <input type="checkbox" class="w-5 h-5 accent-gold" data-action="${action.id}" data-unique-id="${actionUniqueId}" />
+      <span class="text-ink-700 dark:text-[#e8e4dc]">${action.text}</span>
+      <span class="text-ink-400 dark:text-[#78716c] text-xs ml-auto">${action.time}</span>
     `;
     
     const checkbox = label.querySelector('input');
     checkbox.addEventListener('change', () => {
+      const uniqueId = checkbox.dataset.uniqueId;
+      
       if (checkbox.checked) {
-        growPlant(gardenPlants);
-        vibrate([50]);
-        gardenActionCount++;
-        
-        // Record activity
-        let profile = loadProfile();
-        profile = recordActivityToProfile(profile, 'garden', { actionCount: 1 });
-        saveProfile(profile);
-        
-        recordAction(action.id, true, lang);
+        // Only add plant if this specific action hasn't been completed
+        if (!completedActionIds.has(uniqueId)) {
+          completedActionIds.add(uniqueId);
+          growPlant(gardenPlants);
+          vibrate([50]);
+          gardenActionCount++;
+          
+          // Record activity
+          let profile = loadProfile();
+          profile = recordActivityToProfile(profile, 'garden', { actionCount: 1 });
+          saveProfile(profile);
+          
+          recordAction(action.id, true, lang);
+        }
+      } else {
+        // When unchecked, remove from completed set (but don't remove plant - it stays as history)
+        completedActionIds.delete(uniqueId);
       }
     });
     
@@ -972,6 +985,9 @@ function initGarden() {
       // Animate the button
       refreshBtn.classList.add('animate-spin-once');
       setTimeout(() => refreshBtn.classList.remove('animate-spin-once'), 300);
+      
+      // Clear completed actions for old set (new actions = new tracking)
+      completedActionIds.clear();
       
       // Get new random actions (different from current)
       currentActions = getRandomActions(lang, 5);
@@ -1091,11 +1107,26 @@ function growPlant(container) {
     placeholder.remove();
   }
   
-  const plantTypes = ['🌱', '🌿', '🍀', '🌾', '🌻'];
+  // Limit max plants: 10 for mobile, 15 for desktop
+  const isMobile = window.innerWidth < 768;
+  const maxPlants = isMobile ? 8 : 12;
+  
+  // If at max, remove oldest plant before adding new one
+  if (plants.length >= maxPlants) {
+    const oldestPlant = plants.shift();
+    if (oldestPlant && oldestPlant.parentNode) {
+      oldestPlant.style.opacity = '0';
+      oldestPlant.style.transform = 'scale(0)';
+      setTimeout(() => oldestPlant.remove(), 300);
+    }
+  }
+  
+  const plantTypes = ['🌱', '🌿', '🍀', '🌾', '🌻', '🪴', '☘️', '🌸'];
   const plant = document.createElement('div');
-  plant.className = 'text-3xl animate-grow';
+  plant.className = 'text-2xl sm:text-3xl animate-grow inline-block';
   plant.textContent = plantTypes[plants.length % plantTypes.length];
   plant.style.animationDelay = '0.1s';
+  plant.style.transition = 'opacity 0.3s, transform 0.3s';
   
   container.appendChild(plant);
   plants.push(plant);
