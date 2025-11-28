@@ -173,8 +173,19 @@ export const Header = ({
 export const Footer = ({ currentLang }: { currentLang: Language }) => {
   return (
     <footer class="py-8 px-6 bg-ink-900 text-ecru-400">
-      <div class="max-w-6xl mx-auto text-center">
-        <p class="text-sm">© 2024 KINTSUGI MIND — The Japanese Art of Resilience</p>
+      <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+          <p class="text-sm">© 2024 KINTSUGI MIND — The Japanese Art of Resilience</p>
+          <a 
+            href={`/install?lang=${currentLang}`}
+            class="flex items-center gap-2 text-sm text-ecru-400 hover:text-gold transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            {currentLang === 'en' ? 'Add to Home Screen' : 'ホーム画面に追加'}
+          </a>
+        </div>
       </div>
     </footer>
   )

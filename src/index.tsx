@@ -964,6 +964,232 @@ The goal is not a perfect, crack-free vessel. The goal is a vessel that tells YO
   )
 })
 
+// Install Page - PWA Installation Guide
+app.get('/install', (c) => {
+  const lang = getLanguage(c)
+  
+  const t = {
+    title: { 
+      en: 'Add to Home Screen', 
+      ja: 'ホーム画面に追加' 
+    },
+    subtitle: {
+      en: 'Use KINTSUGI MIND like an app',
+      ja: 'アプリのように快適に使う'
+    },
+    benefits: {
+      title: { en: 'Benefits', ja: 'メリット' },
+      items: {
+        en: [
+          { icon: '⚡', text: 'Quick access with one tap' },
+          { icon: '📱', text: 'Full screen experience without browser UI' },
+          { icon: '🔌', text: 'Works offline for breathing exercises' },
+          { icon: '🔔', text: 'Future: Push notifications for reminders' }
+        ],
+        ja: [
+          { icon: '⚡', text: 'ワンタップで素早く起動' },
+          { icon: '📱', text: 'ブラウザUIなしのフルスクリーン体験' },
+          { icon: '🔌', text: 'オフラインでも呼吸ガイドが使える' },
+          { icon: '🔔', text: '今後：リマインダー通知機能' }
+        ]
+      }
+    },
+    ios: {
+      title: { en: 'iPhone / iPad (Safari)', ja: 'iPhone / iPad の場合' },
+      note: { en: '※ Safari browser required', ja: '※ Safariブラウザでのみ可能' },
+      steps: {
+        en: [
+          { step: '1', text: 'Tap the Share button', icon: '□↑', detail: 'at the bottom of the screen' },
+          { step: '2', text: 'Scroll down and tap "Add to Home Screen"', icon: '＋', detail: '' },
+          { step: '3', text: 'Tap "Add" in the top right', icon: '✓', detail: '' }
+        ],
+        ja: [
+          { step: '1', text: '共有ボタンをタップ', icon: '□↑', detail: '画面下部にあります' },
+          { step: '2', text: '「ホーム画面に追加」をタップ', icon: '＋', detail: '下にスクロールして探してください' },
+          { step: '3', text: '右上の「追加」をタップ', icon: '✓', detail: '' }
+        ]
+      }
+    },
+    android: {
+      title: { en: 'Android (Chrome)', ja: 'Android の場合' },
+      note: { en: '※ Chrome browser recommended', ja: '※ Chromeブラウザ推奨' },
+      steps: {
+        en: [
+          { step: '1', text: 'Tap the menu button', icon: '⋮', detail: 'three dots in the top right' },
+          { step: '2', text: 'Tap "Install app" or "Add to Home screen"', icon: '📲', detail: '' },
+          { step: '3', text: 'Tap "Install" to confirm', icon: '✓', detail: '' }
+        ],
+        ja: [
+          { step: '1', text: 'メニューボタンをタップ', icon: '⋮', detail: '右上の3点アイコン' },
+          { step: '2', text: '「アプリをインストール」または「ホーム画面に追加」', icon: '📲', detail: '' },
+          { step: '3', text: '「インストール」をタップ', icon: '✓', detail: '' }
+        ]
+      }
+    },
+    desktop: {
+      title: { en: 'Desktop (Chrome / Edge)', ja: 'パソコンの場合' },
+      steps: {
+        en: [
+          { step: '1', text: 'Look for the install icon in the address bar', icon: '⊕', detail: 'or use browser menu' },
+          { step: '2', text: 'Click "Install"', icon: '✓', detail: '' }
+        ],
+        ja: [
+          { step: '1', text: 'アドレスバーのインストールアイコンを探す', icon: '⊕', detail: 'またはブラウザメニューから' },
+          { step: '2', text: '「インストール」をクリック', icon: '✓', detail: '' }
+        ]
+      }
+    },
+    backHome: { en: '← Back to Home', ja: '← ホームに戻る' }
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+      <Header currentLang={lang} />
+      
+      <main class="flex-1 py-12 px-4 sm:px-6">
+        <div class="max-w-2xl mx-auto">
+          {/* Hero */}
+          <div class="text-center mb-12">
+            <div class="w-20 h-20 mx-auto mb-6 bg-indigo-800 rounded-2xl flex items-center justify-center shadow-wabi">
+              <svg class="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl text-indigo-800 mb-3">{t.title[lang]}</h1>
+            <p class="text-ink-500">{t.subtitle[lang]}</p>
+          </div>
+          
+          {/* Benefits */}
+          <section class="mb-10">
+            <div class="bg-gradient-to-br from-gold/10 to-gold/5 rounded-2xl p-6 border border-gold/20">
+              <h2 class="text-lg text-indigo-800 mb-4 flex items-center gap-2">
+                <span class="text-gold">✦</span> {t.benefits.title[lang]}
+              </h2>
+              <ul class="space-y-3">
+                {t.benefits.items[lang].map((item) => (
+                  <li class="flex items-center gap-3 text-ink-600">
+                    <span class="text-xl">{item.icon}</span>
+                    <span>{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+          
+          {/* iOS Instructions */}
+          <section class="mb-8">
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-ink-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-ink-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-lg text-indigo-800 font-medium">{t.ios.title[lang]}</h2>
+                  <p class="text-xs text-ink-400">{t.ios.note[lang]}</p>
+                </div>
+              </div>
+              <ol class="space-y-4">
+                {t.ios.steps[lang].map((item) => (
+                  <li class="flex items-start gap-4">
+                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 text-indigo-700 font-medium">
+                      {item.step}
+                    </div>
+                    <div class="flex-1 pt-1">
+                      <p class="text-ink-700">{item.text}</p>
+                      {item.detail && <p class="text-xs text-ink-400 mt-1">{item.detail}</p>}
+                    </div>
+                    <div class="w-10 h-10 bg-ecru-200 rounded-lg flex items-center justify-center text-indigo-600 font-medium">
+                      {item.icon}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+          
+          {/* Android Instructions */}
+          <section class="mb-8">
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24c-1.4-.59-2.94-.92-4.47-.92s-3.07.33-4.47.92L5.65 5.67c-.19-.29-.58-.38-.87-.2-.28.18-.37.54-.22.83L6.4 9.48C3.3 11.25 1.28 14.44 1 18h22c-.28-3.56-2.3-6.75-5.4-8.52zM7 15.25c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm10 0c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-lg text-indigo-800 font-medium">{t.android.title[lang]}</h2>
+                  <p class="text-xs text-ink-400">{t.android.note[lang]}</p>
+                </div>
+              </div>
+              <ol class="space-y-4">
+                {t.android.steps[lang].map((item) => (
+                  <li class="flex items-start gap-4">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-700 font-medium">
+                      {item.step}
+                    </div>
+                    <div class="flex-1 pt-1">
+                      <p class="text-ink-700">{item.text}</p>
+                      {item.detail && <p class="text-xs text-ink-400 mt-1">{item.detail}</p>}
+                    </div>
+                    <div class="w-10 h-10 bg-ecru-200 rounded-lg flex items-center justify-center text-green-600 font-medium">
+                      {item.icon}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+          
+          {/* Desktop Instructions */}
+          <section class="mb-10">
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 class="text-lg text-indigo-800 font-medium">{t.desktop.title[lang]}</h2>
+              </div>
+              <ol class="space-y-4">
+                {t.desktop.steps[lang].map((item) => (
+                  <li class="flex items-start gap-4">
+                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 text-indigo-700 font-medium">
+                      {item.step}
+                    </div>
+                    <div class="flex-1 pt-1">
+                      <p class="text-ink-700">{item.text}</p>
+                      {item.detail && <p class="text-xs text-ink-400 mt-1">{item.detail}</p>}
+                    </div>
+                    <div class="w-10 h-10 bg-ecru-200 rounded-lg flex items-center justify-center text-indigo-600 font-medium text-xl">
+                      {item.icon}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+          
+          {/* Back Link */}
+          <div class="text-center">
+            <a 
+              href={`/?lang=${lang}`} 
+              class="inline-block px-6 py-3 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors"
+            >
+              {t.backHome[lang]}
+            </a>
+          </div>
+        </div>
+      </main>
+      
+      <Footer currentLang={lang} />
+    </div>,
+    { title: lang === 'en' ? 'Add to Home Screen — KINTSUGI MIND' : 'ホーム画面に追加 — KINTSUGI MIND' }
+  )
+})
+
 // ========================================
 // API Routes
 // ========================================
