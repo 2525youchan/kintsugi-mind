@@ -33,6 +33,7 @@ export const renderer = jsxRenderer(({ children, title }) => {
         <script dangerouslySetInnerHTML={{
           __html: `
             tailwind.config = {
+              darkMode: 'class',
               theme: {
                 extend: {
                   colors: {
@@ -128,6 +129,16 @@ export const renderer = jsxRenderer(({ children, title }) => {
                       '0%': { transform: 'rotate(0deg)' },
                       '100%': { transform: 'rotate(360deg)' },
                     }
+                  },
+                  // Dark mode specific colors
+                  backgroundColor: {
+                    'dark-base': '#121212',
+                    'dark-surface': '#1e1e1e',
+                    'dark-elevated': '#2d2d2d',
+                  },
+                  textColor: {
+                    'dark-primary': '#e8e4dc',
+                    'dark-secondary': '#a8a29e',
                   }
                 }
               }
@@ -137,7 +148,7 @@ export const renderer = jsxRenderer(({ children, title }) => {
         
         <link href="/static/style.css" rel="stylesheet" />
       </head>
-      <body class="bg-ecru text-ink font-serif min-h-screen">
+      <body class="bg-ecru dark:bg-[#121212] text-ink dark:text-[#e8e4dc] font-serif min-h-screen transition-colors duration-300">
         {children}
         <script src="/static/soundscape.js"></script>
         <script src="/static/notifications.js"></script>

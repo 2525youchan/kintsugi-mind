@@ -3,6 +3,265 @@
    The Japanese Art of Resilience
    ======================================== */
 
+/* ========================================
+   CSS Variables for Theme
+   ======================================== */
+:root {
+  /* Light mode colors */
+  --bg-primary: #f5f0e8;
+  --bg-secondary: #faf8f4;
+  --bg-elevated: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #424242;
+  --text-muted: #757575;
+  --border-color: rgba(201, 162, 39, 0.3);
+  --shadow-color: rgba(30, 58, 95, 0.1);
+  --gold-accent: #c9a227;
+  --gold-glow: rgba(201, 162, 39, 0.6);
+}
+
+.dark {
+  /* Dark mode colors - Japanese night aesthetic */
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-elevated: #2d2d2d;
+  --text-primary: #e8e4dc;
+  --text-secondary: #a8a29e;
+  --text-muted: #78716c;
+  --border-color: rgba(201, 162, 39, 0.4);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --gold-accent: #d4af37;
+  --gold-glow: rgba(212, 175, 55, 0.8);
+}
+
+/* ========================================
+   Dark Mode Overrides
+   ======================================== */
+
+/* Scrollbar - Dark Mode */
+.dark ::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5a;
+}
+
+/* Cloud Styles - Dark Mode */
+.dark .cloud {
+  background: linear-gradient(135deg, rgba(60, 60, 60, 0.9), rgba(40, 40, 40, 0.7));
+  box-shadow: 
+    inset 0 -3px 10px rgba(0, 0, 0, 0.3),
+    0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Sky Section - Dark Mode */
+.dark .sky-section {
+  background: linear-gradient(180deg, 
+    #1a1a2e 0%,
+    #16213e 50%,
+    #1e1e1e 100%
+  );
+}
+
+/* Ground Section - Dark Mode */
+.dark .ground-section {
+  background: linear-gradient(180deg,
+    #1e1e1e 0%,
+    #2a2a2a 30%,
+    #1e1e1e 100%
+  );
+}
+
+/* Horizon Line - Dark Mode */
+.dark .horizon-line {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    #4a4a4a 20%,
+    #4a4a4a 80%,
+    transparent 100%
+  );
+}
+
+/* Breathing Circle - Dark Mode */
+.dark .breathing-circle {
+  background: radial-gradient(circle, 
+    rgba(212, 175, 55, 0.3) 0%,
+    rgba(212, 175, 55, 0.15) 50%,
+    transparent 70%
+  );
+}
+
+/* Room Card Hover - Dark Mode */
+.dark .room-card::before {
+  background: linear-gradient(135deg,
+    rgba(212, 175, 55, 0) 0%,
+    rgba(212, 175, 55, 0.15) 100%
+  );
+}
+
+.dark .room-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Vessel - Dark Mode */
+.dark .vessel {
+  background: linear-gradient(180deg, #3d3d3d 0%, #2a2a2a 100%);
+}
+
+.dark .vessel-crack {
+  border-left-color: #333;
+}
+
+.dark .vessel-crack.repaired {
+  border-left-color: #d4af37;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+}
+
+/* Gold effects - Dark Mode enhanced glow */
+.dark .gold-glow {
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.9));
+}
+
+.dark .gradient-gold {
+  background: linear-gradient(135deg, #d4af37 0%, #c9a227 50%, #a6851f 100%);
+}
+
+.dark .text-gradient-gold {
+  background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shadow adjustments - Dark Mode */
+.dark .shadow-wabi {
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dark .shadow-wabi-lg {
+  box-shadow: 
+    0 10px 15px rgba(0, 0, 0, 0.4),
+    0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Chat Bubble - Dark Mode */
+.dark .chat-bubble {
+  background-color: #2d2d2d;
+  color: #e8e4dc;
+}
+
+.dark .chat-bubble.user {
+  background-color: #1e3a5f;
+}
+
+/* Form inputs - Dark Mode */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #2d2d2d;
+  border-color: #4a4a4a;
+  color: #e8e4dc;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #78716c;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+/* Button adjustments - Dark Mode */
+.dark button {
+  transition: all 0.2s ease;
+}
+
+/* Mandala - Dark Mode */
+.dark .mandala-ring {
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.dark .connection-dot {
+  background: linear-gradient(135deg, #d4af37, #c9a227);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
+}
+
+/* ========================================
+   Dark Mode Toggle Button
+   ======================================== */
+.dark-mode-toggle {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d9e2ec 0%, #bcccdc 100%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0;
+}
+
+.dark .dark-mode-toggle {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0d1f33 100%);
+}
+
+.dark-mode-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f9e49b 0%, #c9a227 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dark .dark-mode-toggle::after {
+  left: 26px;
+  background: linear-gradient(135deg, #e8e4dc 0%, #a8a29e 100%);
+}
+
+/* Sun/Moon icon inside toggle */
+.dark-mode-toggle .icon-sun,
+.dark-mode-toggle .icon-moon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  transition: opacity 0.3s ease;
+}
+
+.dark-mode-toggle .icon-sun {
+  left: 6px;
+  opacity: 1;
+}
+
+.dark-mode-toggle .icon-moon {
+  right: 6px;
+  opacity: 0.5;
+}
+
+.dark .dark-mode-toggle .icon-sun {
+  opacity: 0.5;
+}
+
+.dark .dark-mode-toggle .icon-moon {
+  opacity: 1;
+}
+
 /* Base Styles */
 * {
   box-sizing: border-box;

@@ -4,6 +4,83 @@
  */
 
 // ========================================
+// Dark Mode System
+// ========================================
+
+const DARK_MODE_KEY = 'kintsugi-dark-mode';
+
+// Initialize dark mode on page load (before DOM ready for no flash)
+(function initDarkModeEarly() {
+  const savedMode = localStorage.getItem(DARK_MODE_KEY);
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  if (savedMode === 'dark' || (savedMode === null && prefersDark)) {
+    document.documentElement.classList.add('dark');
+  }
+})();
+
+// Initialize dark mode toggle after DOM ready
+function initDarkMode() {
+  const toggle = document.getElementById('dark-mode-toggle');
+  if (!toggle) return;
+  
+  const isDark = document.documentElement.classList.contains('dark');
+  updateDarkModeUI(isDark);
+  
+  toggle.addEventListener('click', () => {
+    const currentlyDark = document.documentElement.classList.contains('dark');
+    const newMode = !currentlyDark;
+    
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem(DARK_MODE_KEY, 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem(DARK_MODE_KEY, 'light');
+    }
+    
+    updateDarkModeUI(newMode);
+    
+    // Smooth transition feedback
+    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+    
+    // Vibrate for tactile feedback if available
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  });
+  
+  // Listen for system preference changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    const savedMode = localStorage.getItem(DARK_MODE_KEY);
+    if (savedMode === null) {
+      // Only auto-switch if user hasn't explicitly set preference
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      updateDarkModeUI(e.matches);
+    }
+  });
+}
+
+function updateDarkModeUI(isDark) {
+  const toggle = document.getElementById('dark-mode-toggle');
+  if (!toggle) return;
+  
+  // Update aria attributes
+  toggle.setAttribute('aria-pressed', isDark);
+  toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  
+  // Update meta theme color for mobile browsers
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    metaTheme.content = isDark ? '#121212' : '#1e3a5f';
+  }
+}
+
+// ========================================
 // Kintsugi Profile System (LocalStorage)
 // ========================================
 
@@ -1848,6 +1925,188 @@ function updatePresetButtons(activePreset, buttons) {
 }
 
 // ========================================
+// Weekly Report
+// ========================================
+
+function initWeeklyReport() {
+  const lang = getLang();
+  const profile = loadProfile();
+  
+  // Calculate week range
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday
+  
+  // Format date range
+  const formatDate = (date) => {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return lang === 'en' 
+      ? `${month}/${day}`
+      : `${month}月${day}日`;
+  };
+  
+  const dateRangeEl = document.getElementById('report-date-range');
+  if (dateRangeEl) {
+    dateRangeEl.textContent = `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
+  }
+  
+  // Calculate weekly stats from activities
+  const weekStart = startOfWeek.toISOString().split('T')[0];
+  const weeklyActivities = profile.activities.filter(a => {
+    const activityDate = a.date.split('T')[0];
+    return activityDate >= weekStart;
+  });
+  
+  // Count by type
+  const gardenCount = weeklyActivities.filter(a => a.type === 'garden').length;
+  const studyCount = weeklyActivities.filter(a => a.type === 'study').length;
+  const tatamiCount = weeklyActivities.filter(a => a.type === 'tatami').length;
+  const totalSessions = gardenCount + studyCount + tatamiCount;
+  
+  // Count repairs this week
+  const weeklyRepairs = profile.cracks.filter(c => {
+    if (!c.repaired || !c.repairedDate) return false;
+    const repairDate = c.repairedDate.split('T')[0];
+    return repairDate >= weekStart;
+  }).length;
+  
+  // Update summary cards
+  document.getElementById('report-streak').textContent = profile.stats.currentStreak;
+  document.getElementById('report-total-sessions').textContent = totalSessions;
+  document.getElementById('report-repairs').textContent = weeklyRepairs;
+  
+  // Most active mode
+  const mostActiveIcon = document.getElementById('report-most-active-icon');
+  const mostActiveName = document.getElementById('report-most-active-name');
+  if (mostActiveIcon && mostActiveName) {
+    const modes = [
+      { count: gardenCount, icon: '🌱', name: { en: 'Garden', ja: '庭' } },
+      { count: studyCount, icon: '📚', name: { en: 'Study', ja: '書斎' } },
+      { count: tatamiCount, icon: '🧘', name: { en: 'Tatami', ja: '座敷' } }
+    ];
+    const mostActive = modes.reduce((a, b) => a.count > b.count ? a : b);
+    if (mostActive.count > 0) {
+      mostActiveIcon.textContent = mostActive.icon;
+      mostActiveName.textContent = mostActive.name[lang];
+    } else {
+      mostActiveIcon.textContent = '—';
+      mostActiveName.textContent = lang === 'en' ? 'None yet' : 'まだなし';
+    }
+  }
+  
+  // Activity breakdown bars
+  const maxCount = Math.max(gardenCount, studyCount, tatamiCount, 1);
+  document.getElementById('report-garden-count').textContent = gardenCount;
+  document.getElementById('report-garden-bar').style.width = `${(gardenCount / maxCount) * 100}%`;
+  document.getElementById('report-study-count').textContent = studyCount;
+  document.getElementById('report-study-bar').style.width = `${(studyCount / maxCount) * 100}%`;
+  document.getElementById('report-tatami-count').textContent = tatamiCount;
+  document.getElementById('report-tatami-bar').style.width = `${(tatamiCount / maxCount) * 100}%`;
+  
+  // Daily calendar
+  for (let i = 0; i < 7; i++) {
+    const dayDate = new Date(startOfWeek);
+    dayDate.setDate(startOfWeek.getDate() + i);
+    const dayStr = dayDate.toISOString().split('T')[0];
+    
+    const dayEl = document.getElementById(`day-${i}`);
+    const dayContent = document.getElementById(`day-${i}-content`);
+    
+    if (!dayEl || !dayContent) continue;
+    
+    // Count activities on this day
+    const dayActivities = weeklyActivities.filter(a => a.date.split('T')[0] === dayStr);
+    const dayRepairs = profile.cracks.filter(c => 
+      c.repaired && c.repairedDate && c.repairedDate.split('T')[0] === dayStr
+    ).length;
+    
+    const activityCount = dayActivities.length;
+    
+    // Style based on activity
+    dayEl.classList.remove('bg-ecru-200', 'bg-green-200', 'bg-green-400', 'bg-gold');
+    
+    if (dayRepairs > 0) {
+      dayEl.classList.add('bg-gold');
+      dayContent.textContent = '✦';
+      dayContent.classList.remove('text-ink-400');
+      dayContent.classList.add('text-white');
+    } else if (activityCount >= 3) {
+      dayEl.classList.add('bg-green-400');
+      dayContent.textContent = activityCount;
+      dayContent.classList.remove('text-ink-400');
+      dayContent.classList.add('text-white');
+    } else if (activityCount >= 1) {
+      dayEl.classList.add('bg-green-200');
+      dayContent.textContent = activityCount;
+      dayContent.classList.remove('text-white');
+      dayContent.classList.add('text-green-800');
+    } else {
+      dayEl.classList.add('bg-ecru-200');
+      dayContent.textContent = '-';
+      dayContent.classList.remove('text-white', 'text-green-800');
+      dayContent.classList.add('text-ink-400');
+    }
+  }
+  
+  // Weekly encouragement (based on performance)
+  const encouragements = {
+    excellent: {
+      en: [
+        '"You\'ve shown remarkable dedication this week. Your vessel shines brightly."',
+        '"Every session has added golden light to your journey. Well done."',
+        '"Your commitment to mindfulness is inspiring. Keep walking this beautiful path."'
+      ],
+      ja: [
+        '「今週は素晴らしい取り組みでした。あなたの器は輝いています。」',
+        '「すべてのセッションが、あなたの歩みに金の光を加えました。」',
+        '「マインドフルネスへの取り組みは素晴らしいです。この美しい道を歩み続けてください。」'
+      ]
+    },
+    good: {
+      en: [
+        '"Every step forward, no matter how small, is progress."',
+        '"You\'re building something beautiful, one moment at a time."',
+        '"Your presence here matters. Every breath is a victory."'
+      ],
+      ja: [
+        '「どんなに小さくても、前への一歩は進歩です。」',
+        '「一瞬一瞬、美しいものを築いています。」',
+        '「ここにいること自体が大切です。一呼吸ごとが勝利です。」'
+      ]
+    },
+    starting: {
+      en: [
+        '"The journey of a thousand miles begins with a single step."',
+        '"Be gentle with yourself. You\'re exactly where you need to be."',
+        '"Your vessel awaits. When you\'re ready, it will welcome you."'
+      ],
+      ja: [
+        '「千里の道も一歩から。」',
+        '「自分に優しくしてください。今いる場所が、今の正しい場所です。」',
+        '「あなたの器は待っています。準備ができたら、迎え入れてくれます。」'
+      ]
+    }
+  };
+  
+  let category = 'starting';
+  if (totalSessions >= 7) {
+    category = 'excellent';
+  } else if (totalSessions >= 3) {
+    category = 'good';
+  }
+  
+  const messages = encouragements[category][lang];
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+  const encouragementEl = document.getElementById('weekly-encouragement');
+  if (encouragementEl) {
+    encouragementEl.textContent = randomMessage;
+  }
+}
+
+// ========================================
 // Initialize based on current page
 // ========================================
 
@@ -1857,6 +2116,9 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('[KINTSUGI] DOMContentLoaded fired');
   const path = window.location.pathname;
   console.log('[KINTSUGI] Current path:', path);
+  
+  // Initialize dark mode toggle
+  initDarkMode();
   
   // Save language preference
   const urlParams = new URLSearchParams(window.location.search);
@@ -1881,6 +2143,8 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (path === '/tatami') {
     initTatami();
     initSoundControl('tatami');
+  } else if (path === '/report') {
+    initWeeklyReport();
   } else if (path === '/') {
     // Home page - just record visit
     let profile = loadProfile();

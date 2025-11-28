@@ -76,7 +76,7 @@ app.get('/', (c) => {
   const lang = getLanguage(c)
   
   return c.render(
-    <div class="min-h-screen bg-ecru">
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] transition-colors duration-300">
       <Header currentLang={lang} variant="fixed" />
 
       {/* Hero Section */}
@@ -85,18 +85,18 @@ app.get('/', (c) => {
           <p class="text-gold font-medium mb-4 animate-fade-in">
             {tx('common', 'tagline', lang)}
           </p>
-          <h1 class="text-5xl md:text-7xl font-light text-indigo-800 mb-8 leading-tight animate-slide-up">
+          <h1 class="text-5xl md:text-7xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-8 leading-tight animate-slide-up">
             {tx('home', 'heroTitle', lang)}<br />
             <span class="text-gradient-gold font-medium">{tx('home', 'heroTitleAccent', lang)}</span>
           </h1>
-          <p class="text-xl text-ink-600 max-w-2xl mx-auto mb-12 animate-slide-up" style="animation-delay: 0.2s">
+          <p class="text-xl text-ink-600 dark:text-[#a8a29e] max-w-2xl mx-auto mb-12 animate-slide-up" style="animation-delay: 0.2s">
             {tx('home', 'heroDescription', lang)}
           </p>
           
           {/* Weather Check-in Preview */}
-          <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-wabi max-w-md mx-auto animate-slide-up" style="animation-delay: 0.4s">
-            <p class="text-indigo-700 mb-2 font-jp text-lg">{tx('home', 'weatherQuestion', lang)}</p>
-            <p class="text-ink-500 text-sm mb-8">{tx('home', 'weatherSubtext', lang)}</p>
+          <div class="bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi max-w-md mx-auto animate-slide-up" style="animation-delay: 0.4s">
+            <p class="text-indigo-700 dark:text-[#d4af37] mb-2 font-jp text-lg">{tx('home', 'weatherQuestion', lang)}</p>
+            <p class="text-ink-500 dark:text-[#78716c] text-sm mb-8">{tx('home', 'weatherSubtext', lang)}</p>
             <div class="flex justify-center gap-6">
               <WeatherIcon type="sunny" currentLang={lang} />
               <WeatherIcon type="cloudy" currentLang={lang} />
@@ -108,12 +108,12 @@ app.get('/', (c) => {
       </section>
 
       {/* Philosophy Section */}
-      <section id="philosophy" class="py-20 px-6 bg-gradient-to-b from-ecru to-ecru-300">
+      <section id="philosophy" class="py-20 px-6 bg-gradient-to-b from-ecru to-ecru-300 dark:from-[#121212] dark:to-[#1a1a1a]">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl md:text-4xl text-indigo-800 text-center mb-4">
+          <h2 class="text-3xl md:text-4xl text-indigo-800 dark:text-[#e8e4dc] text-center mb-4">
             {tx('home', 'teaHouseTitle', lang)}
           </h2>
-          <p class="text-ink-500 text-center mb-16 max-w-2xl mx-auto">
+          <p class="text-ink-500 dark:text-[#78716c] text-center mb-16 max-w-2xl mx-auto">
             {tx('home', 'teaHouseDescription', lang)}
           </p>
           
@@ -130,10 +130,10 @@ app.get('/', (c) => {
         <div class="max-w-4xl mx-auto">
           <div class="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 class="text-3xl text-indigo-800 mb-6">{tx('home', 'aboutTitle', lang)}</h2>
-              <p class="text-ink-600 mb-4">{tx('home', 'aboutP1', lang)}</p>
-              <p class="text-ink-600 mb-4">{tx('home', 'aboutP2', lang)}</p>
-              <p class="text-ink-600">{tx('home', 'aboutP3', lang)}</p>
+              <h2 class="text-3xl text-indigo-800 dark:text-[#e8e4dc] mb-6">{tx('home', 'aboutTitle', lang)}</h2>
+              <p class="text-ink-600 dark:text-[#a8a29e] mb-4">{tx('home', 'aboutP1', lang)}</p>
+              <p class="text-ink-600 dark:text-[#a8a29e] mb-4">{tx('home', 'aboutP2', lang)}</p>
+              <p class="text-ink-600 dark:text-[#a8a29e]">{tx('home', 'aboutP3', lang)}</p>
             </div>
             <div class="flex justify-center">
               <KintsugiVessel />
@@ -209,34 +209,34 @@ app.get('/check-in', (c) => {
                 <div class="animate-slide-up">
                   <p class="text-sm text-ink-500 mb-4">{tx('checkin', 'suggestedRoom', lang)}</p>
                   {(weather === 'stormy' || weather === 'rainy') && (
-                    <a href={`/garden?lang=${lang}`} class="block p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl hover:shadow-md transition-all">
+                    <a href={`/garden?lang=${lang}`} class="block p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl hover:shadow-md transition-all">
                       <div class="flex items-center gap-4">
                         <span class="text-3xl">🌱</span>
                         <div class="text-left">
-                          <p class="font-medium text-indigo-800">GARDEN — {lang === 'en' ? 'The Garden' : '庭'}</p>
-                          <p class="text-sm text-ink-500">{tx('checkin', 'gardenSuggestion', lang)}</p>
+                          <p class="font-medium text-indigo-800 dark:text-[#e8e4dc]">GARDEN — {lang === 'en' ? 'The Garden' : '庭'}</p>
+                          <p class="text-sm text-ink-500 dark:text-[#78716c]">{tx('checkin', 'gardenSuggestion', lang)}</p>
                         </div>
                       </div>
                     </a>
                   )}
                   {weather === 'cloudy' && (
-                    <a href={`/study?lang=${lang}`} class="block p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl hover:shadow-md transition-all">
+                    <a href={`/study?lang=${lang}`} class="block p-4 bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 rounded-xl hover:shadow-md transition-all">
                       <div class="flex items-center gap-4">
                         <span class="text-3xl">📚</span>
                         <div class="text-left">
-                          <p class="font-medium text-indigo-800">STUDY — {lang === 'en' ? 'The Study' : '書斎'}</p>
-                          <p class="text-sm text-ink-500">{tx('checkin', 'studySuggestion', lang)}</p>
+                          <p class="font-medium text-indigo-800 dark:text-[#e8e4dc]">STUDY — {lang === 'en' ? 'The Study' : '書斎'}</p>
+                          <p class="text-sm text-ink-500 dark:text-[#78716c]">{tx('checkin', 'studySuggestion', lang)}</p>
                         </div>
                       </div>
                     </a>
                   )}
                   {weather === 'sunny' && (
-                    <a href={`/tatami?lang=${lang}`} class="block p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-xl hover:shadow-md transition-all">
+                    <a href={`/tatami?lang=${lang}`} class="block p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 rounded-xl hover:shadow-md transition-all">
                       <div class="flex items-center gap-4">
                         <span class="text-3xl">🧘</span>
                         <div class="text-left">
-                          <p class="font-medium text-indigo-800">TATAMI — {lang === 'en' ? 'The Tatami Room' : '座敷'}</p>
-                          <p class="text-sm text-ink-500">{tx('checkin', 'tatamiSuggestion', lang)}</p>
+                          <p class="font-medium text-indigo-800 dark:text-[#e8e4dc]">TATAMI — {lang === 'en' ? 'The Tatami Room' : '座敷'}</p>
+                          <p class="text-sm text-ink-500 dark:text-[#78716c]">{tx('checkin', 'tatamiSuggestion', lang)}</p>
                         </div>
                       </div>
                     </a>
@@ -246,13 +246,13 @@ app.get('/check-in', (c) => {
             </div>
             
             {!weather && (
-              <p class="text-ink-400 text-sm">{tx('checkin', 'selectPrompt', lang)}</p>
+              <p class="text-ink-400 dark:text-[#78716c] text-sm">{tx('checkin', 'selectPrompt', lang)}</p>
             )}
           </div>
           
           {/* All Rooms Link */}
           <div class="text-center mt-6">
-            <a href={`/?lang=${lang}#philosophy`} class="text-indigo-600 hover:text-gold transition-colors text-sm">
+            <a href={`/?lang=${lang}#philosophy`} class="text-indigo-600 dark:text-[#a8a29e] hover:text-gold transition-colors text-sm">
               {tx('checkin', 'viewAllRooms', lang)}
             </a>
           </div>
@@ -268,27 +268,27 @@ app.get('/garden', (c) => {
   const lang = getLanguage(c)
   
   return c.render(
-    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] flex flex-col transition-colors duration-300" data-lang={lang}>
       <Header currentLang={lang} roomName={lang === 'en' ? 'GARDEN' : '庭 GARDEN'} roomIcon="🌱" />
 
       {/* Sound Control - Floating */}
       <div id="garden-sound-control" class="fixed bottom-4 right-4 z-50">
         <div class="flex flex-col items-end gap-2">
           {/* Presets (hidden by default) */}
-          <div id="garden-sound-presets" class="hidden flex flex-col gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-ecru-300">
-            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 text-ink-600 text-left" data-preset="garden">
+          <div id="garden-sound-presets" class="hidden flex flex-col gap-1 bg-white/90 dark:bg-[#1e1e1e]/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-ecru-300 dark:border-[#4a4a4a]">
+            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] text-ink-600 dark:text-[#a8a29e] text-left" data-preset="garden">
               <span>🌅</span>
               <span>{lang === 'en' ? 'Morning Garden' : '朝の庭'}</span>
             </button>
-            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 text-ink-600 text-left" data-preset="gardenForest">
+            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] text-ink-600 dark:text-[#a8a29e] text-left" data-preset="gardenForest">
               <span>🌲</span>
               <span>{lang === 'en' ? 'Forest Bathing' : '森林浴'}</span>
             </button>
-            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 text-ink-600 text-left" data-preset="gardenWater">
+            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] text-ink-600 dark:text-[#a8a29e] text-left" data-preset="gardenWater">
               <span>💧</span>
               <span>{lang === 'en' ? 'Water Garden' : '水の庭'}</span>
             </button>
-            <div class="border-t border-ecru-300 mt-1 pt-1">
+            <div class="border-t border-ecru-300 dark:border-[#4a4a4a] mt-1 pt-1">
               <div class="flex items-center gap-2 px-2">
                 <svg class="w-3 h-3 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
@@ -308,7 +308,7 @@ app.get('/garden', (c) => {
           {/* Toggle Button */}
           <button 
             id="garden-sound-toggle"
-            class="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-ecru-300 text-ink-600 rounded-full hover:bg-ecru-100 transition-colors shadow-lg text-sm"
+            class="flex items-center gap-2 px-4 py-2 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border border-ecru-300 dark:border-[#4a4a4a] text-ink-600 dark:text-[#a8a29e] rounded-full hover:bg-ecru-100 dark:hover:bg-[#2d2d2d] transition-colors shadow-lg text-sm"
             data-mode="garden"
           >
             <svg id="garden-sound-icon-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,14 +328,14 @@ app.get('/garden', (c) => {
         {/* SKY Section - Emotions */}
         <section class="flex-1 sky-section p-6 md:p-8 relative flex flex-col">
           <div class="text-center mb-6">
-            <h2 class="text-xl text-indigo-700 mb-2">{tx('garden', 'skyTitle', lang)} — Sky</h2>
-            <p class="text-ink-500 text-sm">{tx('garden', 'skyDescription', lang)}</p>
+            <h2 class="text-xl text-indigo-700 dark:text-[#d4af37] mb-2">{tx('garden', 'skyTitle', lang)} — Sky</h2>
+            <p class="text-ink-500 dark:text-[#78716c] text-sm">{tx('garden', 'skyDescription', lang)}</p>
           </div>
           
           {/* Cloud Input Area */}
           <div class="flex-1 relative" id="cloud-container">
             <div class="absolute inset-0 flex items-center justify-center opacity-50">
-              <p class="text-ink-400 text-center" dangerouslySetInnerHTML={{ __html: tx('garden', 'cloudPlaceholder', lang) }}></p>
+              <p class="text-ink-400 dark:text-[#78716c] text-center" dangerouslySetInnerHTML={{ __html: tx('garden', 'cloudPlaceholder', lang) }}></p>
             </div>
           </div>
           
@@ -346,16 +346,16 @@ app.get('/garden', (c) => {
                 type="text" 
                 id="emotion-input"
                 placeholder={tx('garden', 'inputPlaceholder', lang)}
-                class="flex-1 px-4 py-3 bg-white/80 border border-ecru-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50"
+                class="flex-1 px-4 py-3 bg-white/80 dark:bg-[#1e1e1e]/80 border border-ecru-400 dark:border-[#4a4a4a] rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 dark:text-[#e8e4dc]"
               />
               <button 
                 id="add-cloud-btn"
-                class="px-6 py-3 bg-indigo-100 text-indigo-700 rounded-xl hover:bg-indigo-200 transition-colors"
+                class="px-6 py-3 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
               >
                 {tx('garden', 'floatButton', lang)}
               </button>
             </div>
-            <p class="text-xs text-ink-400 mt-2 text-center">
+            <p class="text-xs text-ink-400 dark:text-[#78716c] mt-2 text-center">
               {tx('garden', 'cloudNote', lang)}
             </p>
           </div>
@@ -366,22 +366,22 @@ app.get('/garden', (c) => {
         {/* GROUND Section - Actions */}
         <section class="flex-1 ground-section p-6 md:p-8 flex flex-col">
           <div class="text-center mb-6">
-            <h2 class="text-xl text-green-800 mb-2">{tx('garden', 'groundTitle', lang)} — Ground</h2>
-            <p class="text-ink-500 text-sm">{tx('garden', 'groundDescription', lang)}</p>
+            <h2 class="text-xl text-green-800 dark:text-green-400 mb-2">{tx('garden', 'groundTitle', lang)} — Ground</h2>
+            <p class="text-ink-500 dark:text-[#78716c] text-sm">{tx('garden', 'groundDescription', lang)}</p>
           </div>
           
           {/* AI Guidance */}
-          <div id="morita-guidance" class="bg-white/60 rounded-xl p-4 mb-6">
-            <p class="text-ink-600 text-sm" dangerouslySetInnerHTML={{ __html: `<span class="text-gold">●</span> ${tx('garden', 'guidanceDefault', lang)}` }}></p>
+          <div id="morita-guidance" class="bg-white/60 dark:bg-[#1e1e1e]/60 rounded-xl p-4 mb-6">
+            <p class="text-ink-600 dark:text-[#a8a29e] text-sm" dangerouslySetInnerHTML={{ __html: `<span class="text-gold">●</span> ${tx('garden', 'guidanceDefault', lang)}` }}></p>
           </div>
           
           {/* Micro Actions - Generated dynamically by JS */}
           <div class="flex-1">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-ink-500">{tx('garden', 'microActionTitle', lang)}</p>
+              <p class="text-sm text-ink-500 dark:text-[#78716c]">{tx('garden', 'microActionTitle', lang)}</p>
               <button 
                 id="refresh-actions-btn"
-                class="flex items-center gap-1 text-xs text-green-700 hover:text-green-800 transition-colors px-2 py-1 rounded-lg hover:bg-green-50"
+                class="flex items-center gap-1 text-xs text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors px-2 py-1 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/30"
                 title={lang === 'en' ? 'Show different actions' : '別のアクションを表示'}
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,7 +392,7 @@ app.get('/garden', (c) => {
             </div>
             <div id="action-list" class="space-y-3">
               {/* Actions will be populated by JavaScript */}
-              <div class="text-center text-ink-400 text-sm py-4">
+              <div class="text-center text-ink-400 dark:text-[#78716c] text-sm py-4">
                 {lang === 'en' ? 'Loading actions...' : '読み込み中...'}
               </div>
             </div>
@@ -401,7 +401,7 @@ app.get('/garden', (c) => {
           {/* Garden Growth Visualization */}
           <div class="mt-6">
             <div class="flex items-end justify-center gap-2 h-20" id="garden-plants">
-              <div class="text-center text-ink-400 text-sm">
+              <div class="text-center text-ink-400 dark:text-[#78716c] text-sm">
                 {tx('garden', 'plantGrowth', lang)}
               </div>
             </div>
@@ -429,7 +429,7 @@ app.get('/study', (c) => {
   }
   
   return c.render(
-    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] flex flex-col transition-colors duration-300" data-lang={lang}>
       <Header currentLang={lang} roomName={lang === 'en' ? 'STUDY' : '書斎 STUDY'} roomIcon="📚" />
 
       {/* Content */}
@@ -438,22 +438,22 @@ app.get('/study', (c) => {
           {/* Chat Section (hidden when mandala shows) */}
           <div id="study-chat-section">
             <div class="text-center mb-8">
-              <h1 class="text-3xl text-indigo-800 mb-2">{tx('study', 'title', lang)} — Deep Reflection</h1>
-              <p class="text-ink-500">{tx('study', 'subtitle', lang)}</p>
+              <h1 class="text-3xl text-indigo-800 dark:text-[#e8e4dc] mb-2">{tx('study', 'title', lang)} — Deep Reflection</h1>
+              <p class="text-ink-500 dark:text-[#78716c]">{tx('study', 'subtitle', lang)}</p>
             </div>
             
             {/* Chat Interface */}
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-wabi-lg overflow-hidden">
+            <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl shadow-wabi-lg overflow-hidden">
               <div id="naikan-chat" class="h-96 overflow-y-auto p-6 space-y-4">
                 {/* Initial message with person input */}
-                <div class="chat-bubble bg-ecru-200 p-4 max-w-[85%]">
-                  <p class="text-ink-700 text-sm mb-1">
+                <div class="chat-bubble bg-ecru-200 dark:bg-[#2d2d2d] p-4 max-w-[85%]">
+                  <p class="text-ink-700 dark:text-[#e8e4dc] text-sm mb-1">
                     <span class="text-gold">{tx('study', 'guideName', lang)}</span>
                   </p>
-                  <p class="text-ink-600 mb-3">
+                  <p class="text-ink-600 dark:text-[#a8a29e] mb-3">
                     {tx('study', 'q1', lang)}
                   </p>
-                  <p class="text-xs text-ink-400">{tx('study', 'q1Hint', lang)}</p>
+                  <p class="text-xs text-ink-400 dark:text-[#78716c]">{tx('study', 'q1Hint', lang)}</p>
                 </div>
               </div>
               
@@ -695,20 +695,20 @@ app.get('/profile', (c) => {
   }
   
   return c.render(
-    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] flex flex-col transition-colors duration-300" data-lang={lang}>
       <Header currentLang={lang} />
 
       <main class="flex-1 py-12 px-6">
         <div class="max-w-4xl mx-auto">
           {/* Title */}
           <div class="text-center mb-12">
-            <h1 class="text-4xl text-indigo-800 mb-2">{t.title[lang]}</h1>
-            <p class="text-ink-500">{t.subtitle[lang]}</p>
+            <h1 class="text-4xl text-indigo-800 dark:text-[#e8e4dc] mb-2">{t.title[lang]}</h1>
+            <p class="text-ink-500 dark:text-[#78716c]">{t.subtitle[lang]}</p>
           </div>
           
           <div class="grid md:grid-cols-2 gap-8">
             {/* Vessel Visualization */}
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi text-center">
+            <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi text-center">
               <div id="vessel-container" class="mb-6">
                 {/* Dynamic vessel will be rendered here by JS */}
                 <svg id="kintsugi-vessel" width="200" height="240" viewBox="0 0 200 240" class="mx-auto drop-shadow-lg">
@@ -742,26 +742,26 @@ app.get('/profile', (c) => {
               <div class="space-y-4 mt-8">
                 <div>
                   <div class="flex justify-between text-sm mb-1">
-                    <span class="text-ink-500">{t.depth[lang]}</span>
-                    <span id="depth-value" class="text-indigo-700">0%</span>
+                    <span class="text-ink-500 dark:text-[#78716c]">{t.depth[lang]}</span>
+                    <span id="depth-value" class="text-indigo-700 dark:text-indigo-400">0%</span>
                   </div>
-                  <div class="h-2 bg-ecru-300 rounded-full overflow-hidden">
+                  <div class="h-2 bg-ecru-300 dark:bg-[#2d2d2d] rounded-full overflow-hidden">
                     <div id="depth-bar" class="h-full bg-indigo-600 rounded-full transition-all duration-1000" style="width: 0%"></div>
                   </div>
                 </div>
                 <div>
                   <div class="flex justify-between text-sm mb-1">
-                    <span class="text-ink-500">{t.gold[lang]}</span>
+                    <span class="text-ink-500 dark:text-[#78716c]">{t.gold[lang]}</span>
                     <span id="gold-value" class="text-gold">0%</span>
                   </div>
-                  <div class="h-2 bg-ecru-300 rounded-full overflow-hidden">
+                  <div class="h-2 bg-ecru-300 dark:bg-[#2d2d2d] rounded-full overflow-hidden">
                     <div id="gold-bar" class="h-full bg-gold rounded-full transition-all duration-1000" style="width: 0%"></div>
                   </div>
                 </div>
               </div>
               
               {/* Message */}
-              <p id="vessel-message" class="text-ink-500 text-sm mt-6 italic">
+              <p id="vessel-message" class="text-ink-500 dark:text-[#78716c] text-sm mt-6 italic">
                 {t.emptyMessage[lang]}
               </p>
               
@@ -779,87 +779,87 @@ app.get('/profile', (c) => {
             
             {/* Statistics */}
             <div class="space-y-6">
-              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
-                <h2 class="text-xl text-indigo-800 mb-4">{t.stats[lang]}</h2>
+              <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <h2 class="text-xl text-indigo-800 dark:text-[#e8e4dc] mb-4">{t.stats[lang]}</h2>
                 <div class="grid grid-cols-2 gap-4">
-                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
-                    <p id="stat-visits" class="text-3xl text-indigo-700 font-light">0</p>
-                    <p class="text-xs text-ink-500">{t.totalVisits[lang]}</p>
+                  <div class="text-center p-4 bg-ecru-100 dark:bg-[#2d2d2d] rounded-xl">
+                    <p id="stat-visits" class="text-3xl text-indigo-700 dark:text-indigo-400 font-light">0</p>
+                    <p class="text-xs text-ink-500 dark:text-[#78716c]">{t.totalVisits[lang]}</p>
                   </div>
-                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
+                  <div class="text-center p-4 bg-ecru-100 dark:bg-[#2d2d2d] rounded-xl">
                     <p id="stat-streak" class="text-3xl text-gold font-light">0</p>
-                    <p class="text-xs text-ink-500">{t.currentStreak[lang]}</p>
+                    <p class="text-xs text-ink-500 dark:text-[#78716c]">{t.currentStreak[lang]}</p>
                   </div>
-                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
-                    <p id="stat-longest" class="text-3xl text-indigo-700 font-light">0</p>
-                    <p class="text-xs text-ink-500">{t.longestStreak[lang]}</p>
+                  <div class="text-center p-4 bg-ecru-100 dark:bg-[#2d2d2d] rounded-xl">
+                    <p id="stat-longest" class="text-3xl text-indigo-700 dark:text-indigo-400 font-light">0</p>
+                    <p class="text-xs text-ink-500 dark:text-[#78716c]">{t.longestStreak[lang]}</p>
                   </div>
-                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
+                  <div class="text-center p-4 bg-ecru-100 dark:bg-[#2d2d2d] rounded-xl">
                     <p id="stat-repairs" class="text-3xl text-gold font-light">0</p>
-                    <p class="text-xs text-ink-500">{t.totalRepairs[lang]}</p>
+                    <p class="text-xs text-ink-500 dark:text-[#78716c]">{t.totalRepairs[lang]}</p>
                   </div>
                 </div>
               </div>
               
               {/* Activity breakdown */}
-              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
-                <h3 class="text-lg text-indigo-800 mb-4">
+              <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <h3 class="text-lg text-indigo-800 dark:text-[#e8e4dc] mb-4">
                   {lang === 'en' ? 'Activities' : '活動'}
                 </h3>
                 <div class="space-y-3">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                       <span class="text-2xl">🌱</span>
-                      <span class="text-ink-600">{t.gardenActions[lang]}</span>
+                      <span class="text-ink-600 dark:text-[#a8a29e]">{t.gardenActions[lang]}</span>
                     </div>
-                    <span id="stat-garden" class="text-indigo-700 font-medium">0</span>
+                    <span id="stat-garden" class="text-indigo-700 dark:text-indigo-400 font-medium">0</span>
                   </div>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                       <span class="text-2xl">📚</span>
-                      <span class="text-ink-600">{t.studySessions[lang]}</span>
+                      <span class="text-ink-600 dark:text-[#a8a29e]">{t.studySessions[lang]}</span>
                     </div>
-                    <span id="stat-study" class="text-indigo-700 font-medium">0</span>
+                    <span id="stat-study" class="text-indigo-700 dark:text-indigo-400 font-medium">0</span>
                   </div>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                       <span class="text-2xl">🧘</span>
-                      <span class="text-ink-600">{t.tatamiSessions[lang]}</span>
+                      <span class="text-ink-600 dark:text-[#a8a29e]">{t.tatamiSessions[lang]}</span>
                     </div>
-                    <span id="stat-tatami" class="text-indigo-700 font-medium">0</span>
+                    <span id="stat-tatami" class="text-indigo-700 dark:text-indigo-400 font-medium">0</span>
                   </div>
                 </div>
               </div>
               
               {/* Cracks summary */}
-              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
-                <h3 class="text-lg text-indigo-800 mb-4">{t.cracks[lang]}</h3>
+              <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <h3 class="text-lg text-indigo-800 dark:text-[#e8e4dc] mb-4">{t.cracks[lang]}</h3>
                 <div class="flex items-center gap-6">
                   <div class="flex items-center gap-2">
                     <div class="w-4 h-4 rounded-full bg-gold gold-glow"></div>
-                    <span class="text-ink-600">{t.repaired[lang]}:</span>
+                    <span class="text-ink-600 dark:text-[#a8a29e]">{t.repaired[lang]}:</span>
                     <span id="stat-repaired" class="text-gold font-medium">0</span>
                   </div>
                   <div class="flex items-center gap-2">
                     <div class="w-4 h-4 rounded-full bg-ink-400"></div>
-                    <span class="text-ink-600">{t.unrepaired[lang]}:</span>
+                    <span class="text-ink-600 dark:text-[#a8a29e]">{t.unrepaired[lang]}:</span>
                     <span id="stat-unrepaired" class="text-ink-600 font-medium">0</span>
                   </div>
                 </div>
               </div>
               
               {/* Daily Reminders */}
-              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+              <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-lg text-indigo-800">
+                  <h3 class="text-lg text-indigo-800 dark:text-[#e8e4dc]">
                     {lang === 'en' ? '🔔 Daily Reminders' : '🔔 毎日のリマインダー'}
                   </h3>
-                  <div id="notification-status" class="text-xs px-2 py-1 rounded-full bg-ink-100 text-ink-500">
+                  <div id="notification-status" class="text-xs px-2 py-1 rounded-full bg-ink-100 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#78716c]">
                     {lang === 'en' ? 'Off' : 'オフ'}
                   </div>
                 </div>
                 
-                <p class="text-ink-500 text-sm mb-4">
+                <p class="text-ink-500 dark:text-[#78716c] text-sm mb-4">
                   {lang === 'en' 
                     ? 'Get gentle reminders to practice mindfulness each day.' 
                     : '毎日のマインドフルネスを優しくリマインドします。'}
@@ -869,7 +869,7 @@ app.get('/profile', (c) => {
                 <div id="reminder-toggle-container" class="mb-4">
                   <button 
                     id="enable-reminders-btn"
-                    class="w-full px-4 py-3 bg-indigo-100 text-indigo-700 rounded-xl hover:bg-indigo-200 transition-colors flex items-center justify-center gap-2"
+                    class="w-full px-4 py-3 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors flex items-center justify-center gap-2"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
@@ -950,9 +950,15 @@ app.get('/profile', (c) => {
           </div>
           
           {/* CTA */}
-          <div class="text-center mt-12">
+          <div class="text-center mt-12 flex flex-col sm:flex-row justify-center gap-4">
             <a href={`/check-in?lang=${lang}`} class="inline-block px-8 py-4 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors">
               {t.continue[lang]}
+            </a>
+            <a href={`/report?lang=${lang}`} class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-ecru-200 text-indigo-800 rounded-full hover:bg-ecru-300 transition-colors border border-indigo-200">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+              {lang === 'en' ? 'Weekly Report' : '週間レポート'}
             </a>
           </div>
         </div>
@@ -1630,6 +1636,194 @@ app.post('/api/garden/action', async (c) => {
     completed,
     message: completed ? msg.success : msg.undo
   })
+})
+
+// Weekly Report Page
+app.get('/report', (c) => {
+  const lang = getLanguage(c)
+  
+  const t = {
+    title: { en: 'Weekly Report', ja: '週間レポート' },
+    subtitle: { en: 'Your mindfulness journey this week', ja: '今週のマインドフルネスの歩み' },
+    noData: { 
+      en: 'Start your journey to see your weekly progress here.', 
+      ja: 'この画面で週間の進捗を見るには、まず旅を始めましょう。' 
+    },
+    thisWeek: { en: 'This Week', ja: '今週' },
+    streak: { en: 'Current Streak', ja: '連続日数' },
+    activities: { en: 'Activities', ja: '活動' },
+    garden: { en: 'Garden', ja: '庭' },
+    study: { en: 'Study', ja: '書斎' },
+    tatami: { en: 'Tatami', ja: '座敷' },
+    repairs: { en: 'Golden Repairs', ja: '金継ぎ' },
+    dailyActivity: { en: 'Daily Activity', ja: '日々の活動' },
+    encouragement: { en: 'Weekly Encouragement', ja: '今週の励まし' },
+    backToProfile: { en: '← Back to Profile', ja: '← プロフィールに戻る' },
+    days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    daysJa: ['日', '月', '火', '水', '木', '金', '土'],
+    totalSessions: { en: 'Total Sessions', ja: 'セッション数' },
+    avgPerDay: { en: 'Avg per Day', ja: '1日平均' },
+    mostActive: { en: 'Most Active', ja: '最も活発' }
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+      <Header currentLang={lang} />
+      
+      <main class="flex-1 py-8 px-4 sm:px-6">
+        <div class="max-w-4xl mx-auto">
+          {/* Header */}
+          <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl text-indigo-800 mb-2">{t.title[lang]}</h1>
+            <p class="text-ink-500">{t.subtitle[lang]}</p>
+            <p id="report-date-range" class="text-sm text-ink-400 mt-2"></p>
+          </div>
+          
+          {/* Summary Cards */}
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {/* Streak */}
+            <div class="bg-gradient-to-br from-gold/20 to-gold/10 rounded-2xl p-4 text-center shadow-wabi">
+              <p class="text-3xl sm:text-4xl text-gold font-light" id="report-streak">0</p>
+              <p class="text-xs sm:text-sm text-ink-500">{t.streak[lang]}</p>
+              <p class="text-gold text-lg mt-1">🔥</p>
+            </div>
+            
+            {/* Total Sessions */}
+            <div class="bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-2xl p-4 text-center shadow-wabi">
+              <p class="text-3xl sm:text-4xl text-indigo-700 font-light" id="report-total-sessions">0</p>
+              <p class="text-xs sm:text-sm text-ink-500">{t.totalSessions[lang]}</p>
+            </div>
+            
+            {/* Golden Repairs */}
+            <div class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-2xl p-4 text-center shadow-wabi">
+              <p class="text-3xl sm:text-4xl text-amber-600 font-light" id="report-repairs">0</p>
+              <p class="text-xs sm:text-sm text-ink-500">{t.repairs[lang]}</p>
+              <p class="text-amber-500 text-lg mt-1">✦</p>
+            </div>
+            
+            {/* Most Active Mode */}
+            <div class="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl p-4 text-center shadow-wabi">
+              <p class="text-2xl sm:text-3xl" id="report-most-active-icon">🌱</p>
+              <p class="text-xs sm:text-sm text-ink-500">{t.mostActive[lang]}</p>
+              <p class="text-green-700 text-sm font-medium mt-1" id="report-most-active-name">{t.garden[lang]}</p>
+            </div>
+          </div>
+          
+          {/* Weekly Calendar */}
+          <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi mb-8">
+            <h2 class="text-lg text-indigo-800 mb-4">{t.dailyActivity[lang]}</h2>
+            <div class="grid grid-cols-7 gap-2" id="weekly-calendar">
+              {/* Days will be rendered by JS */}
+              {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => (
+                <div class="text-center">
+                  <p class="text-xs text-ink-400 mb-2">
+                    {lang === 'en' ? t.days[dayIndex] : t.daysJa[dayIndex]}
+                  </p>
+                  <div 
+                    id={`day-${dayIndex}`}
+                    class="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-xl bg-ecru-200 flex items-center justify-center transition-all"
+                  >
+                    <span class="text-xs text-ink-400" id={`day-${dayIndex}-content`}>-</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Legend */}
+            <div class="flex flex-wrap justify-center gap-4 mt-6 text-xs text-ink-500">
+              <div class="flex items-center gap-1">
+                <div class="w-3 h-3 rounded bg-ecru-200"></div>
+                <span>{lang === 'en' ? 'No activity' : '活動なし'}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <div class="w-3 h-3 rounded bg-green-200"></div>
+                <span>{lang === 'en' ? '1-2 sessions' : '1-2セッション'}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <div class="w-3 h-3 rounded bg-green-400"></div>
+                <span>{lang === 'en' ? '3+ sessions' : '3+セッション'}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <div class="w-3 h-3 rounded bg-gold"></div>
+                <span>{lang === 'en' ? 'Golden repair' : '金継ぎあり'}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Activity Breakdown */}
+          <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi mb-8">
+            <h2 class="text-lg text-indigo-800 mb-4">{t.activities[lang]}</h2>
+            <div class="space-y-4">
+              {/* Garden */}
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl">🌱</div>
+                <div class="flex-1">
+                  <div class="flex justify-between mb-1">
+                    <span class="text-ink-700">{t.garden[lang]}</span>
+                    <span class="text-green-700 font-medium" id="report-garden-count">0</span>
+                  </div>
+                  <div class="h-2 bg-ecru-200 rounded-full overflow-hidden">
+                    <div id="report-garden-bar" class="h-full bg-green-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Study */}
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-2xl">📚</div>
+                <div class="flex-1">
+                  <div class="flex justify-between mb-1">
+                    <span class="text-ink-700">{t.study[lang]}</span>
+                    <span class="text-amber-700 font-medium" id="report-study-count">0</span>
+                  </div>
+                  <div class="h-2 bg-ecru-200 rounded-full overflow-hidden">
+                    <div id="report-study-bar" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Tatami */}
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-2xl">🧘</div>
+                <div class="flex-1">
+                  <div class="flex justify-between mb-1">
+                    <span class="text-ink-700">{t.tatami[lang]}</span>
+                    <span class="text-indigo-700 font-medium" id="report-tatami-count">0</span>
+                  </div>
+                  <div class="h-2 bg-ecru-200 rounded-full overflow-hidden">
+                    <div id="report-tatami-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Weekly Encouragement */}
+          <div class="bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 rounded-2xl p-6 shadow-wabi mb-8 text-center">
+            <h2 class="text-lg text-indigo-800 mb-3">{t.encouragement[lang]}</h2>
+            <p id="weekly-encouragement" class="text-ink-600 italic">
+              {lang === 'en' 
+                ? '"Every step forward, no matter how small, is progress."'
+                : '「どんなに小さくても、前への一歩は進歩です。」'}
+            </p>
+          </div>
+          
+          {/* Back to Profile */}
+          <div class="text-center">
+            <a 
+              href={`/profile?lang=${lang}`}
+              class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors"
+            >
+              {t.backToProfile[lang]}
+            </a>
+          </div>
+        </div>
+      </main>
+      
+      <Footer currentLang={lang} />
+    </div>,
+    { title: lang === 'en' ? 'Weekly Report — KINTSUGI MIND' : '週間レポート — KINTSUGI MIND' }
+  )
 })
 
 export default app

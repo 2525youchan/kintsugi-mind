@@ -4,16 +4,31 @@
 
 import type { Language } from './i18n'
 
+// Dark Mode Toggle Component
+export const DarkModeToggle = () => {
+  return (
+    <button 
+      id="dark-mode-toggle"
+      class="dark-mode-toggle flex items-center justify-center"
+      aria-label="Toggle dark mode"
+      title="Toggle dark mode"
+    >
+      <span class="icon-sun">☀️</span>
+      <span class="icon-moon">🌙</span>
+    </button>
+  )
+}
+
 // Language Switcher Component
 export const LanguageSwitcher = ({ currentLang }: { currentLang: Language }) => {
   return (
-    <div class="flex items-center bg-ecru-200 rounded-full p-1">
+    <div class="flex items-center bg-ecru-200 dark:bg-[#2d2d2d] rounded-full p-1">
       <a 
         href="?lang=en"
         class={`px-3 py-1 text-sm rounded-full transition-all ${
           currentLang === 'en' 
             ? 'bg-indigo-800 text-ecru' 
-            : 'text-ink-600 hover:text-indigo-800'
+            : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
         }`}
       >
         EN
@@ -23,7 +38,7 @@ export const LanguageSwitcher = ({ currentLang }: { currentLang: Language }) => 
         class={`px-3 py-1 text-sm rounded-full transition-all ${
           currentLang === 'ja' 
             ? 'bg-indigo-800 text-ecru' 
-            : 'text-ink-600 hover:text-indigo-800'
+            : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
         }`}
       >
         JP
@@ -66,10 +81,10 @@ export const Header = ({
   roomIcon?: string
 }) => {
   const baseClass = variant === 'fixed' 
-    ? 'fixed top-0 left-0 right-0 z-50 bg-ecru/80 backdrop-blur-sm border-b border-wabi'
+    ? 'fixed top-0 left-0 right-0 z-50 bg-ecru/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-wabi dark:border-[#4a4a4a]'
     : variant === 'transparent'
     ? 'absolute top-0 left-0 right-0 z-10'
-    : 'bg-ecru/80 backdrop-blur-sm border-b border-wabi'
+    : 'bg-ecru/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-wabi dark:border-[#4a4a4a]'
 
   const textClass = variant === 'transparent' 
     ? 'text-ecru/80' 
@@ -93,7 +108,7 @@ export const Header = ({
           
           {/* Desktop Navigation */}
           {variant !== 'transparent' && (
-            <nav class="hidden md:flex items-center gap-6 text-ink-600">
+            <nav class="hidden md:flex items-center gap-6 text-ink-600 dark:text-[#a8a29e]">
               <a href={`/?lang=${currentLang}#about`} class="hover:text-gold transition-colors">
                 {currentLang === 'en' ? 'About' : '概要'}
               </a>
@@ -113,7 +128,7 @@ export const Header = ({
           {variant !== 'transparent' && (
             <a 
               href={`/profile?lang=${currentLang}`} 
-              class="md:hidden flex items-center gap-1 px-2 py-1 text-ink-600 hover:text-gold transition-colors rounded-full bg-ecru-100 border border-wabi"
+              class="md:hidden flex items-center gap-1 px-2 py-1 text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors rounded-full bg-ecru-100 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a]"
               title={currentLang === 'en' ? 'My Vessel' : '器'}
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,6 +138,7 @@ export const Header = ({
             </a>
           )}
           
+          <DarkModeToggle />
           <LanguageSwitcher currentLang={currentLang} />
           
           {/* Mobile Menu Button */}
@@ -142,7 +158,7 @@ export const Header = ({
       
       {/* Mobile Menu (hidden by default, toggled by JS) */}
       {variant !== 'transparent' && (
-        <div id="mobile-menu" class="hidden md:hidden bg-ecru border-t border-wabi">
+        <div id="mobile-menu" class="hidden md:hidden bg-ecru dark:bg-[#1e1e1e] border-t border-wabi dark:border-[#4a4a4a]">
           <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-4">
             <a href={`/?lang=${currentLang}#about`} class="text-ink-600 hover:text-gold transition-colors py-2">
               {currentLang === 'en' ? 'About' : '概要'}
@@ -178,7 +194,7 @@ export const Header = ({
 // Footer Component
 export const Footer = ({ currentLang }: { currentLang: Language }) => {
   return (
-    <footer class="py-8 px-6 bg-ink-900 text-ecru-400">
+    <footer class="py-8 px-6 bg-ink-900 dark:bg-[#0a0a0a] text-ecru-400">
       <div class="max-w-6xl mx-auto">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
           <p class="text-sm">© 2024 KINTSUGI MIND — The Japanese Art of Resilience</p>
@@ -294,16 +310,16 @@ export const RoomCard = ({
   const c = config[room]
 
   return (
-    <a href={`/${room}?lang=${currentLang}`} class="room-card bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi cursor-pointer block">
+    <a href={`/${room}?lang=${currentLang}`} class="room-card bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi cursor-pointer block">
       <div class={`w-16 h-16 rounded-full bg-gradient-to-br ${c.gradient} flex items-center justify-center text-3xl mb-6`}>
         {c.icon}
       </div>
-      <h3 class="text-2xl text-indigo-800 mb-2">{c.title}</h3>
+      <h3 class="text-2xl text-indigo-800 dark:text-[#e8e4dc] mb-2">{c.title}</h3>
       <p class="text-gold text-sm mb-4 font-jp">{c.subtitle[currentLang]}</p>
-      <p class="text-ink-600 text-sm mb-4">{c.description[currentLang]}</p>
+      <p class="text-ink-600 dark:text-[#a8a29e] text-sm mb-4">{c.description[currentLang]}</p>
       <div class="flex flex-wrap gap-2">
         {c.tags.map(tag => (
-          <span class="px-3 py-1 bg-ecru-200 rounded-full text-xs text-ink-600">{tag}</span>
+          <span class="px-3 py-1 bg-ecru-200 dark:bg-[#2d2d2d] rounded-full text-xs text-ink-600 dark:text-[#a8a29e]">{tag}</span>
         ))}
       </div>
     </a>
