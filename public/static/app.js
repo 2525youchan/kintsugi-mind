@@ -480,6 +480,9 @@ function initGarden() {
   });
 }
 
+// Track used positions to prevent overlap
+let usedCloudPositions = [];
+
 function addCloud(text, container) {
   const placeholder = container.querySelector('.opacity-50');
   if (placeholder) {
@@ -490,12 +493,64 @@ function addCloud(text, container) {
   cloud.className = 'cloud absolute px-4 py-2 text-sm text-ink-600 max-w-xs animate-fade-in';
   cloud.textContent = text;
   
-  cloud.style.left = `${randomBetween(10, 70)}%`;
-  cloud.style.top = `${randomBetween(10, 60)}%`;
-  cloud.style.animationDelay = `${randomBetween(0, 2)}s`;
+  // Calculate position that doesn't overlap with existing clouds
+  const position = findNonOverlappingPosition();
+  cloud.style.left = `${position.x}%`;
+  cloud.style.top = `${position.y}%`;
+  cloud.style.animationDelay = `${randomBetween(0, 1)}s`;
   
   container.appendChild(cloud);
-  clouds.push({ text, element: cloud });
+  clouds.push({ text, element: cloud, position });
+  usedCloudPositions.push(position);
+}
+
+// Find a position that doesn't overlap with existing clouds
+function findNonOverlappingPosition() {
+  // Predefined grid positions for better distribution
+  const gridPositions = [
+    { x: 15, y: 15 },
+    { x: 55, y: 10 },
+    { x: 35, y: 35 },
+    { x: 10, y: 55 },
+    { x: 60, y: 45 },
+    { x: 40, y: 60 },
+    { x: 70, y: 25 },
+    { x: 25, y: 75 },
+    { x: 65, y: 70 },
+  ];
+  
+  // Use next available grid position
+  const cloudIndex = usedCloudPositions.length;
+  if (cloudIndex < gridPositions.length) {
+    return gridPositions[cloudIndex];
+  }
+  
+  // If all grid positions used, find random non-overlapping position
+  const minDistance = 25; // Minimum distance between clouds (%)
+  let attempts = 0;
+  let bestPosition = { x: randomBetween(10, 65), y: randomBetween(10, 65) };
+  
+  while (attempts < 20) {
+    const newPos = { x: randomBetween(10, 65), y: randomBetween(10, 65) };
+    let isValid = true;
+    
+    for (const usedPos of usedCloudPositions) {
+      const distance = Math.sqrt(
+        Math.pow(newPos.x - usedPos.x, 2) + Math.pow(newPos.y - usedPos.y, 2)
+      );
+      if (distance < minDistance) {
+        isValid = false;
+        break;
+      }
+    }
+    
+    if (isValid) {
+      return newPos;
+    }
+    attempts++;
+  }
+  
+  return bestPosition;
 }
 
 function growPlant(container) {
