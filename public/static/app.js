@@ -4,6 +4,201 @@
  */
 
 // ========================================
+// Seasonal System - 四季 (Shiki)
+// ========================================
+
+const SEASONS = {
+  spring: {
+    name: { en: 'Spring', ja: '春' },
+    emoji: '🌸',
+    colors: {
+      primary: '#f8b4d9', // cherry blossom pink
+      secondary: '#fce7f3',
+      accent: '#ec4899'
+    },
+    messages: {
+      en: [
+        'Like cherry blossoms, embrace change with grace',
+        'Spring rain nourishes new growth',
+        'Each day is a fresh beginning'
+      ],
+      ja: [
+        '桜のように、変化を優雅に受け入れて',
+        '春の雨が新しい芽を育てる',
+        '毎日が新しい始まり'
+      ]
+    },
+    greetings: {
+      morning: { en: 'Good morning 🌸', ja: 'おはようございます 🌸' },
+      afternoon: { en: 'Good afternoon 🌷', ja: 'こんにちは 🌷' },
+      evening: { en: 'Good evening 🌙', ja: 'こんばんは 🌙' }
+    },
+    bgGradient: 'from-pink-50 to-rose-100 dark:from-pink-950/20 dark:to-rose-950/20'
+  },
+  summer: {
+    name: { en: 'Summer', ja: '夏' },
+    emoji: '🌻',
+    colors: {
+      primary: '#22d3ee',
+      secondary: '#e0f2fe',
+      accent: '#0891b2'
+    },
+    messages: {
+      en: [
+        'Find coolness in the shade of your mind',
+        'Like flowing water, let troubles pass',
+        'Summer teaches us to slow down'
+      ],
+      ja: [
+        '心の木陰で涼を感じて',
+        '水のように、悩みを流して',
+        '夏はゆっくりすることを教えてくれる'
+      ]
+    },
+    greetings: {
+      morning: { en: 'Good morning 🌻', ja: 'おはようございます 🌻' },
+      afternoon: { en: 'Stay cool 🌊', ja: '涼しくお過ごしください 🌊' },
+      evening: { en: 'Cool evening 🌙', ja: '涼しい夜を 🌙' }
+    },
+    bgGradient: 'from-cyan-50 to-sky-100 dark:from-cyan-950/20 dark:to-sky-950/20'
+  },
+  autumn: {
+    name: { en: 'Autumn', ja: '秋' },
+    emoji: '🍂',
+    colors: {
+      primary: '#f97316',
+      secondary: '#fff7ed',
+      accent: '#ea580c'
+    },
+    messages: {
+      en: [
+        'Like falling leaves, release what no longer serves',
+        'Autumn invites deep reflection',
+        'In letting go, we find peace'
+      ],
+      ja: [
+        '落ち葉のように、手放す勇気を',
+        '秋は深い内省を誘う',
+        '手放すことで、平和を見つける'
+      ]
+    },
+    greetings: {
+      morning: { en: 'Good morning 🍂', ja: 'おはようございます 🍂' },
+      afternoon: { en: 'Pleasant autumn day 🍁', ja: '秋の午後をお楽しみください 🍁' },
+      evening: { en: 'Cool autumn night 🌙', ja: '秋の夜長を 🌙' }
+    },
+    bgGradient: 'from-orange-50 to-amber-100 dark:from-orange-950/20 dark:to-amber-950/20'
+  },
+  winter: {
+    name: { en: 'Winter', ja: '冬' },
+    emoji: '❄️',
+    colors: {
+      primary: '#94a3b8',
+      secondary: '#f1f5f9',
+      accent: '#475569'
+    },
+    messages: {
+      en: [
+        'In stillness, find inner warmth',
+        'Winter teaches patience and rest',
+        'Like snow, let silence bring clarity'
+      ],
+      ja: [
+        '静けさの中に、内なる温もりを',
+        '冬は忍耐と休息を教える',
+        '雪のように、静寂が明晰さをもたらす'
+      ]
+    },
+    greetings: {
+      morning: { en: 'Good morning ❄️', ja: 'おはようございます ❄️' },
+      afternoon: { en: 'Stay warm 🍵', ja: '温かくお過ごしください 🍵' },
+      evening: { en: 'Cozy evening 🌙', ja: '温かい夜を 🌙' }
+    },
+    bgGradient: 'from-slate-50 to-gray-100 dark:from-slate-950/20 dark:to-gray-950/20'
+  }
+};
+
+// Get current season based on date
+function getCurrentSeason() {
+  const month = new Date().getMonth() + 1; // 1-12
+  if (month >= 3 && month <= 5) return 'spring';
+  if (month >= 6 && month <= 8) return 'summer';
+  if (month >= 9 && month <= 11) return 'autumn';
+  return 'winter';
+}
+
+// Get time of day
+function getTimeOfDay() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 18) return 'afternoon';
+  return 'evening';
+}
+
+// Get seasonal greeting
+function getSeasonalGreeting(lang = 'en') {
+  const season = getCurrentSeason();
+  const time = getTimeOfDay();
+  return SEASONS[season].greetings[time][lang];
+}
+
+// Get random seasonal message
+function getSeasonalMessage(lang = 'en') {
+  const season = getCurrentSeason();
+  const messages = SEASONS[season].messages[lang];
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// Get seasonal info
+function getSeasonalInfo() {
+  const season = getCurrentSeason();
+  return {
+    season,
+    ...SEASONS[season]
+  };
+}
+
+// Apply seasonal theme to element
+function applySeasonalTheme(element) {
+  if (!element) return;
+  
+  const season = getCurrentSeason();
+  const bgGradient = SEASONS[season].bgGradient;
+  
+  // Add seasonal gradient class
+  element.classList.add('bg-gradient-to-br', ...bgGradient.split(' '));
+}
+
+// Update seasonal elements on the page
+function updateSeasonalElements(lang = 'en') {
+  // Update greeting elements
+  const greetingEl = document.querySelector('[data-seasonal="greeting"]');
+  if (greetingEl) {
+    greetingEl.textContent = getSeasonalGreeting(lang);
+  }
+  
+  // Update message elements
+  const messageEl = document.querySelector('[data-seasonal="message"]');
+  if (messageEl) {
+    messageEl.textContent = getSeasonalMessage(lang);
+  }
+  
+  // Update seasonal emoji
+  const emojiEl = document.querySelector('[data-seasonal="emoji"]');
+  if (emojiEl) {
+    const season = getCurrentSeason();
+    emojiEl.textContent = SEASONS[season].emoji;
+  }
+  
+  // Update season name
+  const seasonNameEl = document.querySelector('[data-seasonal="name"]');
+  if (seasonNameEl) {
+    const season = getCurrentSeason();
+    seasonNameEl.textContent = SEASONS[season].name[lang];
+  }
+}
+
+// ========================================
 // Authentication System
 // ========================================
 
@@ -2859,10 +3054,14 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (path === '/report') {
     initWeeklyReport();
   } else if (path === '/') {
-    // Home page - just record visit
+    // Home page - record visit and update seasonal elements
     let profile = loadProfile();
     profile = recordVisit(profile);
     saveProfile(profile);
+    
+    // Update seasonal greetings and messages
+    const lang = getLang();
+    updateSeasonalElements(lang);
   }
   
   // Smooth scroll for anchor links

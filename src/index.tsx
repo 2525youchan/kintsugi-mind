@@ -330,7 +330,14 @@ app.get('/', (c) => {
       {/* Hero Section */}
       <section class="pt-32 pb-20 px-6">
         <div class="max-w-4xl mx-auto text-center">
-          <p class="text-gold font-medium mb-4 animate-fade-in">
+          {/* Seasonal Greeting */}
+          <p data-seasonal="greeting" class="text-2xl mb-2 animate-fade-in">
+            {/* Will be populated by JS */}
+          </p>
+          <p data-seasonal="message" class="text-ink-500 dark:text-[#78716c] text-sm mb-6 italic animate-fade-in" style="animation-delay: 0.1s">
+            {/* Will be populated by JS */}
+          </p>
+          <p class="text-gold font-medium mb-4 animate-fade-in" style="animation-delay: 0.2s">
             {tx('common', 'tagline', lang)}
           </p>
           <h1 class="text-5xl md:text-7xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-8 leading-tight animate-slide-up">
