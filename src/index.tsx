@@ -446,6 +446,194 @@ app.get('/tatami', (c) => {
   )
 })
 
+// Profile Page - Kintsugi Progression
+app.get('/profile', (c) => {
+  const lang = getLanguage(c)
+  
+  const t = {
+    title: { en: 'Your Vessel', ja: 'あなたの器' },
+    subtitle: { en: 'Your journey of golden repair', ja: '金継ぎの歩み' },
+    stats: { en: 'Your Journey', ja: 'あなたの歩み' },
+    totalVisits: { en: 'Total Visits', ja: '総訪問日数' },
+    currentStreak: { en: 'Current Streak', ja: '連続日数' },
+    longestStreak: { en: 'Longest Streak', ja: '最長連続' },
+    totalRepairs: { en: 'Golden Repairs', ja: '金継ぎ回数' },
+    gardenActions: { en: 'Garden Actions', ja: '庭での行動' },
+    studySessions: { en: 'Study Sessions', ja: '内観セッション' },
+    tatamiSessions: { en: 'Tatami Sessions', ja: '座禅セッション' },
+    depth: { en: 'Depth of Experience', ja: '経験の深み' },
+    gold: { en: 'Golden Radiance', ja: '金の輝き' },
+    emptyMessage: { 
+      en: 'Your vessel is new and unblemished. Through your journey, it will gain character.', 
+      ja: 'あなたの器はまだ新しく、傷ひとつありません。歩みの中で、個性が刻まれていきます。' 
+    },
+    continue: { en: 'Continue Your Journey', ja: '歩みを続ける' },
+    cracks: { en: 'Cracks', ja: 'ヒビ' },
+    repaired: { en: 'Repaired', ja: '修復済み' },
+    unrepaired: { en: 'Unrepaired', ja: '未修復' },
+    days: { en: 'days', ja: '日' }
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+      <Header currentLang={lang} />
+
+      <main class="flex-1 py-12 px-6">
+        <div class="max-w-4xl mx-auto">
+          {/* Title */}
+          <div class="text-center mb-12">
+            <h1 class="text-4xl text-indigo-800 mb-2">{t.title[lang]}</h1>
+            <p class="text-ink-500">{t.subtitle[lang]}</p>
+          </div>
+          
+          <div class="grid md:grid-cols-2 gap-8">
+            {/* Vessel Visualization */}
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi text-center">
+              <div id="vessel-container" class="mb-6">
+                {/* Dynamic vessel will be rendered here by JS */}
+                <svg id="kintsugi-vessel" width="200" height="240" viewBox="0 0 200 240" class="mx-auto drop-shadow-lg">
+                  {/* Base vessel */}
+                  <defs>
+                    <linearGradient id="vesselGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#d4c4b0"/>
+                      <stop offset="50%" style="stop-color:#c9b99c"/>
+                      <stop offset="100%" style="stop-color:#a89880"/>
+                    </linearGradient>
+                    <filter id="goldGlow">
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <path 
+                    d="M40 60 Q40 20 100 20 Q160 20 160 60 L150 200 Q150 220 100 220 Q50 220 50 200 Z" 
+                    fill="url(#vesselGrad)"
+                    stroke="#8f7d5e"
+                    stroke-width="1"
+                  />
+                  {/* Cracks will be added dynamically */}
+                  <g id="cracks-group"></g>
+                </svg>
+              </div>
+              
+              {/* Depth & Gold meters */}
+              <div class="space-y-4 mt-8">
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-ink-500">{t.depth[lang]}</span>
+                    <span id="depth-value" class="text-indigo-700">0%</span>
+                  </div>
+                  <div class="h-2 bg-ecru-300 rounded-full overflow-hidden">
+                    <div id="depth-bar" class="h-full bg-indigo-600 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-ink-500">{t.gold[lang]}</span>
+                    <span id="gold-value" class="text-gold">0%</span>
+                  </div>
+                  <div class="h-2 bg-ecru-300 rounded-full overflow-hidden">
+                    <div id="gold-bar" class="h-full bg-gold rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Message */}
+              <p id="vessel-message" class="text-ink-500 text-sm mt-6 italic">
+                {t.emptyMessage[lang]}
+              </p>
+            </div>
+            
+            {/* Statistics */}
+            <div class="space-y-6">
+              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <h2 class="text-xl text-indigo-800 mb-4">{t.stats[lang]}</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
+                    <p id="stat-visits" class="text-3xl text-indigo-700 font-light">0</p>
+                    <p class="text-xs text-ink-500">{t.totalVisits[lang]}</p>
+                  </div>
+                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
+                    <p id="stat-streak" class="text-3xl text-gold font-light">0</p>
+                    <p class="text-xs text-ink-500">{t.currentStreak[lang]}</p>
+                  </div>
+                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
+                    <p id="stat-longest" class="text-3xl text-indigo-700 font-light">0</p>
+                    <p class="text-xs text-ink-500">{t.longestStreak[lang]}</p>
+                  </div>
+                  <div class="text-center p-4 bg-ecru-100 rounded-xl">
+                    <p id="stat-repairs" class="text-3xl text-gold font-light">0</p>
+                    <p class="text-xs text-ink-500">{t.totalRepairs[lang]}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Activity breakdown */}
+              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <h3 class="text-lg text-indigo-800 mb-4">
+                  {lang === 'en' ? 'Activities' : '活動'}
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="text-2xl">🌱</span>
+                      <span class="text-ink-600">{t.gardenActions[lang]}</span>
+                    </div>
+                    <span id="stat-garden" class="text-indigo-700 font-medium">0</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="text-2xl">📚</span>
+                      <span class="text-ink-600">{t.studySessions[lang]}</span>
+                    </div>
+                    <span id="stat-study" class="text-indigo-700 font-medium">0</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="text-2xl">🧘</span>
+                      <span class="text-ink-600">{t.tatamiSessions[lang]}</span>
+                    </div>
+                    <span id="stat-tatami" class="text-indigo-700 font-medium">0</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Cracks summary */}
+              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <h3 class="text-lg text-indigo-800 mb-4">{t.cracks[lang]}</h3>
+                <div class="flex items-center gap-6">
+                  <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded-full bg-gold gold-glow"></div>
+                    <span class="text-ink-600">{t.repaired[lang]}:</span>
+                    <span id="stat-repaired" class="text-gold font-medium">0</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded-full bg-ink-400"></div>
+                    <span class="text-ink-600">{t.unrepaired[lang]}:</span>
+                    <span id="stat-unrepaired" class="text-ink-600 font-medium">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* CTA */}
+          <div class="text-center mt-12">
+            <a href={`/check-in?lang=${lang}`} class="inline-block px-8 py-4 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors">
+              {t.continue[lang]}
+            </a>
+          </div>
+        </div>
+      </main>
+      
+      <Footer currentLang={lang} />
+    </div>,
+    { title: lang === 'en' ? 'Your Vessel — KINTSUGI MIND' : 'あなたの器 — KINTSUGI MIND' }
+  )
+})
+
 // ========================================
 // API Routes
 // ========================================

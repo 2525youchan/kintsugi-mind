@@ -4,11 +4,226 @@
  */
 
 // ========================================
+// Kintsugi Profile System (LocalStorage)
+// ========================================
+
+const STORAGE_KEY = 'kintsugi-profile';
+
+// Default profile structure
+function createDefaultProfile() {
+  const now = new Date().toISOString();
+  return {
+    id: generateId(),
+    createdAt: now,
+    lastVisit: now,
+    cracks: [],
+    totalRepairs: 0,
+    activities: [],
+    stats: {
+      totalVisits: 1,
+      currentStreak: 1,
+      longestStreak: 1,
+      gardenActions: 0,
+      studySessions: 0,
+      tatamiSessions: 0
+    }
+  };
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function toDateString(date) {
+  return date.toISOString().split('T')[0];
+}
+
+function daysBetween(date1, date2) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const diffTime = Math.abs(d2.getTime() - d1.getTime());
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+}
+
+// Load profile from localStorage
+function loadProfile() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error('Failed to load profile:', e);
+  }
+  return createDefaultProfile();
+}
+
+// Save profile to localStorage
+function saveProfile(profile) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  } catch (e) {
+    console.error('Failed to save profile:', e);
+  }
+}
+
+// Record a visit and update streak
+function recordVisit(profile) {
+  const today = toDateString(new Date());
+  const lastVisit = profile.lastVisit.split('T')[0];
+  
+  if (today === lastVisit) {
+    return profile; // Same day, no update
+  }
+  
+  const daysDiff = daysBetween(lastVisit, today);
+  let newStreak = profile.stats.currentStreak;
+  const newCracks = [...profile.cracks];
+  
+  if (daysDiff === 1) {
+    // Consecutive visit
+    newStreak += 1;
+  } else if (daysDiff > 1) {
+    // Streak broken - add absence cracks
+    for (let i = 1; i < Math.min(daysDiff, 7); i++) { // Max 7 cracks for absence
+      const missedDate = new Date(lastVisit);
+      missedDate.setDate(missedDate.getDate() + i);
+      newCracks.push({
+        id: generateId(),
+        type: 'absence',
+        date: toDateString(missedDate),
+        repaired: false
+      });
+    }
+    newStreak = 1;
+  }
+  
+  return {
+    ...profile,
+    lastVisit: new Date().toISOString(),
+    cracks: newCracks,
+    stats: {
+      ...profile.stats,
+      totalVisits: profile.stats.totalVisits + 1,
+      currentStreak: newStreak,
+      longestStreak: Math.max(profile.stats.longestStreak, newStreak)
+    }
+  };
+}
+
+// Record anxiety (adds a crack)
+function recordAnxiety(profile, text) {
+  const newCrack = {
+    id: generateId(),
+    type: 'anxiety',
+    date: new Date().toISOString(),
+    text: text,
+    repaired: false
+  };
+  
+  return {
+    ...profile,
+    cracks: [...profile.cracks, newCrack]
+  };
+}
+
+// Record activity (repairs a crack)
+function recordActivityToProfile(profile, type, details = {}) {
+  const activity = {
+    id: generateId(),
+    type,
+    date: new Date().toISOString(),
+    details
+  };
+  
+  // Repair one unrepaired crack
+  const updatedCracks = [...profile.cracks];
+  const unrepairedIndex = updatedCracks.findIndex(c => !c.repaired);
+  let repairCount = 0;
+  
+  if (unrepairedIndex !== -1) {
+    updatedCracks[unrepairedIndex] = {
+      ...updatedCracks[unrepairedIndex],
+      repaired: true,
+      repairedDate: new Date().toISOString()
+    };
+    repairCount = 1;
+  }
+  
+  // Update stats
+  const stats = { ...profile.stats };
+  if (type === 'garden') {
+    stats.gardenActions += details.actionCount || 1;
+  } else if (type === 'study') {
+    stats.studySessions += 1;
+  } else if (type === 'tatami') {
+    stats.tatamiSessions += 1;
+  }
+  
+  return {
+    ...profile,
+    cracks: updatedCracks,
+    totalRepairs: profile.totalRepairs + repairCount,
+    activities: [...profile.activities, activity],
+    stats
+  };
+}
+
+// Calculate vessel visual properties
+function calculateVesselVisual(profile) {
+  // Depth = activities + cracks + visits
+  const depth = Math.min(100,
+    (profile.activities.length * 5) +
+    (profile.cracks.length * 3) +
+    (profile.stats.totalVisits)
+  );
+  
+  // Gold intensity = repair ratio × repair count
+  const repairedCount = profile.cracks.filter(c => c.repaired).length;
+  const repairRatio = profile.cracks.length > 0
+    ? repairedCount / profile.cracks.length
+    : 0;
+  const goldIntensity = Math.min(100, repairRatio * 50 + profile.totalRepairs * 5);
+  
+  return { depth, goldIntensity, repairedCount };
+}
+
+// Generate crack SVG paths
+function generateCrackPaths(cracks) {
+  const pathVariations = [
+    (h) => `M${60 + (h % 40)} 40 L${55 + (h % 30)} 80 L${65 + (h % 20)} 120 L${50 + (h % 40)} 160`,
+    (h) => `M${100 + (h % 30)} 50 L${110 + (h % 20)} 90 L${95 + (h % 25)} 130`,
+    (h) => `M${70 + (h % 30)} 100 L${85 + (h % 20)} 140 L${75 + (h % 25)} 180`,
+    (h) => `M${110 + (h % 25)} 70 L${120 + (h % 20)} 110 L${105 + (h % 30)} 150 L${115 + (h % 20)} 190`,
+    (h) => `M${80 + (h % 20)} 130 L${95 + (h % 25)} 170 L${85 + (h % 20)} 200`,
+    (h) => `M${50 + (h % 30)} 80 L${60 + (h % 25)} 120 L${45 + (h % 30)} 160`,
+    (h) => `M${130 + (h % 20)} 60 L${140 + (h % 15)} 100 L${125 + (h % 25)} 140`,
+    (h) => `M${90 + (h % 25)} 50 L${100 + (h % 20)} 85 L${85 + (h % 30)} 120 L${95 + (h % 20)} 155`
+  ];
+  
+  return cracks.map((crack, index) => {
+    // Simple hash from id
+    let hash = 0;
+    for (let i = 0; i < crack.id.length; i++) {
+      hash = ((hash << 5) - hash) + crack.id.charCodeAt(i);
+      hash = hash & hash;
+    }
+    hash = Math.abs(hash);
+    
+    const pathFn = pathVariations[(index + hash) % pathVariations.length];
+    return {
+      path: pathFn(hash),
+      repaired: crack.repaired,
+      type: crack.type
+    };
+  });
+}
+
+// ========================================
 // Language & Utility Functions
 // ========================================
 
 function getLang() {
-  // Check URL params
   const urlParams = new URLSearchParams(window.location.search);
   const lang = urlParams.get('lang');
   if (lang === 'ja' || lang === 'en') {
@@ -16,17 +231,14 @@ function getLang() {
     return lang;
   }
   
-  // Check localStorage
   const stored = localStorage.getItem('kintsugi-lang');
   if (stored === 'ja' || stored === 'en') {
     return stored;
   }
   
-  // Check data-lang attribute
-  const dataLang = document.body.closest('[data-lang]')?.dataset?.lang;
+  const dataLang = document.querySelector('[data-lang]')?.dataset?.lang;
   if (dataLang) return dataLang;
   
-  // Default to English
   return 'en';
 }
 
@@ -34,7 +246,6 @@ function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-// Haptic feedback (if supported)
 function vibrate(pattern) {
   if ('vibrate' in navigator) {
     navigator.vibrate(pattern);
@@ -115,27 +326,96 @@ const i18n = {
   tatami: {
     breatheIn: { en: 'Breathe in', ja: '息を吸う' },
     breatheOut: { en: 'Breathe out', ja: '息を吐く' }
+  },
+  profile: {
+    repairMessage: {
+      en: 'A crack has been repaired with gold. Your vessel grows more beautiful.',
+      ja: 'ヒビが金で修復されました。あなたの器はより美しくなりました。'
+    },
+    newCrack: {
+      en: 'A new crack has appeared. This is not damage — it is part of your story.',
+      ja: '新しいヒビが入りました。これは傷ではありません。あなたの物語の一部です。'
+    }
   }
 };
 
 // ========================================
-// Check-in Page Logic
+// Profile Page Logic
 // ========================================
 
-function initCheckIn() {
-  const weatherButtons = document.querySelectorAll('#weather-selection button, #weather-selection a');
+function initProfile() {
   const lang = getLang();
+  let profile = loadProfile();
   
-  weatherButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      // If it's a link, let it navigate naturally
-      if (button.tagName === 'A') return;
-      
-      e.preventDefault();
-      const weather = button.dataset.weather;
-      window.location.href = `/check-in?weather=${weather}&lang=${lang}`;
+  // Record visit
+  profile = recordVisit(profile);
+  saveProfile(profile);
+  
+  // Update UI
+  updateProfileUI(profile, lang);
+}
+
+function updateProfileUI(profile, lang) {
+  // Stats
+  document.getElementById('stat-visits').textContent = profile.stats.totalVisits;
+  document.getElementById('stat-streak').textContent = profile.stats.currentStreak;
+  document.getElementById('stat-longest').textContent = profile.stats.longestStreak;
+  document.getElementById('stat-repairs').textContent = profile.totalRepairs;
+  document.getElementById('stat-garden').textContent = profile.stats.gardenActions;
+  document.getElementById('stat-study').textContent = profile.stats.studySessions;
+  document.getElementById('stat-tatami').textContent = profile.stats.tatamiSessions;
+  
+  // Cracks
+  const repairedCount = profile.cracks.filter(c => c.repaired).length;
+  const unrepairedCount = profile.cracks.length - repairedCount;
+  document.getElementById('stat-repaired').textContent = repairedCount;
+  document.getElementById('stat-unrepaired').textContent = unrepairedCount;
+  
+  // Vessel visual
+  const visual = calculateVesselVisual(profile);
+  
+  document.getElementById('depth-value').textContent = `${Math.round(visual.depth)}%`;
+  document.getElementById('depth-bar').style.width = `${visual.depth}%`;
+  document.getElementById('gold-value').textContent = `${Math.round(visual.goldIntensity)}%`;
+  document.getElementById('gold-bar').style.width = `${visual.goldIntensity}%`;
+  
+  // Render cracks on vessel
+  const cracksGroup = document.getElementById('cracks-group');
+  if (cracksGroup) {
+    cracksGroup.innerHTML = '';
+    const crackPaths = generateCrackPaths(profile.cracks);
+    
+    crackPaths.forEach(crack => {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', crack.path);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-width', crack.repaired ? '3' : '2');
+      path.setAttribute('stroke', crack.repaired ? '#c9a227' : '#1a1a1a');
+      if (crack.repaired) {
+        path.setAttribute('filter', 'url(#goldGlow)');
+        path.classList.add('gold-glow');
+      }
+      cracksGroup.appendChild(path);
     });
-  });
+  }
+  
+  // Update message based on state
+  const messageEl = document.getElementById('vessel-message');
+  if (messageEl) {
+    if (profile.cracks.length === 0) {
+      messageEl.textContent = lang === 'en' 
+        ? 'Your vessel is new and unblemished. Through your journey, it will gain character.'
+        : 'あなたの器はまだ新しく、傷ひとつありません。歩みの中で、個性が刻まれていきます。';
+    } else if (repairedCount > 0) {
+      messageEl.textContent = lang === 'en'
+        ? `${repairedCount} crack${repairedCount > 1 ? 's' : ''} repaired with gold. Your vessel tells a beautiful story.`
+        : `${repairedCount}箇所のヒビが金で修復されました。あなたの器は美しい物語を語っています。`;
+    } else {
+      messageEl.textContent = lang === 'en'
+        ? 'Your vessel has cracks waiting to be repaired. Continue your journey to heal them with gold.'
+        : 'ヒビが修復を待っています。歩みを続けて、金で繋いでいきましょう。';
+    }
+  }
 }
 
 // ========================================
@@ -144,6 +424,7 @@ function initCheckIn() {
 
 let clouds = [];
 let plants = [];
+let gardenActionCount = 0;
 
 function initGarden() {
   const emotionInput = document.getElementById('emotion-input');
@@ -153,32 +434,46 @@ function initGarden() {
   const gardenPlants = document.getElementById('garden-plants');
   const lang = getLang();
   
+  // Load profile and record visit
+  let profile = loadProfile();
+  profile = recordVisit(profile);
+  saveProfile(profile);
+  
   if (!emotionInput || !addCloudBtn) return;
   
-  // Add cloud when button clicked
   addCloudBtn.addEventListener('click', () => {
     const emotion = emotionInput.value.trim();
     if (emotion) {
       addCloud(emotion, cloudContainer);
       emotionInput.value = '';
       fetchMoritaGuidance(emotion, lang);
+      
+      // Record anxiety as a crack
+      let profile = loadProfile();
+      profile = recordAnxiety(profile, emotion);
+      saveProfile(profile);
     }
   });
   
-  // Also add cloud on Enter key
   emotionInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       addCloudBtn.click();
     }
   });
   
-  // Track action completions
   actionCheckboxes.forEach(checkbox => {
     checkbox.addEventListener('change', () => {
       const action = checkbox.dataset.action;
       if (checkbox.checked) {
         growPlant(gardenPlants);
         vibrate([50]);
+        gardenActionCount++;
+        
+        // Record activity
+        let profile = loadProfile();
+        profile = recordActivityToProfile(profile, 'garden', { actionCount: 1 });
+        saveProfile(profile);
+        
         recordAction(action, true, lang);
       }
     });
@@ -186,7 +481,6 @@ function initGarden() {
 }
 
 function addCloud(text, container) {
-  // Clear placeholder if exists
   const placeholder = container.querySelector('.opacity-50');
   if (placeholder) {
     placeholder.remove();
@@ -196,7 +490,6 @@ function addCloud(text, container) {
   cloud.className = 'cloud absolute px-4 py-2 text-sm text-ink-600 max-w-xs animate-fade-in';
   cloud.textContent = text;
   
-  // Random position in the sky
   cloud.style.left = `${randomBetween(10, 70)}%`;
   cloud.style.top = `${randomBetween(10, 60)}%`;
   cloud.style.animationDelay = `${randomBetween(0, 2)}s`;
@@ -206,7 +499,6 @@ function addCloud(text, container) {
 }
 
 function growPlant(container) {
-  // Clear placeholder if exists
   const placeholder = container.querySelector('.text-center');
   if (placeholder) {
     placeholder.remove();
@@ -269,6 +561,11 @@ function initStudy() {
   const sendBtn = document.getElementById('naikan-send-btn');
   const lang = getLang();
   
+  // Load profile and record visit
+  let profile = loadProfile();
+  profile = recordVisit(profile);
+  saveProfile(profile);
+  
   if (!chatContainer || !inputEl || !sendBtn) return;
   
   sendBtn.addEventListener('click', () => {
@@ -278,7 +575,6 @@ function initStudy() {
       naikanResponses.push(response);
       inputEl.value = '';
       
-      // Move to next question after a delay
       setTimeout(() => {
         naikanStep++;
         if (naikanStep <= 3) {
@@ -286,6 +582,11 @@ function initStudy() {
           updateProgress(naikanStep, lang);
         } else {
           showNaikanConclusion(chatContainer, lang);
+          
+          // Record study session completion
+          let profile = loadProfile();
+          profile = recordActivityToProfile(profile, 'study', { questionsAnswered: 3 });
+          saveProfile(profile);
         }
       }, 1000);
     }
@@ -357,7 +658,7 @@ function showNaikanConclusion(container, lang) {
   container.appendChild(message);
   container.scrollTop = container.scrollHeight;
   
-  updateProgress(4, lang); // All complete
+  updateProgress(4, lang);
 }
 
 // ========================================
@@ -366,6 +667,7 @@ function showNaikanConclusion(container, lang) {
 
 let zenSession = null;
 let breathPhase = 'inhale';
+let zenStartTime = null;
 
 function initTatami() {
   const startBtn = document.getElementById('start-zen-btn');
@@ -375,11 +677,16 @@ function initTatami() {
   const koanContainer = document.getElementById('koan-container');
   const lang = getLang();
   
+  // Load profile and record visit
+  let profile = loadProfile();
+  profile = recordVisit(profile);
+  saveProfile(profile);
+  
   if (!startBtn || !breathingCircle) return;
   
   startBtn.addEventListener('click', () => {
     if (zenSession) {
-      stopZenSession();
+      stopZenSession(lang);
       startBtn.textContent = startBtn.dataset.startText;
     } else {
       startZenSession(breathingCircle, breathInstruction, breathInstructionSub, koanContainer, lang);
@@ -389,36 +696,43 @@ function initTatami() {
 }
 
 function startZenSession(circle, instruction, instructionSub, koanContainer, lang) {
-  // Start breathing cycle
+  zenStartTime = Date.now();
   breathPhase = 'inhale';
   updateBreathPhase(circle, instruction, instructionSub, lang);
   
   zenSession = setInterval(() => {
     breathPhase = breathPhase === 'inhale' ? 'exhale' : 'inhale';
     updateBreathPhase(circle, instruction, instructionSub, lang);
-    
-    // Haptic feedback at phase change
     vibrate(breathPhase === 'inhale' ? [100] : [50, 50, 50]);
-  }, 4000); // 4 seconds per phase
+  }, 4000);
   
-  // Show koan after some time
   setTimeout(async () => {
     if (zenSession && koanContainer) {
       await showKoan(koanContainer, lang);
     }
-  }, 24000); // Show after 24 seconds (3 full cycles)
+  }, 24000);
 }
 
-function stopZenSession() {
+function stopZenSession(lang) {
   if (zenSession) {
     clearInterval(zenSession);
     zenSession = null;
+    
+    // Calculate session duration
+    const duration = zenStartTime ? Math.round((Date.now() - zenStartTime) / 60000) : 1;
+    
+    // Record tatami session
+    let profile = loadProfile();
+    profile = recordActivityToProfile(profile, 'tatami', { breathingMinutes: duration });
+    saveProfile(profile);
+    
+    zenStartTime = null;
   }
 }
 
 function updateBreathPhase(circle, instruction, instructionSub, lang) {
   circle.classList.remove('inhale', 'exhale');
-  void circle.offsetWidth; // Force reflow for animation restart
+  void circle.offsetWidth;
   circle.classList.add(breathPhase);
   
   if (instruction) {
@@ -461,21 +775,32 @@ async function showKoan(container, lang) {
 document.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname;
   
-  // Save language preference when switching
+  // Save language preference
   const urlParams = new URLSearchParams(window.location.search);
   const langParam = urlParams.get('lang');
   if (langParam) {
     localStorage.setItem('kintsugi-lang', langParam);
   }
   
-  if (path === '/check-in') {
-    initCheckIn();
+  // Initialize based on page
+  if (path === '/profile') {
+    initProfile();
+  } else if (path === '/check-in') {
+    // Just record visit
+    let profile = loadProfile();
+    profile = recordVisit(profile);
+    saveProfile(profile);
   } else if (path === '/garden') {
     initGarden();
   } else if (path === '/study') {
     initStudy();
   } else if (path === '/tatami') {
     initTatami();
+  } else if (path === '/') {
+    // Home page - just record visit
+    let profile = loadProfile();
+    profile = recordVisit(profile);
+    saveProfile(profile);
   }
   
   // Smooth scroll for anchor links
