@@ -122,7 +122,7 @@ export const renderer = jsxRenderer(({ children, title }) => {
       </head>
       <body class="bg-ecru text-ink font-serif min-h-screen">
         {children}
-        <script src="/static/app.js" type="module"></script>
+        <script src="/static/app.js"></script>
       </body>
     </html>
   )

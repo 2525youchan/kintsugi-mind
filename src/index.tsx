@@ -367,10 +367,10 @@ app.get('/study', (c) => {
               
               {/* Input with person name field */}
               <div class="border-t border-ecru-300 p-4">
-                {/* Person name input */}
+                {/* Person name input (optional) */}
                 <div class="mb-3">
                   <label class="text-xs text-ink-500 mb-1 block">
-                    {lang === 'en' ? 'Who helped you? (name or role)' : '誰に助けられましたか？（名前や役割）'}
+                    {lang === 'en' ? 'Who? (optional)' : '誰？（任意）'}
                   </label>
                   <input 
                     type="text" 
@@ -379,13 +379,20 @@ app.get('/study', (c) => {
                     class="w-full px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 text-sm"
                   />
                 </div>
-                {/* Description input */}
+                {/* Description input (required) */}
+                <div class="mb-2">
+                  <label class="text-xs text-ink-500 mb-1 block">
+                    {lang === 'en' ? 'What happened? ' : 'どんなこと？ '}
+                    <span class="text-amber-600">*</span>
+                    <span class="text-ink-400">{lang === 'en' ? ' (required)' : '（必須）'}</span>
+                  </label>
+                </div>
                 <div class="flex gap-3">
                   <input 
                     type="text" 
                     id="naikan-input"
-                    placeholder={tx('study', 'inputPlaceholder', lang)}
-                    class="flex-1 px-4 py-3 bg-ecru-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50"
+                    placeholder={lang === 'en' ? 'e.g., Made breakfast for me, Listened to my concerns...' : '例：朝ご飯を作ってくれた、話を聞いてくれた...'}
+                    class="flex-1 px-4 py-3 bg-ecru-100 border border-ecru-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50"
                   />
                   <button 
                     id="naikan-send-btn"

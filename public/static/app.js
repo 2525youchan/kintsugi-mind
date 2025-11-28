@@ -557,24 +557,54 @@ let naikanResponses = [];
 let naikanConnections = []; // Store person + response for mandala
 
 function initStudy() {
+  console.log('[KINTSUGI] initStudy called');
   const chatContainer = document.getElementById('naikan-chat');
   const inputEl = document.getElementById('naikan-input');
   const personEl = document.getElementById('naikan-person');
   const sendBtn = document.getElementById('naikan-send-btn');
   const lang = getLang();
   
+  console.log('[KINTSUGI] Elements found:', {
+    chatContainer: !!chatContainer,
+    inputEl: !!inputEl,
+    personEl: !!personEl,
+    sendBtn: !!sendBtn
+  });
+  
   // Load profile and record visit
   let profile = loadProfile();
   profile = recordVisit(profile);
   saveProfile(profile);
   
-  if (!chatContainer || !inputEl || !sendBtn) return;
+  if (!chatContainer || !inputEl || !sendBtn) {
+    console.log('[KINTSUGI] Missing required elements, returning');
+    return;
+  }
   
+  console.log('[KINTSUGI] Adding click listener to sendBtn');
   sendBtn.addEventListener('click', () => {
+    console.log('[KINTSUGI] Send button clicked!');
     const response = inputEl.value.trim();
     const person = personEl ? personEl.value.trim() : '';
+    console.log('[KINTSUGI] Input values:', { response, person });
     
-    if (response) {
+    if (!response) {
+      console.log('[KINTSUGI] Response is empty, showing validation');
+      // Shake the input and show message
+      inputEl.classList.add('shake-animation');
+      inputEl.style.borderColor = '#d97706';
+      inputEl.placeholder = lang === 'en' ? '⚠️ Please enter something...' : '⚠️ 何か入力してください...';
+      setTimeout(() => {
+        inputEl.classList.remove('shake-animation');
+        inputEl.style.borderColor = '';
+      }, 500);
+      inputEl.focus();
+      return;
+    }
+    
+    // Process the response
+    console.log('[KINTSUGI] Processing response...');
+    {
       // Store connection data
       const connectionTypes = ['received', 'given', 'forgiven'];
       naikanConnections.push({
@@ -1129,8 +1159,12 @@ window.toggleMobileMenu = toggleMobileMenu;
 // Initialize based on current page
 // ========================================
 
+console.log('[KINTSUGI] app.js loaded');
+
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[KINTSUGI] DOMContentLoaded fired');
   const path = window.location.pathname;
+  console.log('[KINTSUGI] Current path:', path);
   
   // Save language preference
   const urlParams = new URLSearchParams(window.location.search);
