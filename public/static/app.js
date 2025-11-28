@@ -1902,37 +1902,74 @@ function initGardenSoundControl(lang) {
   const presetsContainer = document.getElementById('garden-sound-presets');
   const volumeSlider = document.getElementById('garden-volume-slider');
   const presetButtons = document.querySelectorAll('#garden-sound-presets .sound-preset');
+  const soundControl = document.getElementById('garden-sound-control');
   
   if (!toggleBtn || !window.soundscape) return;
   
   let currentPreset = 'garden';
   let isPlaying = false;
+  let menuOpen = false;
   
-  // Toggle button - shows/hides presets
-  toggleBtn.addEventListener('click', async () => {
-    if (isPlaying) {
-      window.soundscape.stop();
-      isPlaying = false;
-      iconOff.classList.remove('hidden');
-      iconOn.classList.add('hidden');
-      presetsContainer.classList.add('hidden');
-    } else {
-      // Show presets first time, play default
-      if (presetsContainer.classList.contains('hidden')) {
-        presetsContainer.classList.remove('hidden');
-        presetsContainer.classList.add('flex', 'flex-col');
+  // Toggle button - toggle menu AND sound
+  toggleBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    
+    if (!menuOpen) {
+      // Open menu and start playing if not already
+      presetsContainer.classList.remove('hidden');
+      presetsContainer.classList.add('flex', 'flex-col');
+      menuOpen = true;
+      
+      if (!isPlaying) {
+        await window.soundscape.play(currentPreset);
+        isPlaying = true;
+        iconOff.classList.add('hidden');
+        iconOn.classList.remove('hidden');
+        updatePresetButtons(currentPreset, presetButtons);
       }
-      await window.soundscape.play(currentPreset);
-      isPlaying = true;
-      iconOff.classList.add('hidden');
-      iconOn.classList.remove('hidden');
-      updatePresetButtons(currentPreset, presetButtons);
+    } else {
+      // Close menu (but keep sound playing)
+      presetsContainer.classList.add('hidden');
+      presetsContainer.classList.remove('flex', 'flex-col');
+      menuOpen = false;
     }
   });
   
-  // Preset buttons
+  // Long press or double click to stop sound
+  let pressTimer;
+  toggleBtn.addEventListener('mousedown', () => {
+    pressTimer = setTimeout(() => {
+      if (isPlaying) {
+        window.soundscape.stop();
+        isPlaying = false;
+        iconOff.classList.remove('hidden');
+        iconOn.classList.add('hidden');
+        presetsContainer.classList.add('hidden');
+        menuOpen = false;
+      }
+    }, 500); // 500ms long press to stop
+  });
+  toggleBtn.addEventListener('mouseup', () => clearTimeout(pressTimer));
+  toggleBtn.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+  
+  // Click outside to close menu (but keep sound playing)
+  document.addEventListener('click', (e) => {
+    if (menuOpen && soundControl && !soundControl.contains(e.target)) {
+      presetsContainer.classList.add('hidden');
+      presetsContainer.classList.remove('flex', 'flex-col');
+      menuOpen = false;
+    }
+  });
+  
+  // Prevent menu clicks from closing
+  presetsContainer.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+  
+  // Preset buttons - switch sound
   presetButtons.forEach(btn => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       currentPreset = btn.dataset.preset;
       await window.soundscape.play(currentPreset);
       isPlaying = true;
@@ -1946,6 +1983,21 @@ function initGardenSoundControl(lang) {
   if (volumeSlider) {
     volumeSlider.addEventListener('input', (e) => {
       window.soundscape.setVolume(e.target.value / 100);
+    });
+  }
+  
+  // Stop button
+  const stopBtn = document.getElementById('garden-sound-stop');
+  if (stopBtn) {
+    stopBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.soundscape.stop();
+      isPlaying = false;
+      iconOff.classList.remove('hidden');
+      iconOn.classList.add('hidden');
+      presetsContainer.classList.add('hidden');
+      presetsContainer.classList.remove('flex', 'flex-col');
+      menuOpen = false;
     });
   }
 }

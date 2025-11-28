@@ -288,8 +288,8 @@ app.get('/garden', (c) => {
               <span>💧</span>
               <span>{lang === 'en' ? 'Water Garden' : '水の庭'}</span>
             </button>
-            <div class="border-t border-ecru-300 dark:border-[#4a4a4a] mt-1 pt-1">
-              <div class="flex items-center gap-2 px-2">
+            <div class="border-t border-ecru-300 dark:border-[#4a4a4a] mt-1 pt-2">
+              <div class="flex items-center gap-2 px-2 mb-2">
                 <svg class="w-3 h-3 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
                 </svg>
@@ -302,6 +302,16 @@ app.get('/garden', (c) => {
                   class="w-20 h-1 bg-ecru-300 rounded-lg appearance-none cursor-pointer accent-green-600"
                 />
               </div>
+              <button 
+                id="garden-sound-stop"
+                class="w-full flex items-center justify-center gap-1 px-2 py-1 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+              >
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                </svg>
+                <span>{lang === 'en' ? 'Stop' : '停止'}</span>
+              </button>
             </div>
           </div>
           
