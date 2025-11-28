@@ -1904,21 +1904,52 @@ function initGardenSoundControl(lang) {
   const presetButtons = document.querySelectorAll('#garden-sound-presets .sound-preset');
   const soundControl = document.getElementById('garden-sound-control');
   
-  if (!toggleBtn || !window.soundscape) return;
+  if (!toggleBtn || !window.soundscape) {
+    console.log('[Soundscape] Garden sound control not initialized - missing elements');
+    return;
+  }
+  
+  console.log('[Soundscape] Garden sound control initialized');
   
   let currentPreset = 'garden';
   let isPlaying = false;
   let menuOpen = false;
   
+  // Helper function to open menu
+  function openMenu() {
+    presetsContainer.classList.remove('hidden');
+    presetsContainer.classList.add('flex', 'flex-col');
+    menuOpen = true;
+    console.log('[Soundscape] Menu opened');
+  }
+  
+  // Helper function to close menu
+  function closeMenu() {
+    presetsContainer.classList.add('hidden');
+    presetsContainer.classList.remove('flex', 'flex-col');
+    menuOpen = false;
+    console.log('[Soundscape] Menu closed');
+  }
+  
+  // Helper function to stop sound
+  function stopSound() {
+    window.soundscape.stop();
+    isPlaying = false;
+    iconOff.classList.remove('hidden');
+    iconOn.classList.add('hidden');
+    console.log('[Soundscape] Sound stopped');
+  }
+  
   // Toggle button - toggle menu AND sound
   toggleBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
     e.stopPropagation();
+    
+    console.log('[Soundscape] Toggle clicked, menuOpen:', menuOpen);
     
     if (!menuOpen) {
       // Open menu and start playing if not already
-      presetsContainer.classList.remove('hidden');
-      presetsContainer.classList.add('flex', 'flex-col');
-      menuOpen = true;
+      openMenu();
       
       if (!isPlaying) {
         await window.soundscape.play(currentPreset);
@@ -1929,46 +1960,55 @@ function initGardenSoundControl(lang) {
       }
     } else {
       // Close menu (but keep sound playing)
-      presetsContainer.classList.add('hidden');
-      presetsContainer.classList.remove('flex', 'flex-col');
-      menuOpen = false;
+      closeMenu();
     }
   });
   
-  // Long press or double click to stop sound
+  // Long press to stop sound (both mouse and touch)
   let pressTimer;
-  toggleBtn.addEventListener('mousedown', () => {
+  const startPress = () => {
     pressTimer = setTimeout(() => {
       if (isPlaying) {
-        window.soundscape.stop();
-        isPlaying = false;
-        iconOff.classList.remove('hidden');
-        iconOn.classList.add('hidden');
-        presetsContainer.classList.add('hidden');
-        menuOpen = false;
+        stopSound();
+        closeMenu();
       }
-    }, 500); // 500ms long press to stop
-  });
-  toggleBtn.addEventListener('mouseup', () => clearTimeout(pressTimer));
-  toggleBtn.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+    }, 500);
+  };
+  const endPress = () => clearTimeout(pressTimer);
   
-  // Click outside to close menu (but keep sound playing)
-  document.addEventListener('click', (e) => {
-    if (menuOpen && soundControl && !soundControl.contains(e.target)) {
-      presetsContainer.classList.add('hidden');
-      presetsContainer.classList.remove('flex', 'flex-col');
-      menuOpen = false;
+  toggleBtn.addEventListener('mousedown', startPress);
+  toggleBtn.addEventListener('mouseup', endPress);
+  toggleBtn.addEventListener('mouseleave', endPress);
+  toggleBtn.addEventListener('touchstart', startPress, { passive: true });
+  toggleBtn.addEventListener('touchend', endPress);
+  toggleBtn.addEventListener('touchcancel', endPress);
+  
+  // Click/Touch outside to close menu (but keep sound playing)
+  function handleOutsideClick(e) {
+    if (!menuOpen) return;
+    if (!soundControl) return;
+    
+    const target = e.target;
+    const isInsideControl = soundControl.contains(target);
+    
+    console.log('[Soundscape] Outside click check:', { menuOpen, isInsideControl, target: target.id || target.className });
+    
+    if (!isInsideControl) {
+      closeMenu();
     }
-  });
+  }
   
-  // Prevent menu clicks from closing
-  presetsContainer.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
+  // Use capture phase for better detection
+  document.addEventListener('click', handleOutsideClick, true);
+  document.addEventListener('touchend', (e) => {
+    // Small delay to allow click to process first
+    setTimeout(() => handleOutsideClick(e), 10);
+  }, { passive: true });
   
   // Preset buttons - switch sound
   presetButtons.forEach(btn => {
     btn.addEventListener('click', async (e) => {
+      e.preventDefault();
       e.stopPropagation();
       currentPreset = btn.dataset.preset;
       await window.soundscape.play(currentPreset);
@@ -1990,14 +2030,10 @@ function initGardenSoundControl(lang) {
   const stopBtn = document.getElementById('garden-sound-stop');
   if (stopBtn) {
     stopBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      window.soundscape.stop();
-      isPlaying = false;
-      iconOff.classList.remove('hidden');
-      iconOn.classList.add('hidden');
-      presetsContainer.classList.add('hidden');
-      presetsContainer.classList.remove('flex', 'flex-col');
-      menuOpen = false;
+      stopSound();
+      closeMenu();
     });
   }
 }

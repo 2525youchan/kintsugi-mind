@@ -1,8 +1,8 @@
 // KINTSUGI MIND Service Worker
-const CACHE_NAME = 'kintsugi-mind-v1';
+const CACHE_NAME = 'kintsugi-mind-v2';
 const OFFLINE_URL = '/offline.html';
 
-// Assets to cache on install
+// Assets to cache on install (only local assets, no external CDN)
 const PRECACHE_ASSETS = [
   '/',
   '/check-in',
@@ -14,9 +14,8 @@ const PRECACHE_ASSETS = [
   '/static/style.css',
   '/static/app.js',
   '/manifest.json',
-  '/offline.html',
-  // External resources (fonts will be cached on first use)
-  'https://cdn.tailwindcss.com'
+  '/offline.html'
+  // Note: External CDN (tailwindcss) is excluded as it has CORS issues with service worker caching
 ];
 
 // Install event - cache core assets
@@ -67,6 +66,16 @@ self.addEventListener('fetch', (event) => {
   
   // Skip non-GET requests
   if (request.method !== 'GET') {
+    return;
+  }
+  
+  // Skip unsupported schemes (chrome-extension, moz-extension, etc.)
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+  
+  // Skip external CDN requests (they may have CORS issues)
+  if (url.hostname !== self.location.hostname && url.hostname.includes('cdn')) {
     return;
   }
   
