@@ -1,0 +1,454 @@
+/* ========================================
+   KINTSUGI MIND - Wa Design System
+   The Japanese Art of Resilience
+   ======================================== */
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   Typography
+   ======================================== */
+.text-balance {
+  text-wrap: balance;
+}
+
+.writing-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ========================================
+   Zen Garden Animations
+   ======================================== */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(201, 162, 39, 0.3);
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+/* ========================================
+   Cloud (Anxiety) Styles - Sky Section
+   ======================================== */
+.cloud {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(230, 230, 230, 0.7));
+  border-radius: 50px;
+  box-shadow: 
+    inset 0 -3px 10px rgba(0, 0, 0, 0.1),
+    0 5px 15px rgba(0, 0, 0, 0.1);
+  animation: float 6s ease-in-out infinite;
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.cloud::before {
+  width: 60%;
+  height: 80%;
+  top: -40%;
+  left: 15%;
+}
+
+.cloud::after {
+  width: 40%;
+  height: 60%;
+  top: -30%;
+  right: 15%;
+}
+
+/* ========================================
+   Plant Growth - Ground Section
+   ======================================== */
+.plant {
+  position: relative;
+  transform-origin: bottom center;
+}
+
+.plant-stem {
+  width: 3px;
+  background: linear-gradient(to top, #4a7c59, #6b9b7a);
+  border-radius: 2px;
+  transform-origin: bottom center;
+}
+
+.plant-leaf {
+  position: absolute;
+  width: 20px;
+  height: 10px;
+  background: linear-gradient(135deg, #6b9b7a, #4a7c59);
+  border-radius: 50% 0 50% 0;
+  transform-origin: left center;
+}
+
+.plant-leaf.right {
+  transform: scaleX(-1);
+  transform-origin: right center;
+}
+
+/* ========================================
+   Kintsugi Vessel Styles
+   ======================================== */
+.vessel {
+  position: relative;
+  background: linear-gradient(180deg, #d4c4b0 0%, #a89880 100%);
+  border-radius: 0 0 50% 50% / 0 0 30% 30%;
+}
+
+.vessel-crack {
+  position: absolute;
+  background: transparent;
+  border-left: 2px solid #1a1a1a;
+}
+
+.vessel-crack.repaired {
+  border-left-color: #c9a227;
+  box-shadow: 0 0 8px rgba(201, 162, 39, 0.6);
+}
+
+/* Golden repair glow effect */
+.gold-glow {
+  filter: drop-shadow(0 0 6px rgba(201, 162, 39, 0.8));
+}
+
+/* ========================================
+   Weather Icons
+   ======================================== */
+.weather-icon {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.weather-icon:hover {
+  transform: scale(1.1);
+}
+
+.weather-icon.selected {
+  transform: scale(1.15);
+  filter: drop-shadow(0 4px 8px rgba(201, 162, 39, 0.5));
+}
+
+/* Sun */
+.weather-sun {
+  background: linear-gradient(135deg, #f9e49b 0%, #c9a227 100%);
+  border-radius: 50%;
+}
+
+/* Cloudy */
+.weather-cloudy {
+  background: linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%);
+  border-radius: 20px;
+}
+
+/* Rain */
+.weather-rain {
+  position: relative;
+}
+
+.rain-drop {
+  position: absolute;
+  width: 3px;
+  height: 10px;
+  background: linear-gradient(to bottom, transparent, #627d98);
+  border-radius: 0 0 50% 50%;
+  animation: rain-fall 1s linear infinite;
+}
+
+@keyframes rain-fall {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* Storm */
+.weather-storm {
+  background: linear-gradient(135deg, #334e68 0%, #1e3a5f 100%);
+  border-radius: 20px;
+}
+
+/* ========================================
+   Split Screen Layout
+   ======================================== */
+.split-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.sky-section {
+  flex: 1;
+  background: linear-gradient(180deg, 
+    #d9e2ec 0%,
+    #f0f4f8 50%,
+    #faf8f4 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.ground-section {
+  flex: 1;
+  background: linear-gradient(180deg,
+    #f5f0e8 0%,
+    #ebe3d5 30%,
+    #ddd2be 100%
+  );
+  position: relative;
+}
+
+.horizon-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    #c9b99c 20%,
+    #c9b99c 80%,
+    transparent 100%
+  );
+}
+
+/* ========================================
+   Breathing Guide
+   ======================================== */
+.breathing-circle {
+  position: relative;
+  border-radius: 50%;
+  background: radial-gradient(circle, 
+    rgba(201, 162, 39, 0.2) 0%,
+    rgba(201, 162, 39, 0.1) 50%,
+    transparent 70%
+  );
+}
+
+.breathing-circle.inhale {
+  animation: breathe-in 4s ease-in-out forwards;
+}
+
+.breathing-circle.exhale {
+  animation: breathe-out 4s ease-in-out forwards;
+}
+
+@keyframes breathe-in {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes breathe-out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+}
+
+/* ========================================
+   Tea House Navigation
+   ======================================== */
+.room-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.room-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(201, 162, 39, 0) 0%,
+    rgba(201, 162, 39, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.room-card:hover::before {
+  opacity: 1;
+}
+
+.room-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(30, 58, 95, 0.15);
+}
+
+/* ========================================
+   Mandala Connection Visualization
+   ======================================== */
+.mandala-ring {
+  border-radius: 50%;
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  animation: rotate-slow 30s linear infinite;
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.connection-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg, #c9a227, #a6851f);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.5);
+}
+
+/* ========================================
+   Scrollbar Styling
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f0e8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c9b99c;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b09e7d;
+}
+
+/* ========================================
+   Focus States
+   ======================================== */
+:focus-visible {
+  outline: 2px solid #c9a227;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.gradient-gold {
+  background: linear-gradient(135deg, #f9e49b 0%, #c9a227 50%, #a6851f 100%);
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #c9a227 0%, #a6851f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.border-wabi {
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+.shadow-wabi {
+  box-shadow: 
+    0 4px 6px rgba(30, 58, 95, 0.07),
+    0 10px 20px rgba(30, 58, 95, 0.05);
+}
+
+.shadow-wabi-lg {
+  box-shadow: 
+    0 10px 15px rgba(30, 58, 95, 0.1),
+    0 20px 40px rgba(30, 58, 95, 0.08);
+}
+
+/* ========================================
+   Chat Interface
+   ======================================== */
+.chat-bubble {
+  position: relative;
+  border-radius: 16px 16px 16px 4px;
+}
+
+.chat-bubble.user {
+  border-radius: 16px 16px 4px 16px;
+}
+
+.chat-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+@media (max-width: 640px) {
+  .split-screen {
+    min-height: 100vh;
+    height: auto;
+  }
+  
+  .sky-section,
+  .ground-section {
+    min-height: 50vh;
+  }
+}
