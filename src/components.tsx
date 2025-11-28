@@ -138,7 +138,6 @@ export const Header = ({
             </a>
           )}
           
-          <DarkModeToggle />
           <LanguageSwitcher currentLang={currentLang} />
           
           {/* Mobile Menu Button */}

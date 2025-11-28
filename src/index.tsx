@@ -946,6 +946,35 @@ app.get('/profile', (c) => {
                     : '⚠️ 通知がブロックされています。ブラウザの設定で有効にしてください。'}
                 </p>
               </div>
+              
+              {/* Display Settings */}
+              <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <h3 class="text-lg text-indigo-800 dark:text-[#e8e4dc] mb-4">
+                  {lang === 'en' ? '🎨 Display' : '🎨 表示設定'}
+                </h3>
+                
+                {/* Dark Mode Toggle */}
+                <div class="flex items-center justify-between p-3 bg-ecru-100 dark:bg-[#2d2d2d] rounded-xl">
+                  <div class="flex items-center gap-3">
+                    <span class="text-xl" id="theme-icon">🌙</span>
+                    <div>
+                      <p class="text-ink-700 dark:text-[#e8e4dc] text-sm font-medium">
+                        {lang === 'en' ? 'Dark Mode' : 'ダークモード'}
+                      </p>
+                      <p class="text-ink-500 dark:text-[#78716c] text-xs">
+                        {lang === 'en' ? 'Easier on the eyes at night' : '夜間に目に優しい表示'}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    id="dark-mode-toggle"
+                    class="relative w-12 h-6 bg-ecru-300 dark:bg-gold rounded-full transition-colors"
+                    aria-label="Toggle dark mode"
+                  >
+                    <span class="absolute top-0.5 left-0.5 dark:left-6 w-5 h-5 bg-white dark:bg-ink-900 rounded-full transition-all shadow-sm"></span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           

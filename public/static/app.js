@@ -67,11 +67,18 @@ function initDarkMode() {
 
 function updateDarkModeUI(isDark) {
   const toggle = document.getElementById('dark-mode-toggle');
-  if (!toggle) return;
   
   // Update aria attributes
-  toggle.setAttribute('aria-pressed', isDark);
-  toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', isDark);
+    toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  
+  // Update theme icon on profile page
+  const themeIcon = document.getElementById('theme-icon');
+  if (themeIcon) {
+    themeIcon.textContent = isDark ? '🌙' : '☀️';
+  }
   
   // Update meta theme color for mobile browsers
   const metaTheme = document.querySelector('meta[name="theme-color"]');
