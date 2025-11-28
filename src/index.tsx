@@ -880,8 +880,10 @@ The goal is not a perfect, crack-free vessel. The goal is a vessel that tells YO
         <div class="max-w-3xl mx-auto">
           {/* Hero */}
           <div class="text-center mb-16">
-            <div class="w-24 h-24 mx-auto mb-6">
-              <KintsugiVessel />
+            <div class="w-20 h-24 mx-auto mb-8 flex items-center justify-center">
+              <div class="transform scale-50 origin-center">
+                <KintsugiVessel />
+              </div>
             </div>
             <h1 class="text-4xl md:text-5xl text-indigo-800 mb-4">{t.title[lang]}</h1>
             <p class="text-xl text-gold">{t.subtitle[lang]}</p>
