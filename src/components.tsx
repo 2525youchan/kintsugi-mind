@@ -156,6 +156,12 @@ export const Header = ({
               </svg>
               {currentLang === 'en' ? 'My Vessel' : '器'}
             </a>
+            <a href={`/install?lang=${currentLang}`} class="text-ink-600 hover:text-gold transition-colors py-2 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              {currentLang === 'en' ? 'Add to Home' : 'ホーム画面に追加'}
+            </a>
             <a 
               href={`/check-in?lang=${currentLang}`} 
               class="px-5 py-3 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors text-center"
