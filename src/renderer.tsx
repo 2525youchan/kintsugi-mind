@@ -101,6 +101,7 @@ export const renderer = jsxRenderer(({ children, title }) => {
                     'slide-up': 'slideUp 0.6s ease-out forwards',
                     'breathe': 'breathe 4s ease-in-out infinite',
                     'grow': 'grow 0.5s ease-out forwards',
+                    'spin-once': 'spinOnce 0.3s ease-out',
                   },
                   keyframes: {
                     float: {
@@ -122,6 +123,10 @@ export const renderer = jsxRenderer(({ children, title }) => {
                     grow: {
                       '0%': { transform: 'scale(0.8)', opacity: '0' },
                       '100%': { transform: 'scale(1)', opacity: '1' },
+                    },
+                    spinOnce: {
+                      '0%': { transform: 'rotate(0deg)' },
+                      '100%': { transform: 'rotate(360deg)' },
                     }
                   }
                 }

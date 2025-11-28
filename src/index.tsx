@@ -323,30 +323,26 @@ app.get('/garden', (c) => {
             <p class="text-ink-600 text-sm" dangerouslySetInnerHTML={{ __html: `<span class="text-gold">●</span> ${tx('garden', 'guidanceDefault', lang)}` }}></p>
           </div>
           
-          {/* Micro Actions */}
+          {/* Micro Actions - Generated dynamically by JS */}
           <div class="flex-1">
-            <p class="text-sm text-ink-500 mb-3">{tx('garden', 'microActionTitle', lang)}</p>
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-sm text-ink-500">{tx('garden', 'microActionTitle', lang)}</p>
+              <button 
+                id="refresh-actions-btn"
+                class="flex items-center gap-1 text-xs text-green-700 hover:text-green-800 transition-colors px-2 py-1 rounded-lg hover:bg-green-50"
+                title={lang === 'en' ? 'Show different actions' : '別のアクションを表示'}
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>{lang === 'en' ? 'More' : '別の提案'}</span>
+              </button>
+            </div>
             <div id="action-list" class="space-y-3">
-              <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
-                <input type="checkbox" class="w-5 h-5 accent-gold" data-action="cup" />
-                <span class="text-ink-700">{tx('garden', 'actionCup', lang)}</span>
-                <span class="text-ink-400 text-xs ml-auto">30s</span>
-              </label>
-              <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
-                <input type="checkbox" class="w-5 h-5 accent-gold" data-action="stand" />
-                <span class="text-ink-700">{tx('garden', 'actionStand', lang)}</span>
-                <span class="text-ink-400 text-xs ml-auto">1min</span>
-              </label>
-              <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
-                <input type="checkbox" class="w-5 h-5 accent-gold" data-action="water" />
-                <span class="text-ink-700">{tx('garden', 'actionWater', lang)}</span>
-                <span class="text-ink-400 text-xs ml-auto">15s</span>
-              </label>
-              <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
-                <input type="checkbox" class="w-5 h-5 accent-gold" data-action="window" />
-                <span class="text-ink-700">{tx('garden', 'actionWindow', lang)}</span>
-                <span class="text-ink-400 text-xs ml-auto">30s</span>
-              </label>
+              {/* Actions will be populated by JavaScript */}
+              <div class="text-center text-ink-400 text-sm py-4">
+                {lang === 'en' ? 'Loading actions...' : '読み込み中...'}
+              </div>
             </div>
           </div>
           

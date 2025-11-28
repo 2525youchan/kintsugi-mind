@@ -426,12 +426,356 @@ let clouds = [];
 let plants = [];
 let gardenActionCount = 0;
 
+// All possible micro-actions with categories
+// 豊富なバリエーションでユーザーが飽きないように
+const microActions = {
+  // 身体を動かす (Body Movement)
+  body: {
+    en: [
+      { id: 'stand', text: 'Stand up for just 1 minute', time: '1min' },
+      { id: 'stretch', text: 'Do 3 simple stretches', time: '1min' },
+      { id: 'walk', text: 'Walk to another room and back', time: '30s' },
+      { id: 'shoulders', text: 'Roll your shoulders 5 times', time: '15s' },
+      { id: 'stairs', text: 'Go up and down stairs once', time: '1min' },
+      { id: 'tiptoe', text: 'Stand on tiptoes for 10 seconds', time: '15s' },
+      { id: 'neck', text: 'Gently rotate your neck', time: '30s' },
+      { id: 'hands', text: 'Open and close your hands 10 times', time: '15s' },
+      { id: 'twist', text: 'Twist your upper body gently', time: '20s' },
+      { id: 'shake', text: 'Shake out your arms and legs', time: '15s' },
+      { id: 'squat', text: 'Do 3 slow squats', time: '30s' },
+      { id: 'balance', text: 'Stand on one foot for 10 seconds', time: '20s' },
+      { id: 'wrists', text: 'Rotate your wrists 5 times each', time: '15s' },
+      { id: 'ankles', text: 'Circle your ankles 5 times each', time: '15s' },
+      { id: 'sidebend', text: 'Bend gently to each side', time: '20s' },
+      { id: 'armraise', text: 'Raise your arms overhead slowly', time: '15s' },
+      { id: 'march', text: 'March in place for 30 seconds', time: '30s' },
+      { id: 'fingerstretch', text: 'Spread your fingers wide, then relax', time: '10s' },
+    ],
+    ja: [
+      { id: 'stand', text: '1分だけ立ち上がる', time: '1min' },
+      { id: 'stretch', text: '3回だけストレッチする', time: '1min' },
+      { id: 'walk', text: '別の部屋まで歩いて戻る', time: '30s' },
+      { id: 'shoulders', text: '肩を5回まわす', time: '15s' },
+      { id: 'stairs', text: '階段を一往復する', time: '1min' },
+      { id: 'tiptoe', text: 'つま先立ちを10秒キープ', time: '15s' },
+      { id: 'neck', text: '首をゆっくり回す', time: '30s' },
+      { id: 'hands', text: '手を10回グーパーする', time: '15s' },
+      { id: 'twist', text: '上半身をゆっくりひねる', time: '20s' },
+      { id: 'shake', text: '腕と足を振ってほぐす', time: '15s' },
+      { id: 'squat', text: 'ゆっくりスクワットを3回', time: '30s' },
+      { id: 'balance', text: '片足で10秒立つ', time: '20s' },
+      { id: 'wrists', text: '手首を左右5回ずつ回す', time: '15s' },
+      { id: 'ankles', text: '足首を左右5回ずつ回す', time: '15s' },
+      { id: 'sidebend', text: '体を左右にゆっくり倒す', time: '20s' },
+      { id: 'armraise', text: '両腕をゆっくり上げる', time: '15s' },
+      { id: 'march', text: 'その場で30秒足踏みする', time: '30s' },
+      { id: 'fingerstretch', text: '指を大きく広げて、緩める', time: '10s' },
+    ]
+  },
+  // 水・飲み物 (Hydration)
+  water: {
+    en: [
+      { id: 'water', text: 'Drink a glass of water', time: '15s' },
+      { id: 'tea', text: 'Make yourself a cup of tea', time: '3min' },
+      { id: 'warmwater', text: 'Drink a glass of warm water', time: '15s' },
+      { id: 'lemon', text: 'Add lemon to your water', time: '30s' },
+      { id: 'herbal', text: 'Brew a cup of herbal tea', time: '3min' },
+      { id: 'slowsip', text: 'Sip water slowly, counting 5 sips', time: '30s' },
+      { id: 'coldwater', text: 'Splash cold water on your face', time: '15s' },
+      { id: 'handwash', text: 'Wash your hands with warm water', time: '30s' },
+      { id: 'gargle', text: 'Gargle with water', time: '15s' },
+      { id: 'icecube', text: 'Hold an ice cube in your hand briefly', time: '15s' },
+    ],
+    ja: [
+      { id: 'water', text: '水を一杯飲む', time: '15s' },
+      { id: 'tea', text: 'お茶を一杯いれる', time: '3min' },
+      { id: 'warmwater', text: '白湯を一杯飲む', time: '15s' },
+      { id: 'lemon', text: 'レモン水を作って飲む', time: '30s' },
+      { id: 'herbal', text: 'ハーブティーを淹れる', time: '3min' },
+      { id: 'slowsip', text: '水を5口、ゆっくり飲む', time: '30s' },
+      { id: 'coldwater', text: '顔に冷たい水をかける', time: '15s' },
+      { id: 'handwash', text: '温かいお湯で手を洗う', time: '30s' },
+      { id: 'gargle', text: '水でうがいをする', time: '15s' },
+      { id: 'icecube', text: '氷を手に握ってみる', time: '15s' },
+    ]
+  },
+  // 整理・片付け (Tidying)
+  tidy: {
+    en: [
+      { id: 'cup', text: 'Wash a single cup', time: '30s' },
+      { id: 'desk', text: 'Clear one item from your desk', time: '15s' },
+      { id: 'trash', text: 'Throw away one piece of trash', time: '10s' },
+      { id: 'fold', text: 'Fold one piece of clothing', time: '30s' },
+      { id: 'wipe', text: 'Wipe one surface clean', time: '30s' },
+      { id: 'arrange', text: 'Straighten something nearby', time: '15s' },
+      { id: 'dish', text: 'Put one dish in the dishwasher', time: '15s' },
+      { id: 'book', text: 'Return one book to its shelf', time: '15s' },
+      { id: 'pen', text: 'Put one pen back in its place', time: '10s' },
+      { id: 'pillow', text: 'Fluff a pillow or cushion', time: '15s' },
+      { id: 'shoes', text: 'Align one pair of shoes', time: '10s' },
+      { id: 'drawer', text: 'Organize one small drawer section', time: '1min' },
+      { id: 'dust', text: 'Dust one small area', time: '30s' },
+      { id: 'cord', text: 'Untangle or organize one cord', time: '30s' },
+      { id: 'bag', text: 'Remove one item from your bag', time: '15s' },
+      { id: 'plant', text: 'Remove one dead leaf from a plant', time: '15s' },
+    ],
+    ja: [
+      { id: 'cup', text: 'コップを一つ洗う', time: '30s' },
+      { id: 'desk', text: '机の上を一つだけ片付ける', time: '15s' },
+      { id: 'trash', text: 'ゴミを一つ捨てる', time: '10s' },
+      { id: 'fold', text: '服を一枚だけたたむ', time: '30s' },
+      { id: 'wipe', text: 'どこか一カ所を拭く', time: '30s' },
+      { id: 'arrange', text: '近くのものを整える', time: '15s' },
+      { id: 'dish', text: 'お皿を一枚だけ洗う', time: '15s' },
+      { id: 'book', text: '本を一冊だけ棚に戻す', time: '15s' },
+      { id: 'pen', text: 'ペンを一本だけ元に戻す', time: '10s' },
+      { id: 'pillow', text: 'クッションを整える', time: '15s' },
+      { id: 'shoes', text: '靴を一足だけ揃える', time: '10s' },
+      { id: 'drawer', text: '引き出しの一角を整理する', time: '1min' },
+      { id: 'dust', text: '一カ所だけほこりを払う', time: '30s' },
+      { id: 'cord', text: 'ケーブルを一本だけ整理する', time: '30s' },
+      { id: 'bag', text: 'カバンから一つ物を出す', time: '15s' },
+      { id: 'plant', text: '植物の枯れ葉を一枚取る', time: '15s' },
+    ]
+  },
+  // 感覚を使う (Senses)
+  senses: {
+    en: [
+      { id: 'window', text: 'Open a window and look outside', time: '30s' },
+      { id: 'breathe', text: 'Take 3 deep breaths', time: '30s' },
+      { id: 'listen', text: 'Close your eyes and listen for 30 seconds', time: '30s' },
+      { id: 'touch', text: 'Touch 3 different textures around you', time: '30s' },
+      { id: 'smell', text: 'Smell something pleasant (tea, soap, etc.)', time: '15s' },
+      { id: 'sky', text: 'Look at the sky for 1 minute', time: '1min' },
+      { id: 'plant', text: 'Look at a plant or photo of nature', time: '30s' },
+      { id: 'feet', text: 'Feel the ground beneath your feet', time: '30s' },
+      { id: 'colors', text: 'Find 3 things of the same color', time: '30s' },
+      { id: 'farclose', text: 'Look at something far, then near', time: '20s' },
+      { id: 'temperature', text: 'Notice the temperature of the air', time: '15s' },
+      { id: 'heartbeat', text: 'Feel your heartbeat for 30 seconds', time: '30s' },
+      { id: 'palms', text: 'Press your palms together and feel the warmth', time: '20s' },
+      { id: 'sounds', text: 'Count how many sounds you can hear', time: '30s' },
+      { id: 'light', text: 'Notice how light falls in the room', time: '30s' },
+      { id: 'fabric', text: 'Feel the fabric of what you\'re wearing', time: '15s' },
+    ],
+    ja: [
+      { id: 'window', text: '窓を開けて外を見る', time: '30s' },
+      { id: 'breathe', text: '深呼吸を3回する', time: '30s' },
+      { id: 'listen', text: '目を閉じて30秒間耳を澄ます', time: '30s' },
+      { id: 'touch', text: '周りの3つの質感に触れる', time: '30s' },
+      { id: 'smell', text: '良い香りを嗅ぐ（お茶、石鹸など）', time: '15s' },
+      { id: 'sky', text: '1分間空を眺める', time: '1min' },
+      { id: 'plant', text: '植物や自然の写真を見る', time: '30s' },
+      { id: 'feet', text: '足の裏で床を感じる', time: '30s' },
+      { id: 'colors', text: '同じ色のものを3つ探す', time: '30s' },
+      { id: 'farclose', text: '遠く、近くを交互に見る', time: '20s' },
+      { id: 'temperature', text: '空気の温度を感じる', time: '15s' },
+      { id: 'heartbeat', text: '30秒間心臓の鼓動を感じる', time: '30s' },
+      { id: 'palms', text: '両手を合わせて温かさを感じる', time: '20s' },
+      { id: 'sounds', text: '聞こえる音を数えてみる', time: '30s' },
+      { id: 'light', text: '部屋の光の当たり方を観察する', time: '30s' },
+      { id: 'fabric', text: '着ている服の生地を感じる', time: '15s' },
+    ]
+  },
+  // つながり (Connection)
+  connect: {
+    en: [
+      { id: 'smile', text: 'Smile at yourself in a mirror', time: '10s' },
+      { id: 'thanks', text: 'Think of one thing you\'re grateful for', time: '30s' },
+      { id: 'message', text: 'Send a short message to someone', time: '1min' },
+      { id: 'photo', text: 'Look at a favorite photo', time: '30s' },
+      { id: 'pet', text: 'Pet an animal (or stuffed toy)', time: '1min' },
+      { id: 'hug', text: 'Give yourself a hug', time: '15s' },
+      { id: 'memory', text: 'Recall a happy memory for 30 seconds', time: '30s' },
+      { id: 'compliment', text: 'Think of one thing you like about yourself', time: '30s' },
+      { id: 'wish', text: 'Silently wish someone well', time: '15s' },
+      { id: 'voice', text: 'Say something kind to yourself out loud', time: '15s' },
+      { id: 'hands', text: 'Hold your own hand gently', time: '15s' },
+      { id: 'face', text: 'Gently touch your face with kindness', time: '15s' },
+    ],
+    ja: [
+      { id: 'smile', text: '鏡の自分に微笑む', time: '10s' },
+      { id: 'thanks', text: '感謝できることを一つ思い浮かべる', time: '30s' },
+      { id: 'message', text: '誰かに短いメッセージを送る', time: '1min' },
+      { id: 'photo', text: 'お気に入りの写真を見る', time: '30s' },
+      { id: 'pet', text: 'ペット（またはぬいぐるみ）を撫でる', time: '1min' },
+      { id: 'hug', text: '自分を抱きしめる', time: '15s' },
+      { id: 'memory', text: '幸せな思い出を30秒思い出す', time: '30s' },
+      { id: 'compliment', text: '自分の好きなところを一つ考える', time: '30s' },
+      { id: 'wish', text: '誰かの幸せを心の中で願う', time: '15s' },
+      { id: 'voice', text: '自分に優しい言葉を声に出す', time: '15s' },
+      { id: 'hands', text: '自分の手を優しく握る', time: '15s' },
+      { id: 'face', text: '優しく自分の顔に触れる', time: '15s' },
+    ]
+  },
+  // 創造性 (Creativity) - NEW
+  creative: {
+    en: [
+      { id: 'doodle', text: 'Draw a tiny doodle', time: '30s' },
+      { id: 'hum', text: 'Hum a tune for 20 seconds', time: '20s' },
+      { id: 'cloud', text: 'Find a shape in the clouds or ceiling', time: '30s' },
+      { id: 'word', text: 'Think of a word that describes how you feel', time: '15s' },
+      { id: 'color', text: 'Pick a color that matches your mood', time: '10s' },
+      { id: 'story', text: 'Make up a one-sentence story', time: '30s' },
+      { id: 'rhyme', text: 'Think of two words that rhyme', time: '15s' },
+      { id: 'imagine', text: 'Imagine your happy place for 30 seconds', time: '30s' },
+      { id: 'rename', text: 'Give a nearby object a funny name', time: '15s' },
+      { id: 'pattern', text: 'Find an interesting pattern nearby', time: '20s' },
+    ],
+    ja: [
+      { id: 'doodle', text: '小さな落書きを描く', time: '30s' },
+      { id: 'hum', text: '20秒間鼻歌を歌う', time: '20s' },
+      { id: 'cloud', text: '雲や天井に形を見つける', time: '30s' },
+      { id: 'word', text: '今の気持ちを一言で表す', time: '15s' },
+      { id: 'color', text: '今の気分に合う色を選ぶ', time: '10s' },
+      { id: 'story', text: '一文だけの物語を作る', time: '30s' },
+      { id: 'rhyme', text: '韻を踏む言葉を2つ考える', time: '15s' },
+      { id: 'imagine', text: '幸せな場所を30秒想像する', time: '30s' },
+      { id: 'rename', text: '近くの物に面白い名前をつける', time: '15s' },
+      { id: 'pattern', text: '近くの面白い模様を見つける', time: '20s' },
+    ]
+  },
+  // マインドフルネス (Mindfulness) - NEW
+  mindful: {
+    en: [
+      { id: 'present', text: 'Notice 5 things you can see right now', time: '30s' },
+      { id: 'body', text: 'Scan your body from head to toe', time: '1min' },
+      { id: 'anchor', text: 'Focus on one point for 20 seconds', time: '20s' },
+      { id: 'pause', text: 'Simply pause and do nothing for 30 seconds', time: '30s' },
+      { id: 'accept', text: 'Accept this moment as it is', time: '20s' },
+      { id: 'nowfeel', text: 'Name one thing you feel right now', time: '15s' },
+      { id: 'release', text: 'Breathe out and let go of tension', time: '20s' },
+      { id: 'gentle', text: 'Soften your jaw and shoulders', time: '15s' },
+      { id: 'slow', text: 'Do one thing very slowly', time: '30s' },
+      { id: 'observe', text: 'Observe your thoughts without judging', time: '30s' },
+    ],
+    ja: [
+      { id: 'present', text: '今見えるものを5つ数える', time: '30s' },
+      { id: 'body', text: '頭からつま先まで体を感じる', time: '1min' },
+      { id: 'anchor', text: '一点を20秒間見つめる', time: '20s' },
+      { id: 'pause', text: '30秒間何もせず立ち止まる', time: '30s' },
+      { id: 'accept', text: 'この瞬間をあるがままに受け入れる', time: '20s' },
+      { id: 'nowfeel', text: '今感じていることを一つ言葉にする', time: '15s' },
+      { id: 'release', text: '息を吐いて緊張を手放す', time: '20s' },
+      { id: 'gentle', text: '顎と肩の力を抜く', time: '15s' },
+      { id: 'slow', text: '何か一つをとてもゆっくりする', time: '30s' },
+      { id: 'observe', text: '考えを批判せず観察する', time: '30s' },
+    ]
+  },
+  // 季節・自然 (Nature/Seasonal) - NEW
+  nature: {
+    en: [
+      { id: 'fresh', text: 'Step outside for 30 seconds', time: '30s' },
+      { id: 'tree', text: 'Look at a tree or plant', time: '30s' },
+      { id: 'breeze', text: 'Feel the air on your skin', time: '20s' },
+      { id: 'sun', text: 'Feel warmth (sunlight or heating)', time: '30s' },
+      { id: 'rain', text: 'Listen to or imagine rain', time: '30s' },
+      { id: 'bird', text: 'Listen for birds or nature sounds', time: '30s' },
+      { id: 'stone', text: 'Hold a small object from nature', time: '20s' },
+      { id: 'green', text: 'Look at something green', time: '15s' },
+      { id: 'moon', text: 'Think about what phase the moon is in', time: '15s' },
+      { id: 'weather', text: 'Notice today\'s weather', time: '15s' },
+    ],
+    ja: [
+      { id: 'fresh', text: '30秒だけ外に出る', time: '30s' },
+      { id: 'tree', text: '木や植物を見る', time: '30s' },
+      { id: 'breeze', text: '肌で風を感じる', time: '20s' },
+      { id: 'sun', text: '温かさを感じる（日光や暖房）', time: '30s' },
+      { id: 'rain', text: '雨の音を聴くか想像する', time: '30s' },
+      { id: 'bird', text: '鳥の声や自然の音を聴く', time: '30s' },
+      { id: 'stone', text: '自然のものを手に持つ', time: '20s' },
+      { id: 'green', text: '緑色のものを見る', time: '15s' },
+      { id: 'moon', text: '今の月の形を思い浮かべる', time: '15s' },
+      { id: 'weather', text: '今日の天気を感じる', time: '15s' },
+    ]
+  }
+};
+
+// Select random actions from different categories
+// Ensures maximum variety by picking from different categories
+function getRandomActions(lang, count = 5) {
+  const categories = Object.keys(microActions);
+  const selectedActions = [];
+  const usedIds = new Set();
+  
+  // Shuffle categories for randomness
+  const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
+  
+  // First pass: pick one from each category until we have enough
+  for (const category of shuffledCategories) {
+    if (selectedActions.length >= count) break;
+    
+    const categoryActions = microActions[category][lang];
+    // Shuffle actions within category
+    const shuffledActions = [...categoryActions].sort(() => Math.random() - 0.5);
+    
+    for (const action of shuffledActions) {
+      if (!usedIds.has(action.id)) {
+        selectedActions.push({ ...action, category });
+        usedIds.add(action.id);
+        break;
+      }
+    }
+  }
+  
+  // Second pass: if we need more, pick randomly from any category
+  let attempts = 0;
+  while (selectedActions.length < count && attempts < 50) {
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    const categoryActions = microActions[randomCategory][lang];
+    const randomAction = categoryActions[Math.floor(Math.random() * categoryActions.length)];
+    
+    if (!usedIds.has(randomAction.id)) {
+      selectedActions.push({ ...randomAction, category: randomCategory });
+      usedIds.add(randomAction.id);
+    }
+    attempts++;
+  }
+  
+  // Shuffle final result so order is random
+  return selectedActions.sort(() => Math.random() - 0.5);
+}
+
+// Render action list
+function renderActionList(actions, container, gardenPlants, lang) {
+  container.innerHTML = '';
+  
+  actions.forEach(action => {
+    const label = document.createElement('label');
+    label.className = 'flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors';
+    label.innerHTML = `
+      <input type="checkbox" class="w-5 h-5 accent-gold" data-action="${action.id}" />
+      <span class="text-ink-700">${action.text}</span>
+      <span class="text-ink-400 text-xs ml-auto">${action.time}</span>
+    `;
+    
+    const checkbox = label.querySelector('input');
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        growPlant(gardenPlants);
+        vibrate([50]);
+        gardenActionCount++;
+        
+        // Record activity
+        let profile = loadProfile();
+        profile = recordActivityToProfile(profile, 'garden', { actionCount: 1 });
+        saveProfile(profile);
+        
+        recordAction(action.id, true, lang);
+      }
+    });
+    
+    container.appendChild(label);
+  });
+}
+
 function initGarden() {
   const emotionInput = document.getElementById('emotion-input');
   const addCloudBtn = document.getElementById('add-cloud-btn');
   const cloudContainer = document.getElementById('cloud-container');
-  const actionCheckboxes = document.querySelectorAll('#action-list input[type="checkbox"]');
+  const actionList = document.getElementById('action-list');
   const gardenPlants = document.getElementById('garden-plants');
+  const refreshBtn = document.getElementById('refresh-actions-btn');
   const lang = getLang();
   
   // Load profile and record visit
@@ -440,6 +784,35 @@ function initGarden() {
   saveProfile(profile);
   
   if (!emotionInput || !addCloudBtn) return;
+  
+  // Generate random actions (5 actions for more variety)
+  let currentActions = getRandomActions(lang, 5);
+  renderActionList(currentActions, actionList, gardenPlants, lang);
+  
+  // Refresh button functionality
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      // Animate the button
+      refreshBtn.classList.add('animate-spin-once');
+      setTimeout(() => refreshBtn.classList.remove('animate-spin-once'), 300);
+      
+      // Get new random actions (different from current)
+      currentActions = getRandomActions(lang, 5);
+      
+      // Fade out, update, fade in
+      actionList.style.opacity = '0';
+      actionList.style.transform = 'translateY(10px)';
+      
+      setTimeout(() => {
+        renderActionList(currentActions, actionList, gardenPlants, lang);
+        actionList.style.opacity = '1';
+        actionList.style.transform = 'translateY(0)';
+      }, 200);
+    });
+    
+    // Add transition styles
+    actionList.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+  }
   
   addCloudBtn.addEventListener('click', () => {
     const emotion = emotionInput.value.trim();
@@ -459,24 +832,6 @@ function initGarden() {
     if (e.key === 'Enter') {
       addCloudBtn.click();
     }
-  });
-  
-  actionCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-      const action = checkbox.dataset.action;
-      if (checkbox.checked) {
-        growPlant(gardenPlants);
-        vibrate([50]);
-        gardenActionCount++;
-        
-        // Record activity
-        let profile = loadProfile();
-        profile = recordActivityToProfile(profile, 'garden', { actionCount: 1 });
-        saveProfile(profile);
-        
-        recordAction(action, true, lang);
-      }
-    });
   });
 }
 
