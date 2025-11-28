@@ -2422,7 +2422,7 @@ app.get('/pricing', async (c) => {
                 )}
               </div>
               <div class="mb-6">
-                <span class="text-4xl text-indigo-800 dark:text-[#e8e4dc] font-light">¥0</span>
+                <span class="text-4xl text-indigo-800 dark:text-[#e8e4dc] font-light">{lang === 'en' ? '$0' : '¥0'}</span>
                 <span class="text-ink-500 dark:text-[#78716c]">{t.monthly[lang]}</span>
               </div>
               <ul class="space-y-3 mb-8">
@@ -2462,12 +2462,12 @@ app.get('/pricing', async (c) => {
               {/* Pricing Options */}
               <div class="mb-6 space-y-3">
                 <div class="flex items-baseline gap-2">
-                  <span class="text-4xl font-light">¥980</span>
+                  <span class="text-4xl font-light">{lang === 'en' ? '$10' : '¥980'}</span>
                   <span class="text-ecru-300">{t.monthly[lang]}</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="text-lg text-ecru-300">or</span>
-                  <span class="text-2xl font-light">¥7,800</span>
+                  <span class="text-2xl font-light">{lang === 'en' ? '$80' : '¥7,800'}</span>
                   <span class="text-ecru-300">{t.yearly[lang]}</span>
                   <span class="px-2 py-0.5 bg-gold/20 text-gold text-xs rounded-full">{t.save[lang]}</span>
                 </div>
