@@ -571,6 +571,201 @@ function initProfile() {
   
   // Initialize notification settings
   initNotificationSettings(lang);
+  
+  // Initialize check-in calendar
+  initCheckinCalendar(lang);
+}
+
+// ========================================
+// Check-in Calendar
+// ========================================
+
+const CHECKIN_HISTORY_KEY = 'kintsugi-checkin-history';
+const WEATHER_EMOJIS = {
+  sunny: '☀️',
+  cloudy: '⛅',
+  rainy: '🌧️',
+  stormy: '⛈️'
+};
+
+// Load check-in history from localStorage
+function loadCheckinHistory() {
+  try {
+    const data = localStorage.getItem(CHECKIN_HISTORY_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// Save check-in to history
+function saveCheckinToHistory(weather, note = '') {
+  const history = loadCheckinHistory();
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  
+  // Check if already checked in today
+  const existingIndex = history.findIndex(h => h.date === today);
+  if (existingIndex >= 0) {
+    history[existingIndex] = { date: today, weather, note, timestamp: new Date().toISOString() };
+  } else {
+    history.push({ date: today, weather, note, timestamp: new Date().toISOString() });
+  }
+  
+  // Keep only last 365 days
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  const filtered = history.filter(h => new Date(h.date) >= oneYearAgo);
+  
+  localStorage.setItem(CHECKIN_HISTORY_KEY, JSON.stringify(filtered));
+  return filtered;
+}
+
+// Get check-ins for a specific month
+function getCheckinsForMonth(year, month) {
+  const history = loadCheckinHistory();
+  return history.filter(h => {
+    const date = new Date(h.date);
+    return date.getFullYear() === year && date.getMonth() + 1 === month;
+  });
+}
+
+// Initialize check-in calendar
+function initCheckinCalendar(lang) {
+  const calendarGrid = document.getElementById('calendar-grid');
+  const monthLabel = document.getElementById('calendar-month');
+  const prevBtn = document.getElementById('calendar-prev');
+  const nextBtn = document.getElementById('calendar-next');
+  
+  if (!calendarGrid || !monthLabel) return;
+  
+  let currentDate = new Date();
+  let currentYear = currentDate.getFullYear();
+  let currentMonth = currentDate.getMonth() + 1;
+  
+  const monthNames = {
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 
+         'July', 'August', 'September', 'October', 'November', 'December'],
+    ja: ['1月', '2月', '3月', '4月', '5月', '6月', 
+         '7月', '8月', '9月', '10月', '11月', '12月']
+  };
+  
+  async function renderCalendar(year, month) {
+    // Update month label
+    monthLabel.textContent = lang === 'ja' 
+      ? `${year}年 ${monthNames.ja[month - 1]}`
+      : `${monthNames.en[month - 1]} ${year}`;
+    
+    // Get checkins for this month (try server first, fallback to local)
+    let checkins = [];
+    let checkinMap = {};
+    
+    try {
+      // Try to get from server
+      const response = await fetch(`/api/checkins?year=${year}&month=${month}`);
+      const data = await response.json();
+      
+      if (data.source === 'server' && data.checkins.length > 0) {
+        checkins = data.checkins;
+        // Map server checkins by date
+        checkins.forEach(c => {
+          const date = c.created_at.split('T')[0];
+          if (!checkinMap[date]) {
+            checkinMap[date] = c;
+          }
+        });
+      } else {
+        // Use local storage
+        const localCheckins = getCheckinsForMonth(year, month);
+        localCheckins.forEach(c => {
+          checkinMap[c.date] = c;
+        });
+      }
+    } catch (e) {
+      // Fallback to local storage
+      const localCheckins = getCheckinsForMonth(year, month);
+      localCheckins.forEach(c => {
+        checkinMap[c.date] = c;
+      });
+    }
+    
+    // Calculate calendar grid
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay();
+    
+    // Clear grid
+    calendarGrid.innerHTML = '';
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Add empty cells for days before first day of month
+    for (let i = 0; i < startDayOfWeek; i++) {
+      const emptyCell = document.createElement('div');
+      emptyCell.className = 'aspect-square';
+      calendarGrid.appendChild(emptyCell);
+    }
+    
+    // Add day cells
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const checkin = checkinMap[dateStr];
+      const isToday = dateStr === today;
+      const isFuture = new Date(dateStr) > new Date();
+      
+      const cell = document.createElement('div');
+      cell.className = `
+        aspect-square flex flex-col items-center justify-center rounded-lg text-xs
+        ${isToday ? 'ring-2 ring-gold ring-offset-1' : ''}
+        ${isFuture ? 'text-ink-300 dark:text-[#4a4a4a]' : 'text-ink-600 dark:text-[#a8a29e]'}
+        ${checkin ? 'bg-ecru-100 dark:bg-[#2d2d2d]' : 'hover:bg-ecru-50 dark:hover:bg-[#252525]'}
+        transition-colors cursor-default
+      `;
+      
+      // Day number
+      const daySpan = document.createElement('span');
+      daySpan.className = `text-[10px] ${isToday ? 'font-bold text-gold' : ''}`;
+      daySpan.textContent = day;
+      cell.appendChild(daySpan);
+      
+      // Weather emoji if checked in
+      if (checkin) {
+        const weatherSpan = document.createElement('span');
+        weatherSpan.className = 'text-sm leading-none mt-0.5';
+        weatherSpan.textContent = WEATHER_EMOJIS[checkin.weather] || '✓';
+        cell.appendChild(weatherSpan);
+        
+        // Tooltip with note if available
+        if (checkin.note) {
+          cell.title = checkin.note;
+        }
+      }
+      
+      calendarGrid.appendChild(cell);
+    }
+  }
+  
+  // Navigation
+  prevBtn?.addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 1) {
+      currentMonth = 12;
+      currentYear--;
+    }
+    renderCalendar(currentYear, currentMonth);
+  });
+  
+  nextBtn?.addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 12) {
+      currentMonth = 1;
+      currentYear++;
+    }
+    renderCalendar(currentYear, currentMonth);
+  });
+  
+  // Initial render
+  renderCalendar(currentYear, currentMonth);
 }
 
 function initNotificationSettings(lang) {
@@ -2636,10 +2831,23 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (path === '/profile') {
     initProfile();
   } else if (path === '/check-in') {
-    // Just record visit
+    // Record visit
     let profile = loadProfile();
     profile = recordVisit(profile);
     saveProfile(profile);
+    
+    // Save weather check-in to history if weather is selected
+    const weatherParam = urlParams.get('weather');
+    if (weatherParam && ['sunny', 'cloudy', 'rainy', 'stormy'].includes(weatherParam)) {
+      saveCheckinToHistory(weatherParam);
+      
+      // Also send to server (non-blocking)
+      fetch('/api/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ weather: weatherParam })
+      }).catch(e => console.log('Server checkin failed, saved locally'));
+    }
   } else if (path === '/garden') {
     initGarden();
     initSoundControl('garden');
