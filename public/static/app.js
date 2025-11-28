@@ -604,31 +604,37 @@ function initStudy() {
     
     // Process the response
     console.log('[KINTSUGI] Processing response...');
-    {
-      // Store connection data
-      const connectionTypes = ['received', 'given', 'forgiven'];
-      naikanConnections.push({
-        person: person || (lang === 'en' ? 'Someone' : '誰か'),
-        description: response,
-        type: connectionTypes[naikanStep - 1]
-      });
-      
-      // Show user message with person name
-      const displayMessage = person ? `${person}: ${response}` : response;
-      addUserMessage(displayMessage, chatContainer);
-      naikanResponses.push(response);
-      
-      // Clear inputs
-      inputEl.value = '';
-      if (personEl) personEl.value = '';
-      
-      setTimeout(() => {
-        naikanStep++;
-        if (naikanStep <= 3) {
+    
+    // Store connection data
+    const connectionTypes = ['received', 'given', 'forgiven'];
+    const currentPerson = person || (lang === 'en' ? 'Someone' : '誰か');
+    naikanConnections.push({
+      person: currentPerson,
+      description: response,
+      type: connectionTypes[naikanStep - 1]
+    });
+    
+    // Show user message with person name
+    const displayMessage = person ? `${person}: ${response}` : response;
+    addUserMessage(displayMessage, chatContainer);
+    naikanResponses.push(response);
+    
+    // Clear inputs
+    inputEl.value = '';
+    if (personEl) personEl.value = '';
+    
+    // Get AI reflection
+    const currentStep = naikanStep;
+    fetchNaikanReflection(currentStep, currentPerson, response, lang, chatContainer).then(() => {
+      naikanStep++;
+      if (naikanStep <= 3) {
+        setTimeout(() => {
           addNaikanQuestion(naikanStep, chatContainer, lang);
           updateProgress(naikanStep, lang);
           updatePersonInputLabel(naikanStep, lang);
-        } else {
+        }, 500);
+      } else {
+        setTimeout(() => {
           showNaikanConclusion(chatContainer, lang);
           
           // Record study session completion
@@ -643,9 +649,9 @@ function initStudy() {
           setTimeout(() => {
             showConnectionMandala(naikanConnections, lang);
           }, 2000);
-        }
-      }, 1000);
-    }
+        }, 500);
+      }
+    });
   });
   
   inputEl.addEventListener('keypress', (e) => {
@@ -694,6 +700,52 @@ function addUserMessage(text, container) {
   message.innerHTML = `<p class="text-ink-700">${text}</p>`;
   container.appendChild(message);
   container.scrollTop = container.scrollHeight;
+}
+
+// Fetch AI reflection for Naikan
+async function fetchNaikanReflection(step, person, response, lang, container) {
+  const guideName = i18n.study.guideName[lang];
+  
+  // Show typing indicator
+  const typingId = 'typing-' + Date.now();
+  const typingIndicator = document.createElement('div');
+  typingIndicator.id = typingId;
+  typingIndicator.className = 'chat-bubble bg-ecru-200 p-4 max-w-[80%] animate-fade-in';
+  typingIndicator.innerHTML = `
+    <p class="text-ink-700 text-sm mb-1">
+      <span class="text-gold">${guideName}</span>
+    </p>
+    <p class="text-ink-400 text-sm">
+      ${lang === 'en' ? '...' : '...'}
+    </p>
+  `;
+  container.appendChild(typingIndicator);
+  container.scrollTop = container.scrollHeight;
+  
+  try {
+    const res = await fetch('/api/naikan/reflect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step, person, response, lang })
+    });
+    const data = await res.json();
+    
+    // Remove typing indicator and show response
+    const typing = document.getElementById(typingId);
+    if (typing) {
+      typing.innerHTML = `
+        <p class="text-ink-700 text-sm mb-1">
+          <span class="text-gold">${guideName}</span>
+        </p>
+        <p class="text-ink-600">${data.reflection}</p>
+      `;
+    }
+  } catch (err) {
+    console.error('Failed to fetch Naikan reflection:', err);
+    // Remove typing indicator on error
+    const typing = document.getElementById(typingId);
+    if (typing) typing.remove();
+  }
 }
 
 function addNaikanQuestion(step, container, lang) {

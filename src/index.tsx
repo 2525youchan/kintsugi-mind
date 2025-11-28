@@ -5,10 +5,54 @@ import { translations, getLanguage, type Language } from './i18n'
 import { Header, Footer, RoomCard, WeatherIcon, KintsugiVessel, LanguageSwitcher } from './components'
 
 // Types
-type Bindings = {}
+type Bindings = {
+  GEMINI_API_KEY: string
+}
 type Variables = {}
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
+
+// Gemini API helper
+async function callGemini(apiKey: string, prompt: string, systemPrompt?: string): Promise<string> {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+  
+  const contents = []
+  if (systemPrompt) {
+    contents.push({
+      role: 'user',
+      parts: [{ text: systemPrompt }]
+    })
+    contents.push({
+      role: 'model', 
+      parts: [{ text: 'I understand. I will follow these guidelines.' }]
+    })
+  }
+  contents.push({
+    role: 'user',
+    parts: [{ text: prompt }]
+  })
+  
+  const response = await fetch(`${url}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents,
+      generationConfig: {
+        temperature: 0.8,
+        maxOutputTokens: 300
+      }
+    })
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    console.error('Gemini API error:', error)
+    throw new Error('Gemini API call failed')
+  }
+  
+  const data = await response.json()
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+}
 
 // Middleware
 app.use('*', cors())
@@ -710,31 +754,62 @@ app.get('/profile', (c) => {
 // API Routes
 // ========================================
 
-// API: Get Morita guidance
+// API: Get Morita guidance (Gemini AI)
 app.post('/api/morita/guidance', async (c) => {
   const { emotion, lang = 'en' } = await c.req.json()
+  const apiKey = c.env.GEMINI_API_KEY
   
-  const responses = {
+  // Fallback responses if API fails
+  const fallbacks = {
     en: [
       "Feeling anxious? That's natural for a human being. So, what will your hands do?",
       "You don't need to erase that emotion. Emotions are like clouds in the sky. Action continues on the ground.",
-      "Arugamama — Feeling and doing are separate things.",
-      "Can you move your hands just once, while carrying that anxiety?",
-      "Emotions are like weather. You can't change them. But you can carry an umbrella."
+      "Arugamama — Feeling and doing are separate things."
     ],
     ja: [
       "不安ですね。それは人間として自然です。では、手は何をしますか？",
       "その感情を消す必要はありません。感情は空の雲のようなもの。行動は地上で続きます。",
-      "あるがまま (Arugamama) — 感じることと、することは別です。",
-      "不安を抱えたまま、一つだけ手を動かしてみませんか？",
-      "感情は天気。変えられません。でも、傘をさすことはできます。"
+      "あるがまま — 感じることと、することは別です。"
     ]
   }
   
-  const langResponses = responses[lang as keyof typeof responses] || responses.en
-  const response = langResponses[Math.floor(Math.random() * langResponses.length)]
+  if (!apiKey) {
+    const langFallbacks = fallbacks[lang as keyof typeof fallbacks] || fallbacks.en
+    return c.json({ guidance: langFallbacks[Math.floor(Math.random() * langFallbacks.length)], emotion })
+  }
   
-  return c.json({ guidance: response, emotion })
+  try {
+    const systemPrompt = lang === 'en' 
+      ? `You are a Morita therapy guide. Morita therapy is a Japanese approach that teaches accepting anxiety and acting anyway.
+Key principles:
+- Accept emotions as they are (Arugamama/あるがまま)
+- Separate feelings from actions
+- Focus on purpose-driven action, not eliminating anxiety
+- Emotions are like weather - you can't control them, but you can act despite them
+
+Respond warmly and briefly (2-3 sentences). Acknowledge the emotion, then gently guide toward small action.
+Do NOT try to fix or eliminate the emotion. Never say "don't worry" or "calm down".`
+      : `あなたは森田療法のガイドです。森田療法は、不安を受け入れながら行動することを教える日本のアプローチです。
+核心原則：
+- 感情をあるがままに受け入れる
+- 感情と行動を分離する
+- 不安の除去ではなく、目的本位の行動に集中
+- 感情は天気のようなもの - コントロールできないが、それでも行動できる
+
+温かく簡潔に（2〜3文で）応答してください。感情を認め、小さな行動へ優しく導いてください。
+感情を修正したり除去しようとしないでください。「心配しないで」「落ち着いて」などは言わないでください。`
+
+    const prompt = lang === 'en'
+      ? `The user shared this feeling: "${emotion}". Respond as a Morita therapy guide.`
+      : `ユーザーがこの感情を共有しました：「${emotion}」。森田療法のガイドとして応答してください。`
+
+    const guidance = await callGemini(apiKey, prompt, systemPrompt)
+    return c.json({ guidance, emotion, ai: true })
+  } catch (error) {
+    console.error('Gemini API error:', error)
+    const langFallbacks = fallbacks[lang as keyof typeof fallbacks] || fallbacks.en
+    return c.json({ guidance: langFallbacks[Math.floor(Math.random() * langFallbacks.length)], emotion })
+  }
 })
 
 // API: Get Naikan questions
@@ -760,35 +835,110 @@ app.get('/api/naikan/question', (c) => {
   return c.json(questions[step as keyof typeof questions] || questions[1])
 })
 
-// API: Get Zen Koan
-app.get('/api/zen/koan', (c) => {
+// API: Get Zen Koan (Gemini AI)
+app.get('/api/zen/koan', async (c) => {
   const lang = (c.req.query('lang') || 'en') as Language
+  const apiKey = c.env.GEMINI_API_KEY
   
-  const koans = [
-    {
-      en: "Two hands clap and there is a sound. What is the sound of one hand?",
-      ja: "両手を打てば音がする。では、片手の音は？"
-    },
-    {
-      en: "Does the wind move the flag, or does the flag move the wind?",
-      ja: "風が旗を動かすのか、旗が風を動かすのか。"
-    },
-    {
-      en: "Before you were born, who were you?",
-      ja: "あなたが生まれる前、あなたは何者だったか。"
-    },
-    {
-      en: "Show me your face before your parents were born.",
-      ja: "鏡を見ずに、自分の顔を見なさい。"
-    },
-    {
-      en: "If bamboo falls in a grove with no one to hear, is there sound?",
-      ja: "竹林の中で竹が倒れる。聞く者がいなければ、音はあるか。"
-    }
+  // Classic koans as fallback
+  const classicKoans = [
+    { en: "Two hands clap and there is a sound. What is the sound of one hand?", ja: "両手を打てば音がする。では、片手の音は？" },
+    { en: "Does the wind move the flag, or does the flag move the wind?", ja: "風が旗を動かすのか、旗が風を動かすのか。" },
+    { en: "Before you were born, who were you?", ja: "あなたが生まれる前、あなたは何者だったか。" },
+    { en: "Show me your face before your parents were born.", ja: "父母未生以前、本来の面目を見せよ。" },
+    { en: "What is the color of wind?", ja: "風に色はあるか。" }
   ]
   
-  const koan = koans[Math.floor(Math.random() * koans.length)]
-  return c.json({ text: koan[lang] })
+  if (!apiKey) {
+    const koan = classicKoans[Math.floor(Math.random() * classicKoans.length)]
+    return c.json({ text: koan[lang] })
+  }
+  
+  try {
+    const systemPrompt = lang === 'en'
+      ? `You are a Zen master. Create ONE original koan (Zen riddle) that:
+- Is brief (1-2 sentences)
+- Has no logical answer
+- Points to the nature of mind or reality
+- Uses simple, natural imagery
+- Is thought-provoking but not confusing
+Just respond with the koan itself, nothing else.`
+      : `あなたは禅師です。以下の条件でオリジナルの公案を一つ作ってください：
+- 短く（1〜2文）
+- 論理的な答えがない
+- 心や現実の本質を指し示す
+- シンプルで自然なイメージを使う
+- 考えさせられるが、混乱させない
+公案だけを返してください。説明は不要です。`
+
+    const prompt = lang === 'en' ? 'Create a Zen koan.' : '公案を作ってください。'
+    const koan = await callGemini(apiKey, prompt, systemPrompt)
+    return c.json({ text: koan.trim(), ai: true })
+  } catch (error) {
+    console.error('Gemini API error:', error)
+    const koan = classicKoans[Math.floor(Math.random() * classicKoans.length)]
+    return c.json({ text: koan[lang] })
+  }
+})
+
+// API: Naikan reflection response (Gemini AI)
+app.post('/api/naikan/reflect', async (c) => {
+  const { step, person, response: userResponse, lang = 'en' } = await c.req.json()
+  const apiKey = c.env.GEMINI_API_KEY
+  
+  const questionTypes = {
+    1: { en: 'received kindness from', ja: 'から受けた恩' },
+    2: { en: 'gave to', ja: 'に与えたもの' },
+    3: { en: 'caused trouble to', ja: 'に迷惑をかけたこと' }
+  }
+  
+  // Fallback responses
+  const fallbacks = {
+    en: [
+      "Thank you for sharing. That connection is precious.",
+      "What a beautiful reflection. These moments of awareness matter.",
+      "You see the web of connections around you. That is wisdom."
+    ],
+    ja: [
+      "共有してくださり、ありがとうございます。その繋がりは尊いものです。",
+      "美しい振り返りですね。こうした気づきの瞬間は大切です。",
+      "あなたの周りの縁の網を見ていますね。それは知恵です。"
+    ]
+  }
+  
+  if (!apiKey) {
+    const langFallbacks = fallbacks[lang as keyof typeof fallbacks] || fallbacks.en
+    return c.json({ reflection: langFallbacks[Math.floor(Math.random() * langFallbacks.length)] })
+  }
+  
+  try {
+    const qType = questionTypes[step as keyof typeof questionTypes] || questionTypes[1]
+    
+    const systemPrompt = lang === 'en'
+      ? `You are a Naikan therapy guide. Naikan is a Japanese self-reflection method focusing on three questions about relationships.
+Respond warmly and briefly (1-2 sentences). 
+- Acknowledge what they shared
+- Gently highlight the connection/relationship they described
+- Do NOT give advice or try to fix anything
+- Be gentle, accepting, non-judgmental`
+      : `あなたは内観法のガイドです。内観は、人間関係についての3つの問いに焦点を当てた日本の自己内省法です。
+温かく簡潔に（1〜2文で）応答してください。
+- 共有されたことを認める
+- 描かれた繋がり・関係性を優しく強調する
+- アドバイスや修正をしない
+- 優しく、受容的で、判断しない態度で`
+
+    const prompt = lang === 'en'
+      ? `The user reflected on what they ${qType.en} ${person}: "${userResponse}". Respond briefly as a Naikan guide.`
+      : `ユーザーは${person}${qType.ja}について振り返りました：「${userResponse}」。内観ガイドとして簡潔に応答してください。`
+
+    const reflection = await callGemini(apiKey, prompt, systemPrompt)
+    return c.json({ reflection, ai: true })
+  } catch (error) {
+    console.error('Gemini API error:', error)
+    const langFallbacks = fallbacks[lang as keyof typeof fallbacks] || fallbacks.en
+    return c.json({ reflection: langFallbacks[Math.floor(Math.random() * langFallbacks.length)] })
+  }
 })
 
 // API: Record action (for garden growth)
