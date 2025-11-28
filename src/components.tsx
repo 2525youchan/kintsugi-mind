@@ -193,23 +193,29 @@ export const Header = ({
       {variant !== 'transparent' && (
         <div id="mobile-menu" class="hidden md:hidden bg-ecru dark:bg-[#1e1e1e] border-t border-wabi dark:border-[#4a4a4a]">
           <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-4">
-            <a href={`/?lang=${currentLang}#about`} class="text-ink-600 hover:text-gold transition-colors py-2">
+            <a href={`/?lang=${currentLang}#about`} class="text-ink-600 dark:text-[#e8e4dc] hover:text-gold transition-colors py-2">
               {currentLang === 'en' ? 'About' : '概要'}
             </a>
-            <a href={`/?lang=${currentLang}#philosophy`} class="text-ink-600 hover:text-gold transition-colors py-2">
+            <a href={`/?lang=${currentLang}#philosophy`} class="text-ink-600 dark:text-[#e8e4dc] hover:text-gold transition-colors py-2">
               {currentLang === 'en' ? 'Philosophy' : '哲学'}
             </a>
-            <a href={`/profile?lang=${currentLang}`} class="text-ink-600 hover:text-gold transition-colors py-2 flex items-center gap-2">
+            <a href={`/profile?lang=${currentLang}`} class="text-ink-600 dark:text-[#e8e4dc] hover:text-gold transition-colors py-2 flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {currentLang === 'en' ? 'My Vessel' : '器'}
             </a>
-            <a href={`/install?lang=${currentLang}`} class="text-ink-600 hover:text-gold transition-colors py-2 flex items-center gap-2">
+            <a href={`/install?lang=${currentLang}`} class="text-ink-600 dark:text-[#e8e4dc] hover:text-gold transition-colors py-2 flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
               {currentLang === 'en' ? 'Add to Home' : 'ホーム画面に追加'}
+            </a>
+            <a href={`/pricing?lang=${currentLang}`} class="text-ink-600 dark:text-[#e8e4dc] hover:text-gold transition-colors py-2 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              {currentLang === 'en' ? 'Premium' : 'プレミアム'}
             </a>
             <a 
               href={`/check-in?lang=${currentLang}`} 
