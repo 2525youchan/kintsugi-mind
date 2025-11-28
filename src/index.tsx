@@ -71,6 +71,200 @@ const tx = (section: keyof typeof translations, key: string, lang: Language): st
 // Pages
 // ========================================
 
+// Onboarding - First Time Experience
+app.get('/welcome', (c) => {
+  const lang = getLanguage(c)
+  
+  // Vessel options for selection
+  const vessels = [
+    { id: 'chawan', name: lang === 'en' ? 'Tea Bowl' : '茶碗', emoji: '🍵', description: lang === 'en' ? 'Everyday warmth' : '日常の温もり' },
+    { id: 'tsubo', name: lang === 'en' ? 'Jar' : '壺', emoji: '🏺', description: lang === 'en' ? 'Deep capacity' : '深い包容力' },
+    { id: 'sara', name: lang === 'en' ? 'Plate' : '皿', emoji: '🍽️', description: lang === 'en' ? 'Open acceptance' : '開かれた受容' },
+    { id: 'tokkuri', name: lang === 'en' ? 'Sake Bottle' : '徳利', emoji: '🍶', description: lang === 'en' ? 'Quiet strength' : '静かな強さ' },
+    { id: 'hachi', name: lang === 'en' ? 'Bowl' : '鉢', emoji: '🥣', description: lang === 'en' ? 'Nurturing spirit' : '育む心' },
+  ]
+  
+  return c.render(
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] transition-colors duration-300 overflow-hidden">
+      {/* Onboarding Container */}
+      <div id="onboarding-container" class="relative w-full min-h-screen">
+        
+        {/* Step 1: Welcome */}
+        <div id="onboarding-step-1" class="onboarding-step absolute inset-0 flex items-center justify-center p-6 opacity-100 transition-all duration-700">
+          <div class="max-w-lg text-center">
+            <div class="text-6xl mb-8 animate-float">🏺</div>
+            <h1 class="text-4xl md:text-5xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-6">
+              {lang === 'en' ? 'Welcome to' : 'ようこそ'}
+              <br />
+              <span class="text-gradient-gold font-medium">KINTSUGI MIND</span>
+            </h1>
+            <p class="text-lg text-ink-600 dark:text-[#a8a29e] mb-8 leading-relaxed">
+              {lang === 'en' 
+                ? 'A space where your imperfections become your greatest beauty.'
+                : 'あなたの不完全さが、最大の美しさになる場所。'}
+            </p>
+            <button 
+              onclick="goToStep(2)"
+              class="px-8 py-4 bg-indigo-800 dark:bg-[#c9a227] text-ecru rounded-full hover:bg-indigo-700 dark:hover:bg-[#d4af37] transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              {lang === 'en' ? 'Begin Your Journey' : '旅を始める'}
+            </button>
+          </div>
+        </div>
+
+        {/* Step 2: Kintsugi Philosophy */}
+        <div id="onboarding-step-2" class="onboarding-step absolute inset-0 flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-700">
+          <div class="max-w-lg text-center">
+            <div class="relative w-32 h-32 mx-auto mb-8">
+              {/* Animated crack and gold repair */}
+              <svg viewBox="0 0 100 100" class="w-full h-full">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-300 dark:text-[#4a4a4a]" />
+                <path id="crack-line" d="M30,30 L50,50 L70,35 L50,70 L35,60" fill="none" stroke="#c9a227" stroke-width="3" stroke-dasharray="200" stroke-dashoffset="200" class="animate-draw-crack" />
+              </svg>
+            </div>
+            <h2 class="text-3xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-4">
+              {lang === 'en' ? 'The Art of Golden Repair' : '金継ぎの哲学'}
+            </h2>
+            <p class="text-ink-600 dark:text-[#a8a29e] mb-4 leading-relaxed">
+              {lang === 'en'
+                ? 'In Japan, broken pottery is repaired with gold, making it more beautiful than before.'
+                : '日本では、壊れた陶器を金で修復し、以前よりも美しくします。'}
+            </p>
+            <p class="text-ink-500 dark:text-[#78716c] text-sm mb-8 italic">
+              {lang === 'en'
+                ? '"Your cracks are not flaws — they are where the light enters."'
+                : '「ヒビは欠点ではありません。光が入る場所なのです。」'}
+            </p>
+            <div class="flex justify-center gap-4">
+              <button 
+                onclick="goToStep(1)"
+                class="px-6 py-3 border border-indigo-300 dark:border-[#4a4a4a] text-indigo-800 dark:text-[#a8a29e] rounded-full hover:bg-indigo-50 dark:hover:bg-[#1e1e1e] transition-colors"
+              >
+                {lang === 'en' ? 'Back' : '戻る'}
+              </button>
+              <button 
+                onclick="goToStep(3)"
+                class="px-8 py-3 bg-indigo-800 dark:bg-[#c9a227] text-ecru rounded-full hover:bg-indigo-700 dark:hover:bg-[#d4af37] transition-colors font-medium"
+              >
+                {lang === 'en' ? 'Continue' : '続ける'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Step 3: Three Rooms */}
+        <div id="onboarding-step-3" class="onboarding-step absolute inset-0 flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-700">
+          <div class="max-w-2xl text-center">
+            <h2 class="text-3xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-4">
+              {lang === 'en' ? 'Your Tea House' : 'あなたの茶室'}
+            </h2>
+            <p class="text-ink-600 dark:text-[#a8a29e] mb-8">
+              {lang === 'en'
+                ? 'Three rooms await, each offering a different path to harmony.'
+                : '3つの部屋があなたを待っています。それぞれが調和への異なる道を提供します。'}
+            </p>
+            <div class="grid grid-cols-3 gap-4 mb-8">
+              <div class="bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-xl p-4 shadow-wabi">
+                <div class="text-3xl mb-2">🌱</div>
+                <h3 class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{lang === 'en' ? 'GARDEN' : '庭'}</h3>
+                <p class="text-xs text-ink-500 dark:text-[#78716c]">{lang === 'en' ? 'Action' : '行動'}</p>
+              </div>
+              <div class="bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-xl p-4 shadow-wabi">
+                <div class="text-3xl mb-2">📚</div>
+                <h3 class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{lang === 'en' ? 'STUDY' : '書斎'}</h3>
+                <p class="text-xs text-ink-500 dark:text-[#78716c]">{lang === 'en' ? 'Reflection' : '内省'}</p>
+              </div>
+              <div class="bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-xl p-4 shadow-wabi">
+                <div class="text-3xl mb-2">🧘</div>
+                <h3 class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{lang === 'en' ? 'TATAMI' : '座敷'}</h3>
+                <p class="text-xs text-ink-500 dark:text-[#78716c]">{lang === 'en' ? 'Stillness' : '静寂'}</p>
+              </div>
+            </div>
+            <div class="flex justify-center gap-4">
+              <button 
+                onclick="goToStep(2)"
+                class="px-6 py-3 border border-indigo-300 dark:border-[#4a4a4a] text-indigo-800 dark:text-[#a8a29e] rounded-full hover:bg-indigo-50 dark:hover:bg-[#1e1e1e] transition-colors"
+              >
+                {lang === 'en' ? 'Back' : '戻る'}
+              </button>
+              <button 
+                onclick="goToStep(4)"
+                class="px-8 py-3 bg-indigo-800 dark:bg-[#c9a227] text-ecru rounded-full hover:bg-indigo-700 dark:hover:bg-[#d4af37] transition-colors font-medium"
+              >
+                {lang === 'en' ? 'Continue' : '続ける'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Step 4: Choose Your Vessel */}
+        <div id="onboarding-step-4" class="onboarding-step absolute inset-0 flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-700 overflow-y-auto">
+          <div class="max-w-2xl text-center py-8">
+            <h2 class="text-3xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-4">
+              {lang === 'en' ? 'Choose Your Vessel' : 'あなたの器を選んでください'}
+            </h2>
+            <p class="text-ink-600 dark:text-[#a8a29e] mb-8">
+              {lang === 'en'
+                ? 'This vessel represents you. It will grow more beautiful with each crack repaired.'
+                : 'この器はあなた自身を表します。修復されるたびに、より美しくなります。'}
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
+              {vessels.map(v => (
+                <button 
+                  data-vessel={v.id}
+                  onclick={`selectVessel('${v.id}')`}
+                  class="vessel-option bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-xl p-4 shadow-wabi hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-gold/50 focus:border-gold"
+                >
+                  <div class="text-4xl mb-2">{v.emoji}</div>
+                  <h3 class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{v.name}</h3>
+                  <p class="text-xs text-ink-500 dark:text-[#78716c]">{v.description}</p>
+                </button>
+              ))}
+            </div>
+            <div id="vessel-confirm" class="hidden">
+              <p class="text-gold mb-4" id="selected-vessel-text">
+                {lang === 'en' ? 'You have chosen: ' : '選択した器：'}
+                <span id="selected-vessel-name" class="font-medium"></span>
+              </p>
+              <div class="flex justify-center gap-4">
+                <button 
+                  onclick="goToStep(3)"
+                  class="px-6 py-3 border border-indigo-300 dark:border-[#4a4a4a] text-indigo-800 dark:text-[#a8a29e] rounded-full hover:bg-indigo-50 dark:hover:bg-[#1e1e1e] transition-colors"
+                >
+                  {lang === 'en' ? 'Back' : '戻る'}
+                </button>
+                <button 
+                  onclick="completeOnboarding()"
+                  class="px-8 py-4 bg-gold text-ink rounded-full hover:bg-gold-400 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                >
+                  {lang === 'en' ? 'Enter the Tea House' : '茶室へ入る'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Indicator */}
+        <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex gap-2 z-50">
+          <div id="dot-1" class="w-2 h-2 rounded-full bg-gold transition-all duration-300"></div>
+          <div id="dot-2" class="w-2 h-2 rounded-full bg-indigo-300 dark:bg-[#4a4a4a] transition-all duration-300"></div>
+          <div id="dot-3" class="w-2 h-2 rounded-full bg-indigo-300 dark:bg-[#4a4a4a] transition-all duration-300"></div>
+          <div id="dot-4" class="w-2 h-2 rounded-full bg-indigo-300 dark:bg-[#4a4a4a] transition-all duration-300"></div>
+        </div>
+
+        {/* Skip Button */}
+        <button 
+          onclick="skipOnboarding()"
+          class="fixed top-6 right-6 text-ink-400 dark:text-[#78716c] hover:text-ink-600 dark:hover:text-[#a8a29e] text-sm transition-colors z-50"
+        >
+          {lang === 'en' ? 'Skip' : 'スキップ'}
+        </button>
+      </div>
+    </div>,
+    { title: lang === 'en' ? 'Welcome — KINTSUGI MIND' : 'ようこそ — KINTSUGI MIND' }
+  )
+})
+
 // Home / Entrance - The Tea House
 app.get('/', (c) => {
   const lang = getLanguage(c)

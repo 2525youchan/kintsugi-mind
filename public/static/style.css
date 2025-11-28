@@ -726,3 +726,95 @@ body {
     min-height: 50vh;
   }
 }
+
+/* ========================================
+   Onboarding Animations
+   ======================================== */
+
+/* Floating animation for vessel emoji */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Draw crack animation */
+@keyframes draw-crack {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-crack {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: draw-crack 2s ease-out forwards;
+}
+
+/* Step transition */
+.onboarding-step {
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.onboarding-step.opacity-0 {
+  transform: translateX(20px);
+}
+
+.onboarding-step.opacity-100 {
+  transform: translateX(0);
+}
+
+/* Vessel selection hover effect */
+.vessel-option {
+  transition: all 0.3s ease;
+}
+
+.vessel-option:hover {
+  transform: translateY(-4px);
+}
+
+.vessel-option.selected {
+  border-color: var(--gold-accent);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+/* Progress dots animation */
+#onboarding-container [id^="dot-"] {
+  transition: all 0.3s ease;
+}
+
+/* Gold text gradient */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #c9a227 0%, #e8d479 50%, #c9a227 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient-gold {
+  background: linear-gradient(135deg, #d4af37 0%, #f5e6a3 50%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pulse effect for selected vessel */
+@keyframes vessel-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(201, 162, 39, 0);
+  }
+}
+
+.vessel-option.ring-2 {
+  animation: vessel-pulse 2s infinite;
+}

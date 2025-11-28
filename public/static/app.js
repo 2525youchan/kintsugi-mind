@@ -2233,6 +2233,186 @@ function initWeeklyReport() {
 }
 
 // ========================================
+// Onboarding System
+// ========================================
+
+const ONBOARDING_KEY = 'kintsugi-onboarding-complete';
+const VESSEL_KEY = 'kintsugi-vessel';
+
+let currentOnboardingStep = 1;
+let selectedVessel = null;
+
+// Check if user has completed onboarding
+function hasCompletedOnboarding() {
+  return localStorage.getItem(ONBOARDING_KEY) === 'true';
+}
+
+// Mark onboarding as complete
+function markOnboardingComplete() {
+  localStorage.setItem(ONBOARDING_KEY, 'true');
+}
+
+// Get selected vessel
+function getSelectedVessel() {
+  return localStorage.getItem(VESSEL_KEY) || 'chawan';
+}
+
+// Save selected vessel
+function saveSelectedVessel(vesselId) {
+  localStorage.setItem(VESSEL_KEY, vesselId);
+}
+
+// Navigate to onboarding step
+function goToStep(step) {
+  const prevStep = document.getElementById(`onboarding-step-${currentOnboardingStep}`);
+  const nextStep = document.getElementById(`onboarding-step-${step}`);
+  const prevDot = document.getElementById(`dot-${currentOnboardingStep}`);
+  const nextDot = document.getElementById(`dot-${step}`);
+  
+  if (prevStep && nextStep) {
+    // Fade out current step
+    prevStep.classList.add('opacity-0', 'pointer-events-none');
+    prevStep.classList.remove('opacity-100');
+    
+    // Fade in next step
+    setTimeout(() => {
+      nextStep.classList.remove('opacity-0', 'pointer-events-none');
+      nextStep.classList.add('opacity-100');
+    }, 300);
+    
+    // Update dots
+    if (prevDot) {
+      prevDot.classList.remove('bg-gold', 'w-4');
+      prevDot.classList.add('bg-indigo-300', 'dark:bg-[#4a4a4a]', 'w-2');
+    }
+    if (nextDot) {
+      nextDot.classList.remove('bg-indigo-300', 'dark:bg-[#4a4a4a]', 'w-2');
+      nextDot.classList.add('bg-gold', 'w-4');
+    }
+    
+    currentOnboardingStep = step;
+    
+    // Trigger crack animation on step 2
+    if (step === 2) {
+      setTimeout(() => {
+        const crackLine = document.getElementById('crack-line');
+        if (crackLine) {
+          crackLine.style.strokeDashoffset = '0';
+          crackLine.style.transition = 'stroke-dashoffset 2s ease-out';
+        }
+      }, 500);
+    }
+  }
+}
+
+// Select a vessel
+function selectVessel(vesselId) {
+  selectedVessel = vesselId;
+  
+  // Update UI
+  document.querySelectorAll('.vessel-option').forEach(btn => {
+    btn.classList.remove('border-gold', 'ring-2', 'ring-gold/30', 'scale-105');
+    btn.classList.add('border-transparent');
+  });
+  
+  const selected = document.querySelector(`[data-vessel="${vesselId}"]`);
+  if (selected) {
+    selected.classList.remove('border-transparent');
+    selected.classList.add('border-gold', 'ring-2', 'ring-gold/30', 'scale-105');
+    
+    // Show confirm section
+    const confirmSection = document.getElementById('vessel-confirm');
+    const vesselNameEl = document.getElementById('selected-vessel-name');
+    if (confirmSection && vesselNameEl) {
+      confirmSection.classList.remove('hidden');
+      
+      const vesselNames = {
+        chawan: { en: 'Tea Bowl', ja: '茶碗' },
+        tsubo: { en: 'Jar', ja: '壺' },
+        sara: { en: 'Plate', ja: '皿' },
+        tokkuri: { en: 'Sake Bottle', ja: '徳利' },
+        hachi: { en: 'Bowl', ja: '鉢' }
+      };
+      const lang = getLang();
+      vesselNameEl.textContent = vesselNames[vesselId]?.[lang] || vesselId;
+    }
+  }
+  
+  // Haptic feedback
+  if (navigator.vibrate) {
+    navigator.vibrate(10);
+  }
+}
+
+// Complete onboarding
+function completeOnboarding() {
+  if (selectedVessel) {
+    saveSelectedVessel(selectedVessel);
+  }
+  markOnboardingComplete();
+  
+  // Add profile vessel type
+  let profile = loadProfile();
+  profile.vesselType = selectedVessel || 'chawan';
+  saveProfile(profile);
+  
+  // Redirect to home with animation
+  const container = document.getElementById('onboarding-container');
+  if (container) {
+    container.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+    container.style.opacity = '0';
+    container.style.transform = 'scale(1.1)';
+  }
+  
+  setTimeout(() => {
+    const lang = getLang();
+    window.location.href = `/?lang=${lang}`;
+  }, 500);
+}
+
+// Skip onboarding
+function skipOnboarding() {
+  markOnboardingComplete();
+  const lang = getLang();
+  window.location.href = `/?lang=${lang}`;
+}
+
+// Check and redirect to onboarding if needed
+function checkOnboardingRedirect() {
+  const path = window.location.pathname;
+  
+  // Don't redirect if already on welcome page
+  if (path === '/welcome') return false;
+  
+  // Only redirect from home page
+  if (path === '/' && !hasCompletedOnboarding()) {
+    const lang = getLang();
+    window.location.href = `/welcome?lang=${lang}`;
+    return true;
+  }
+  
+  return false;
+}
+
+// Initialize onboarding page
+function initOnboarding() {
+  console.log('[Onboarding] Initializing...');
+  
+  // Make functions globally available
+  window.goToStep = goToStep;
+  window.selectVessel = selectVessel;
+  window.completeOnboarding = completeOnboarding;
+  window.skipOnboarding = skipOnboarding;
+  
+  // Set initial dot state
+  const dot1 = document.getElementById('dot-1');
+  if (dot1) {
+    dot1.classList.add('w-4');
+    dot1.classList.remove('w-2');
+  }
+}
+
+// ========================================
 // Initialize based on current page
 // ========================================
 
@@ -2253,8 +2433,15 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('kintsugi-lang', langParam);
   }
   
+  // Check for onboarding redirect (only on home page)
+  if (checkOnboardingRedirect()) {
+    return; // Stop further initialization if redirecting
+  }
+  
   // Initialize based on page
-  if (path === '/profile') {
+  if (path === '/welcome') {
+    initOnboarding();
+  } else if (path === '/profile') {
     initProfile();
   } else if (path === '/check-in') {
     // Just record visit
