@@ -124,6 +124,34 @@ export const Header = ({
             </nav>
           )}
           
+          {/* User Avatar / Login Button (rendered by JS based on auth status) */}
+          {variant !== 'transparent' && (
+            <div id="auth-header-container" class="flex items-center">
+              {/* Default: Login button (will be replaced by JS if logged in) */}
+              <a 
+                href="/api/auth/login/google"
+                id="header-login-btn"
+                class="hidden md:flex items-center gap-2 px-3 py-1.5 text-sm text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors rounded-full bg-ecru-100 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a]"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>{currentLang === 'en' ? 'Sign in' : 'ログイン'}</span>
+              </a>
+              {/* User avatar (hidden by default, shown by JS when logged in) */}
+              <a 
+                href={`/profile?lang=${currentLang}`}
+                id="header-user-avatar"
+                class="hidden items-center gap-2"
+              >
+                <img id="header-user-picture" src="" alt="" class="w-8 h-8 rounded-full border-2 border-gold" />
+              </a>
+            </div>
+          )}
+          
           {/* Mobile: Vessel icon link (always visible, more prominent) */}
           {variant !== 'transparent' && (
             <a 
@@ -134,7 +162,7 @@ export const Header = ({
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="text-xs font-medium">{currentLang === 'en' ? 'Vessel' : '器'}</span>
+              <span class="text-xs font-medium" id="mobile-vessel-text">{currentLang === 'en' ? 'Vessel' : '器'}</span>
             </a>
           )}
           

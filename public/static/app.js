@@ -4,6 +4,112 @@
  */
 
 // ========================================
+// Authentication System
+// ========================================
+
+let currentUser = null;
+
+// Check authentication status on page load
+async function checkAuthStatus() {
+  try {
+    const response = await fetch('/api/auth/status');
+    const data = await response.json();
+    
+    if (data.authenticated && data.user) {
+      currentUser = data.user;
+      updateAuthUI(data.user);
+      
+      // If just logged in, sync local data to server
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('auth_success')) {
+        await syncLocalDataToServer();
+        // Remove auth_success param from URL
+        urlParams.delete('auth_success');
+        const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+  } catch (e) {
+    console.error('Auth status check failed:', e);
+  }
+}
+
+// Update UI based on auth status
+function updateAuthUI(user) {
+  const lang = getLang();
+  
+  // Header login button
+  const loginBtn = document.getElementById('header-login-btn');
+  const userAvatar = document.getElementById('header-user-avatar');
+  const userPicture = document.getElementById('header-user-picture');
+  
+  if (loginBtn && userAvatar && userPicture && user) {
+    loginBtn.classList.add('hidden');
+    userAvatar.classList.remove('hidden');
+    userAvatar.classList.add('flex');
+    userPicture.src = user.picture;
+    userPicture.alt = user.name;
+  }
+  
+  // Profile page account banner
+  const loggedOutBanner = document.getElementById('account-logged-out');
+  const loggedInBanner = document.getElementById('account-logged-in');
+  const userAvatarProfile = document.getElementById('user-avatar');
+  const userName = document.getElementById('user-name');
+  const userEmail = document.getElementById('user-email');
+  
+  if (loggedOutBanner && loggedInBanner && user) {
+    loggedOutBanner.classList.add('hidden');
+    loggedInBanner.classList.remove('hidden');
+    
+    if (userAvatarProfile) userAvatarProfile.src = user.picture;
+    if (userName) userName.textContent = user.name;
+    if (userEmail) userEmail.textContent = user.email;
+  }
+  
+  // Mobile vessel text update
+  const mobileVesselText = document.getElementById('mobile-vessel-text');
+  if (mobileVesselText && user) {
+    mobileVesselText.textContent = user.name.split(' ')[0]; // First name
+  }
+}
+
+// Sync local data to server after login
+async function syncLocalDataToServer() {
+  const localProfile = loadProfile();
+  
+  try {
+    const response = await fetch('/api/auth/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile: localProfile })
+    });
+    
+    if (response.ok) {
+      console.log('[Auth] Local data synced to server');
+    }
+  } catch (e) {
+    console.error('Sync failed:', e);
+  }
+}
+
+// Logout handler
+function initLogout() {
+  const logoutBtn = document.getElementById('logout-btn');
+  if (!logoutBtn) return;
+  
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      currentUser = null;
+      window.location.reload();
+    } catch (e) {
+      console.error('Logout failed:', e);
+    }
+  });
+}
+
+// ========================================
 // Dark Mode System
 // ========================================
 
@@ -2505,6 +2611,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize dark mode toggle
   initDarkMode();
+  
+  // Check authentication status (non-blocking)
+  checkAuthStatus();
+  
+  // Initialize logout button if present
+  initLogout();
   
   // Save language preference
   const urlParams = new URLSearchParams(window.location.search);

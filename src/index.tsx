@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import { renderer } from './renderer'
 import { translations, getLanguage, type Language } from './i18n'
 import { Header, Footer, RoomCard, WeatherIcon, KintsugiVessel, LanguageSwitcher } from './components'
@@ -7,10 +8,63 @@ import { Header, Footer, RoomCard, WeatherIcon, KintsugiVessel, LanguageSwitcher
 // Types
 type Bindings = {
   GEMINI_API_KEY: string
+  GOOGLE_CLIENT_ID: string
+  GOOGLE_CLIENT_SECRET: string
+  SESSION_SECRET: string
+  DB: D1Database
 }
-type Variables = {}
+type Variables = {
+  user?: {
+    id: string
+    email: string
+    name: string
+    picture: string
+  }
+}
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
+
+// ========================================
+// Auth Helpers
+// ========================================
+
+function generateId(): string {
+  return crypto.randomUUID()
+}
+
+async function hashSessionId(sessionId: string, secret: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(sessionId + secret)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+// Get current user from session
+async function getCurrentUser(c: any): Promise<Variables['user'] | null> {
+  const sessionId = getCookie(c, 'kintsugi_session')
+  if (!sessionId) return null
+  
+  try {
+    const db = c.env.DB
+    if (!db) return null
+    
+    const session = await db.prepare(
+      'SELECT user_id FROM sessions WHERE id = ? AND expires_at > datetime("now")'
+    ).bind(sessionId).first()
+    
+    if (!session) return null
+    
+    const user = await db.prepare(
+      'SELECT id, email, name, picture FROM users WHERE id = ?'
+    ).bind(session.user_id).first()
+    
+    return user as Variables['user'] | null
+  } catch (e) {
+    console.error('Get user error:', e)
+    return null
+  }
+}
 
 // Gemini API helper
 async function callGemini(apiKey: string, prompt: string, systemPrompt?: string): Promise<string> {
@@ -904,6 +958,64 @@ app.get('/profile', (c) => {
 
       <main class="flex-1 py-12 px-6">
         <div class="max-w-4xl mx-auto">
+          {/* Account Status Banner */}
+          <div id="account-banner" class="mb-8">
+            {/* Logged out state */}
+            <div id="account-logged-out" class="bg-gradient-to-r from-indigo-800 to-indigo-700 dark:from-[#1e3a5f] dark:to-[#0d1f33] rounded-2xl p-6 text-ecru shadow-lg">
+              <div class="flex flex-col sm:flex-row items-center gap-4">
+                <div class="flex-shrink-0">
+                  <div class="w-16 h-16 rounded-full bg-ecru/20 flex items-center justify-center">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                  <h3 class="text-lg font-medium mb-1">
+                    {lang === 'en' ? 'Sync your journey across devices' : 'デバイス間でデータを同期'}
+                  </h3>
+                  <p class="text-ecru/70 text-sm">
+                    {lang === 'en' 
+                      ? 'Sign in with Google to save your progress and access it anywhere' 
+                      : 'Googleでログインして、どこからでもアクセス'}
+                  </p>
+                </div>
+                <a 
+                  href="/api/auth/login/google"
+                  class="flex items-center gap-2 px-6 py-3 bg-white text-indigo-800 rounded-full hover:bg-ecru transition-colors font-medium shadow-md"
+                >
+                  <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  <span>{lang === 'en' ? 'Sign in with Google' : 'Googleでログイン'}</span>
+                </a>
+              </div>
+            </div>
+            
+            {/* Logged in state (hidden by default) */}
+            <div id="account-logged-in" class="hidden bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-4 shadow-wabi">
+              <div class="flex items-center gap-4">
+                <img id="user-avatar" src="" alt="" class="w-12 h-12 rounded-full border-2 border-gold" />
+                <div class="flex-1">
+                  <p id="user-name" class="text-indigo-800 dark:text-[#e8e4dc] font-medium"></p>
+                  <p id="user-email" class="text-ink-500 dark:text-[#78716c] text-sm"></p>
+                </div>
+                <button 
+                  id="logout-btn"
+                  class="px-4 py-2 text-sm text-ink-500 dark:text-[#78716c] hover:text-red-500 transition-colors"
+                >
+                  {lang === 'en' ? 'Sign out' : 'ログアウト'}
+                </button>
+              </div>
+            </div>
+          </div>
+          
           {/* Title */}
           <div class="text-center mb-12">
             <h1 class="text-4xl text-indigo-800 dark:text-[#e8e4dc] mb-2">{t.title[lang]}</h1>
@@ -2102,6 +2214,333 @@ app.get('/report', (c) => {
     </div>,
     { title: lang === 'en' ? 'Weekly Report — KINTSUGI MIND' : '週間レポート — KINTSUGI MIND' }
   )
+})
+
+// ========================================
+// Authentication Routes
+// ========================================
+
+// Get current auth status
+app.get('/api/auth/status', async (c) => {
+  const user = await getCurrentUser(c)
+  return c.json({ 
+    authenticated: !!user,
+    user: user ? {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      picture: user.picture
+    } : null
+  })
+})
+
+// Start Google OAuth flow
+app.get('/api/auth/login/google', (c) => {
+  const clientId = c.env.GOOGLE_CLIENT_ID
+  
+  if (!clientId) {
+    return c.json({ error: 'Google OAuth not configured' }, 500)
+  }
+  
+  // Get the base URL for redirect
+  const url = new URL(c.req.url)
+  const redirectUri = `${url.protocol}//${url.host}/api/auth/callback/google`
+  
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid email profile',
+    access_type: 'offline',
+    prompt: 'consent'
+  })
+  
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+  return c.redirect(authUrl)
+})
+
+// Google OAuth callback
+app.get('/api/auth/callback/google', async (c) => {
+  const code = c.req.query('code')
+  const error = c.req.query('error')
+  const lang = getCookie(c, 'kintsugi-lang') || 'en'
+  
+  if (error || !code) {
+    return c.redirect(`/?lang=${lang}&auth_error=1`)
+  }
+  
+  const clientId = c.env.GOOGLE_CLIENT_ID
+  const clientSecret = c.env.GOOGLE_CLIENT_SECRET
+  const sessionSecret = c.env.SESSION_SECRET
+  const db = c.env.DB
+  
+  if (!clientId || !clientSecret || !db) {
+    return c.redirect(`/?lang=${lang}&auth_error=config`)
+  }
+  
+  try {
+    // Get the base URL for redirect
+    const url = new URL(c.req.url)
+    const redirectUri = `${url.protocol}//${url.host}/api/auth/callback/google`
+    
+    // Exchange code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code'
+      })
+    })
+    
+    if (!tokenResponse.ok) {
+      console.error('Token exchange failed:', await tokenResponse.text())
+      return c.redirect(`/?lang=${lang}&auth_error=token`)
+    }
+    
+    const tokens = await tokenResponse.json() as { access_token: string }
+    
+    // Get user info from Google
+    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` }
+    })
+    
+    if (!userInfoResponse.ok) {
+      return c.redirect(`/?lang=${lang}&auth_error=userinfo`)
+    }
+    
+    const googleUser = await userInfoResponse.json() as {
+      id: string
+      email: string
+      name: string
+      picture: string
+    }
+    
+    // Find or create user
+    let user = await db.prepare(
+      'SELECT id FROM users WHERE google_id = ?'
+    ).bind(googleUser.id).first() as { id: string } | null
+    
+    if (!user) {
+      // Create new user
+      const userId = generateId()
+      await db.prepare(
+        'INSERT INTO users (id, google_id, email, name, picture) VALUES (?, ?, ?, ?, ?)'
+      ).bind(userId, googleUser.id, googleUser.email, googleUser.name, googleUser.picture).run()
+      
+      // Create profile for the user
+      const profileId = generateId()
+      await db.prepare(
+        'INSERT INTO profiles (id, user_id) VALUES (?, ?)'
+      ).bind(profileId, userId).run()
+      
+      user = { id: userId }
+    } else {
+      // Update user info
+      await db.prepare(
+        'UPDATE users SET email = ?, name = ?, picture = ?, updated_at = datetime("now") WHERE id = ?'
+      ).bind(googleUser.email, googleUser.name, googleUser.picture, user.id).run()
+    }
+    
+    // Create session
+    const sessionId = generateId()
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+    
+    await db.prepare(
+      'INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)'
+    ).bind(sessionId, user.id, expiresAt.toISOString()).run()
+    
+    // Set session cookie
+    setCookie(c, 'kintsugi_session', sessionId, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      expires: expiresAt
+    })
+    
+    return c.redirect(`/profile?lang=${lang}&auth_success=1`)
+    
+  } catch (e) {
+    console.error('OAuth callback error:', e)
+    return c.redirect(`/?lang=${lang}&auth_error=unknown`)
+  }
+})
+
+// Logout
+app.post('/api/auth/logout', async (c) => {
+  const sessionId = getCookie(c, 'kintsugi_session')
+  
+  if (sessionId) {
+    const db = c.env.DB
+    if (db) {
+      await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run()
+    }
+    deleteCookie(c, 'kintsugi_session', { path: '/' })
+  }
+  
+  return c.json({ success: true })
+})
+
+// Sync local data to server (after login)
+app.post('/api/auth/sync', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ error: 'Not authenticated' }, 401)
+  }
+  
+  const { profile: localProfile } = await c.req.json()
+  const db = c.env.DB
+  
+  if (!db || !localProfile) {
+    return c.json({ error: 'Invalid request' }, 400)
+  }
+  
+  try {
+    // Get user's profile
+    const profile = await db.prepare(
+      'SELECT * FROM profiles WHERE user_id = ?'
+    ).bind(user.id).first()
+    
+    if (!profile) {
+      return c.json({ error: 'Profile not found' }, 404)
+    }
+    
+    // Merge local data with server data (local takes priority for higher values)
+    const mergedStats = {
+      total_repairs: Math.max(profile.total_repairs || 0, localProfile.totalRepairs || 0),
+      stats_total_visits: Math.max(profile.stats_total_visits || 0, localProfile.stats?.totalVisits || 0),
+      stats_current_streak: localProfile.stats?.currentStreak || profile.stats_current_streak || 0,
+      stats_longest_streak: Math.max(profile.stats_longest_streak || 0, localProfile.stats?.longestStreak || 0),
+      stats_garden_actions: Math.max(profile.stats_garden_actions || 0, localProfile.stats?.gardenActions || 0),
+      stats_study_sessions: Math.max(profile.stats_study_sessions || 0, localProfile.stats?.studySessions || 0),
+      stats_tatami_sessions: Math.max(profile.stats_tatami_sessions || 0, localProfile.stats?.tatamiSessions || 0)
+    }
+    
+    // Update profile
+    await db.prepare(`
+      UPDATE profiles SET
+        total_repairs = ?,
+        stats_total_visits = ?,
+        stats_current_streak = ?,
+        stats_longest_streak = ?,
+        stats_garden_actions = ?,
+        stats_study_sessions = ?,
+        stats_tatami_sessions = ?,
+        updated_at = datetime("now")
+      WHERE user_id = ?
+    `).bind(
+      mergedStats.total_repairs,
+      mergedStats.stats_total_visits,
+      mergedStats.stats_current_streak,
+      mergedStats.stats_longest_streak,
+      mergedStats.stats_garden_actions,
+      mergedStats.stats_study_sessions,
+      mergedStats.stats_tatami_sessions,
+      user.id
+    ).run()
+    
+    // Update vessel type if provided
+    if (localProfile.vesselType) {
+      await db.prepare(
+        'UPDATE users SET vessel_type = ? WHERE id = ?'
+      ).bind(localProfile.vesselType, user.id).run()
+    }
+    
+    return c.json({ success: true, merged: mergedStats })
+  } catch (e) {
+    console.error('Sync error:', e)
+    return c.json({ error: 'Sync failed' }, 500)
+  }
+})
+
+// Get server profile data
+app.get('/api/auth/profile', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ error: 'Not authenticated' }, 401)
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ error: 'Database not available' }, 500)
+  }
+  
+  try {
+    const profile = await db.prepare(
+      'SELECT * FROM profiles WHERE user_id = ?'
+    ).bind(user.id).first()
+    
+    const userData = await db.prepare(
+      'SELECT vessel_type FROM users WHERE id = ?'
+    ).bind(user.id).first() as { vessel_type: string } | null
+    
+    const checkins = await db.prepare(
+      'SELECT weather, created_at FROM checkins WHERE profile_id = ? ORDER BY created_at DESC LIMIT 30'
+    ).bind(profile?.id).all()
+    
+    return c.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        vesselType: userData?.vessel_type || 'chawan'
+      },
+      profile: profile ? {
+        totalRepairs: profile.total_repairs,
+        stats: {
+          totalVisits: profile.stats_total_visits,
+          currentStreak: profile.stats_current_streak,
+          longestStreak: profile.stats_longest_streak,
+          gardenActions: profile.stats_garden_actions,
+          studySessions: profile.stats_study_sessions,
+          tatamiSessions: profile.stats_tatami_sessions
+        }
+      } : null,
+      checkins: checkins.results || []
+    })
+  } catch (e) {
+    console.error('Get profile error:', e)
+    return c.json({ error: 'Failed to get profile' }, 500)
+  }
+})
+
+// Record check-in
+app.post('/api/checkin', async (c) => {
+  const user = await getCurrentUser(c)
+  const { weather, note } = await c.req.json()
+  
+  // If not logged in, just return success (data stays in localStorage)
+  if (!user) {
+    return c.json({ success: true, stored: 'local' })
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ success: true, stored: 'local' })
+  }
+  
+  try {
+    const profile = await db.prepare(
+      'SELECT id FROM profiles WHERE user_id = ?'
+    ).bind(user.id).first() as { id: string } | null
+    
+    if (profile) {
+      const checkinId = generateId()
+      await db.prepare(
+        'INSERT INTO checkins (id, profile_id, weather, note) VALUES (?, ?, ?, ?)'
+      ).bind(checkinId, profile.id, weather, note || null).run()
+    }
+    
+    return c.json({ success: true, stored: 'server' })
+  } catch (e) {
+    console.error('Check-in error:', e)
+    return c.json({ success: true, stored: 'local' })
+  }
 })
 
 export default app
