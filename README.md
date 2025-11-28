@@ -13,83 +13,100 @@
 - **Action Oriented**: 静止する瞑想ではなく、動く禅
 - **Wabi-Sabi Growth**: 傷を否定せず、「金継ぎ」のように美として昇華
 
-## 🏠 The Tea House Architecture
-
-アプリ全体を「心の茶室」に見立て、ユーザーの状態に合わせて最適な「部屋」へ案内します。
-
-### 3つの部屋（モード）
-
-| 部屋 | ベース理論 | 対象状態 | 提供価値 |
-|------|-----------|---------|---------|
-| 🌱 **GARDEN（庭）** | 森田療法 | 不安、無気力、先延ばし | Action / Arugamama |
-| 📚 **STUDY（書斎）** | 内観法 | 孤独、怒り、人間関係 | Harmony / Kansha |
-| 🧘 **TATAMI（座敷）** | 禅 | 混乱、不眠、思考過多 | Stillness / Mu |
-
-## ✅ 実装済み機能 (MVP)
-
-### 1. エントランス（Check-in）
-- 心の天気を選ぶUI（☀️⛅🌧️⛈️）
-- 天気に基づく部屋のレコメンド
-- 和のデザインシステム適用
-
-### 2. GARDEN モード（森田療法）
-- **Split Screen UI**: 空（感情）と地（行動）の2分割画面
-- 感情を「雲」として浮かべる機能
-- Micro-Action（小さな行動）チェックリスト
-- 行動完了で植物が育つビジュアル
-- 森田療法AIガイダンス（モック）
-
-### 3. STUDY モード（内観法）
-- 3つの問いチャットボット
-  1. 誰かに助けられた瞬間
-  2. 世界に提供したこと
-  3. 誰かの寛容さに甘えた場面
-- プログレス表示
-- 完了時のまとめメッセージ
-
-### 4. TATAMI モード（禅）
-- 呼吸ガイド（Breathing Circle）
-- 吸う/吐くのアニメーション
-- Haptic Feedback（振動対応デバイス）
-- 公案（Zen Koan）の表示
-
 ## 🌐 URLs
 
-- **Development**: https://3000-if9tga8gtcbj5qwvegti3-2e77fc33.sandbox.novita.ai
-- **Production**: (Cloudflare Pages デプロイ後)
+- **Sandbox**: https://3000-if9tga8gtcbj5qwvegti3-2e77fc33.sandbox.novita.ai
+- **GitHub**: https://github.com/2525youchan/kintsugi-mind
 
-### API Endpoints
-- `POST /api/morita/guidance` - 森田療法AIガイダンス
-- `GET /api/naikan/question?step=1-3` - 内観法の質問取得
-- `GET /api/zen/koan` - 禅の公案取得
-- `POST /api/garden/action` - 行動記録
+## ✅ 実装完了機能
 
-## 🎨 Design System (Wa / 和)
+### 認証・データ管理
+- ✅ Google OAuth認証（ログイン/ログアウト）
+- ✅ LocalStorage ↔ D1データベース双方向同期
+- ✅ クラウド同期ステータス表示（プロフィールページ）
+- ✅ オフライン対応（PWA / Service Worker）
 
-### カラーパレット
-- **藍色 (Indigo)**: `#1e3a5f` - Primary
-- **生成り (Ecru)**: `#f5f0e8` - Background
-- **金 (Gold)**: `#c9a227` - Accent / Kintsugi
-- **墨 (Ink)**: `#1a1a1a` - Text
+### マネタイズシステム
+- ✅ Free/Premium機能制限設計
+- ✅ 料金ページUI（プラン比較・FAQ）
+- ✅ 地域別価格設定
+  - 英語版: $10/月, $80/年
+  - 日本語版: ¥980/月, ¥7,800/年
+- ⏳ Stripe決済統合（最後に実装予定）
 
-### タイポグラフィ
-- **英文**: Cormorant Garamond (Serif)
-- **日本語**: Noto Serif JP
+### コア機能（3つの部屋）
+| 部屋 | ベース理論 | 対象状態 | AI機能 |
+|------|-----------|---------|--------|
+| 🌱 **GARDEN（庭）** | 森田療法 | 不安、無気力 | Gemini AIガイダンス |
+| 📚 **STUDY（書斎）** | 内観法 | 孤独、怒り | 内観チャットボット + 縁の曼荼羅 |
+| 🧘 **TATAMI（座敷）** | 禅 | 混乱、不眠 | 公案生成 + 呼吸ガイド |
+
+### UI/UX
+- ✅ オンボーディングフロー（金継ぎ哲学スライド）
+- ✅ 器選択UI（5種類 + プレミアム10種類）
+- ✅ チェックイン履歴カレンダー（天気絵文字表示）
+- ✅ 四季の挨拶・メッセージシステム
+- ✅ 週間レポート + シェア機能
+- ✅ ダークモード対応
+- ✅ 日英バイリンガル対応
+
+## 🗂 プラン制限
+
+| 機能 | Free | Premium |
+|------|------|---------|
+| AI対話 | 3回/日 | 無制限 |
+| チェックイン | 1回/日 | 無制限 |
+| 履歴表示 | 7日間 | 無制限 |
+| 器デザイン | 5種類 | 15種類 |
+| 詳細分析 | ✗ | ✓ |
+| 音声ガイド瞑想 | ✗ | ✓ |
+| データエクスポート | ✗ | ✓ |
+
+## 📋 次のタスク（明日以降）
+
+### 高優先度
+1. **全体的なダークモード対応** - 各ページの確認・調整
+2. **週間レポート最終レビュー** - デプロイ前確認
+
+### 中優先度
+3. **Cloudflare Pages本番デプロイ**
+4. **D1データベースマイグレーション（本番）**
+
+### 最後に実装
+5. **Stripe決済統合**
+   - Stripeアカウント設定
+   - API キー設定
+   - Webhook設定
+   - 料金プラン作成
+
+## 🛠 Tech Stack
+
+- **Framework**: Hono (TypeScript)
+- **Platform**: Cloudflare Pages / Workers
+- **Database**: Cloudflare D1 (SQLite)
+- **Auth**: Google OAuth 2.0
+- **AI**: Google Gemini API
+- **Styling**: Tailwind CSS (CDN)
+- **Dev Server**: Wrangler + PM2
 
 ## 📁 Project Structure
 
 ```
 kintsugi-mind/
 ├── src/
-│   ├── index.tsx      # メインアプリ & ルーティング
-│   └── renderer.tsx   # HTMLテンプレート & Tailwind設定
+│   ├── index.tsx        # メインアプリ & API
+│   ├── components.tsx   # 共有コンポーネント
+│   └── i18n.ts          # 国際化
 ├── public/
 │   └── static/
-│       ├── style.css  # 和デザインシステムCSS
-│       └── app.js     # フロントエンドJS
-├── dist/              # ビルド出力
-├── ecosystem.config.cjs # PM2設定
-├── wrangler.jsonc     # Cloudflare設定
+│       ├── app.js       # フロントエンドJS
+│       ├── style.css    # カスタムCSS
+│       └── sw.js        # Service Worker
+├── migrations/
+│   ├── 0001_initial_schema.sql
+│   └── 0002_subscriptions.sql
+├── ecosystem.config.cjs  # PM2設定
+├── wrangler.jsonc        # Cloudflare設定
 └── package.json
 ```
 
@@ -102,57 +119,16 @@ npm install
 # ビルド
 npm run build
 
-# 開発サーバー起動（PM2）
+# 開発サーバー起動
 pm2 start ecosystem.config.cjs
 
 # ログ確認
 pm2 logs --nostream
-
-# ローカルプレビュー
-npm run dev
-```
-
-## 📋 未実装機能 / Next Steps
-
-### Phase 2: Integration
-- [ ] **金継ぎプログレッションシステム**
-  - ユーザーの「器」アバター
-  - ログイン履歴でヒビが入る（歴史として）
-  - ワーク完了で金で修復
-- [ ] **D1データベース統合**
-  - ユーザーデータ永続化
-  - 感情・行動ログの保存
-- [ ] **OpenAI API統合**
-  - 実際のAIチャット機能
-  - 各療法に基づいたペルソナ設定
-
-### Phase 3: Community & Scale
-- [ ] Connection Mandala（縁の図）生成
-- [ ] 匿名の写真共有機能
-- [ ] PWA対応
-- [ ] 多言語対応（EN/JP）
-
-## 🛠 Tech Stack
-
-- **Framework**: Hono (TypeScript)
-- **Platform**: Cloudflare Pages / Workers
-- **Styling**: Tailwind CSS (CDN)
-- **Fonts**: Google Fonts
-- **Dev Server**: Wrangler + PM2
-
-## 📝 Deployment
-
-```bash
-# Cloudflare Pagesへデプロイ
-npm run deploy:prod
-
-# または手動で
-npm run build
-wrangler pages deploy dist --project-name kintsugi-mind
 ```
 
 ---
 
+**最終更新**: 2024-11-28  
 **© 2024 KINTSUGI MIND — The Japanese Art of Resilience**
 
 *「傷ついた器は、金で繋がれることでより美しくなる。あなたも同じです。」*
