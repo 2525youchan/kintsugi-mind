@@ -199,6 +199,114 @@ function updateSeasonalElements(lang = 'en') {
 }
 
 // ========================================
+// Subscription System
+// ========================================
+
+let currentSubscription = { plan: 'free', limits: {}, usage: {} };
+
+// Get subscription status
+async function getSubscription() {
+  try {
+    const response = await fetch('/api/subscription');
+    const data = await response.json();
+    currentSubscription = data;
+    return data;
+  } catch (e) {
+    console.error('Failed to get subscription:', e);
+    return currentSubscription;
+  }
+}
+
+// Check if feature is available
+async function checkFeature(feature) {
+  try {
+    const response = await fetch(`/api/subscription/check/${feature}`);
+    return await response.json();
+  } catch (e) {
+    console.error('Failed to check feature:', e);
+    return { allowed: true, remaining: -1, limit: -1 };
+  }
+}
+
+// Record feature usage
+async function useFeature(feature) {
+  try {
+    const response = await fetch(`/api/subscription/use/${feature}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return await response.json();
+  } catch (e) {
+    console.error('Failed to record usage:', e);
+    return { success: false };
+  }
+}
+
+// Show upgrade modal
+function showUpgradeModal(feature, lang = 'en') {
+  const messages = {
+    ai_chat: {
+      en: "You've reached your daily AI conversation limit.",
+      ja: '本日のAI対話回数が上限に達しました。'
+    },
+    checkin: {
+      en: "You've reached your daily check-in limit.",
+      ja: '本日のチェックイン回数が上限に達しました。'
+    },
+    default: {
+      en: 'This feature requires Premium.',
+      ja: 'この機能はプレミアムで利用できます。'
+    }
+  };
+  
+  const message = messages[feature] || messages.default;
+  
+  // Create modal
+  const modal = document.createElement('div');
+  modal.id = 'upgrade-modal';
+  modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-6 max-w-sm w-full shadow-xl animate-fade-in">
+      <div class="text-center">
+        <div class="text-4xl mb-4">✨</div>
+        <h3 class="text-xl text-indigo-800 dark:text-[#e8e4dc] mb-2">
+          ${lang === 'en' ? 'Upgrade to Premium' : 'プレミアムにアップグレード'}
+        </h3>
+        <p class="text-ink-500 dark:text-[#78716c] mb-6">
+          ${message[lang]}
+        </p>
+        <div class="space-y-3">
+          <a 
+            href="/pricing?lang=${lang}" 
+            class="block w-full px-6 py-3 bg-gold text-ink font-medium rounded-full hover:bg-gold-400 transition-colors"
+          >
+            ${lang === 'en' ? 'View Plans' : 'プランを見る'}
+          </a>
+          <button 
+            onclick="closeUpgradeModal()"
+            class="block w-full px-6 py-3 text-ink-500 dark:text-[#78716c] hover:text-ink-700 dark:hover:text-[#a8a29e] transition-colors"
+          >
+            ${lang === 'en' ? 'Maybe Later' : 'あとで'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Close on backdrop click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeUpgradeModal();
+  });
+}
+
+function closeUpgradeModal() {
+  const modal = document.getElementById('upgrade-modal');
+  if (modal) modal.remove();
+}
+
+// ========================================
 // Authentication System
 // ========================================
 

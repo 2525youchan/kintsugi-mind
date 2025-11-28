@@ -66,6 +66,129 @@ async function getCurrentUser(c: any): Promise<Variables['user'] | null> {
   }
 }
 
+// ========================================
+// Subscription & Usage Helpers
+// ========================================
+
+// Plan limits configuration
+const PLAN_LIMITS = {
+  free: {
+    ai_chat: 3,        // 3 AI chats per day
+    checkin: 1,        // 1 check-in per day
+    history_days: 7,   // 7 days of history
+    vessels: ['chawan', 'tsubo', 'sara', 'tokkuri', 'hachi'], // 5 basic vessels
+  },
+  premium: {
+    ai_chat: -1,       // Unlimited (-1)
+    checkin: -1,       // Unlimited
+    history_days: -1,  // Unlimited
+    vessels: 'all',    // All vessels including premium
+  }
+}
+
+// Get user's subscription status
+async function getUserSubscription(db: D1Database, userId: string): Promise<{
+  plan: 'free' | 'premium'
+  status: string
+  expiresAt: string | null
+}> {
+  try {
+    const sub = await db.prepare(`
+      SELECT plan, status, current_period_end 
+      FROM subscriptions 
+      WHERE user_id = ? AND status IN ('active', 'past_due')
+      ORDER BY created_at DESC LIMIT 1
+    `).bind(userId).first() as { plan: string; status: string; current_period_end: string } | null
+    
+    if (!sub || sub.plan === 'free') {
+      return { plan: 'free', status: 'active', expiresAt: null }
+    }
+    
+    // Check if subscription is still valid
+    const now = new Date()
+    const expiresAt = sub.current_period_end ? new Date(sub.current_period_end) : null
+    
+    if (expiresAt && now > expiresAt) {
+      return { plan: 'free', status: 'expired', expiresAt: sub.current_period_end }
+    }
+    
+    return { 
+      plan: 'premium', 
+      status: sub.status, 
+      expiresAt: sub.current_period_end 
+    }
+  } catch (e) {
+    console.error('Get subscription error:', e)
+    return { plan: 'free', status: 'active', expiresAt: null }
+  }
+}
+
+// Check and update usage count
+async function checkUsageLimit(
+  db: D1Database, 
+  userId: string, 
+  feature: string, 
+  plan: 'free' | 'premium'
+): Promise<{ allowed: boolean; remaining: number; limit: number }> {
+  const limit = PLAN_LIMITS[plan][feature as keyof typeof PLAN_LIMITS.free]
+  
+  // Unlimited for premium or non-limited features
+  if (limit === -1 || limit === undefined) {
+    return { allowed: true, remaining: -1, limit: -1 }
+  }
+  
+  const today = new Date().toISOString().split('T')[0]
+  
+  try {
+    // Get or create usage record
+    let usage = await db.prepare(`
+      SELECT id, count FROM usage 
+      WHERE user_id = ? AND feature = ? AND reset_date = ?
+    `).bind(userId, feature, today).first() as { id: string; count: number } | null
+    
+    if (!usage) {
+      // Create new usage record for today
+      const usageId = crypto.randomUUID()
+      await db.prepare(`
+        INSERT INTO usage (id, user_id, feature, count, reset_date)
+        VALUES (?, ?, ?, 0, ?)
+      `).bind(usageId, userId, feature, today).run()
+      usage = { id: usageId, count: 0 }
+    }
+    
+    const remaining = Math.max(0, limit - usage.count)
+    return { 
+      allowed: usage.count < limit, 
+      remaining, 
+      limit 
+    }
+  } catch (e) {
+    console.error('Check usage error:', e)
+    // Allow on error to not block users
+    return { allowed: true, remaining: limit, limit }
+  }
+}
+
+// Increment usage count
+async function incrementUsage(db: D1Database, userId: string, feature: string): Promise<void> {
+  const today = new Date().toISOString().split('T')[0]
+  
+  try {
+    await db.prepare(`
+      UPDATE usage SET count = count + 1, updated_at = datetime('now')
+      WHERE user_id = ? AND feature = ? AND reset_date = ?
+    `).bind(userId, feature, today).run()
+  } catch (e) {
+    console.error('Increment usage error:', e)
+  }
+}
+
+// Check if vessel is available for user's plan
+function isVesselAvailable(vesselType: string, plan: 'free' | 'premium'): boolean {
+  if (plan === 'premium') return true
+  return PLAN_LIMITS.free.vessels.includes(vesselType)
+}
+
 // Gemini API helper
 async function callGemini(apiKey: string, prompt: string, systemPrompt?: string): Promise<string> {
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
@@ -1849,6 +1972,26 @@ app.get('/install', (c) => {
 app.post('/api/morita/guidance', async (c) => {
   const { emotion, lang = 'en' } = await c.req.json()
   const apiKey = c.env.GEMINI_API_KEY
+  const db = c.env.DB
+  const user = await getCurrentUser(c)
+  
+  // Check usage limit for AI chat
+  if (user && db) {
+    const subscription = await getUserSubscription(db, user.id)
+    const usage = await checkUsageLimit(db, user.id, 'ai_chat', subscription.plan)
+    
+    if (!usage.allowed) {
+      return c.json({ 
+        error: 'limit_reached',
+        message: lang === 'en' 
+          ? `You've used all ${usage.limit} AI conversations for today. Upgrade to Premium for unlimited access.`
+          : `本日のAI会話${usage.limit}回を使い切りました。プレミアムにアップグレードすると無制限で利用できます。`,
+        remaining: 0,
+        limit: usage.limit,
+        upgradeUrl: '/pricing'
+      }, 429)
+    }
+  }
   
   // Fallback responses if API fails
   const fallbacks = {
@@ -1903,6 +2046,12 @@ Instead embody: acceptance, gentle redirection toward action, trust in their cap
       : `ユーザーがこの感情を共有しました：「${emotion}」。森田療法のガイドとして応答してください。`
 
     const guidance = await callGemini(apiKey, prompt, systemPrompt)
+    
+    // Record usage after successful AI call
+    if (user && db) {
+      await incrementUsage(db, user.id, 'ai_chat')
+    }
+    
     return c.json({ guidance, emotion, ai: true })
   } catch (error) {
     console.error('Gemini API error:', error)
@@ -1938,6 +2087,8 @@ app.get('/api/naikan/question', (c) => {
 app.get('/api/zen/koan', async (c) => {
   const lang = (c.req.query('lang') || 'en') as Language
   const apiKey = c.env.GEMINI_API_KEY
+  const db = c.env.DB
+  const user = await getCurrentUser(c)
   
   // Classic koans as fallback
   const classicKoans = [
@@ -1947,6 +2098,24 @@ app.get('/api/zen/koan', async (c) => {
     { en: "Show me your face before your parents were born.", ja: "父母未生以前、本来の面目を見せよ。" },
     { en: "What is the color of wind?", ja: "風に色はあるか。" }
   ]
+  
+  // Check usage limit for AI chat
+  if (user && db) {
+    const subscription = await getUserSubscription(db, user.id)
+    const usage = await checkUsageLimit(db, user.id, 'ai_chat', subscription.plan)
+    
+    if (!usage.allowed) {
+      // Return a classic koan instead when limit reached
+      const koan = classicKoans[Math.floor(Math.random() * classicKoans.length)]
+      return c.json({ 
+        text: koan[lang],
+        limitReached: true,
+        message: lang === 'en' 
+          ? 'AI limit reached for today. Here is a classic koan.'
+          : '本日のAI制限に達しました。古典的な公案をお届けします。'
+      })
+    }
+  }
   
   if (!apiKey) {
     const koan = classicKoans[Math.floor(Math.random() * classicKoans.length)]
@@ -1988,6 +2157,12 @@ Just respond with the koan itself. No explanations, no context.`
 
     const prompt = lang === 'en' ? 'Create a Zen koan for meditation.' : '瞑想のための公案を作ってください。'
     const koan = await callGemini(apiKey, prompt, systemPrompt)
+    
+    // Record usage after successful AI call
+    if (user && db) {
+      await incrementUsage(db, user.id, 'ai_chat')
+    }
+    
     return c.json({ text: koan.trim(), ai: true })
   } catch (error) {
     console.error('Gemini API error:', error)
@@ -2000,6 +2175,8 @@ Just respond with the koan itself. No explanations, no context.`
 app.post('/api/naikan/reflect', async (c) => {
   const { step, person, response: userResponse, lang = 'en' } = await c.req.json()
   const apiKey = c.env.GEMINI_API_KEY
+  const db = c.env.DB
+  const user = await getCurrentUser(c)
   
   const questionTypes = {
     1: { en: 'received kindness from', ja: 'から受けた恩' },
@@ -2019,6 +2196,24 @@ app.post('/api/naikan/reflect', async (c) => {
       "美しい振り返りですね。こうした気づきの瞬間は大切です。",
       "あなたの周りの縁の網を見ていますね。それは知恵です。"
     ]
+  }
+  
+  // Check usage limit for AI chat
+  if (user && db) {
+    const subscription = await getUserSubscription(db, user.id)
+    const usage = await checkUsageLimit(db, user.id, 'ai_chat', subscription.plan)
+    
+    if (!usage.allowed) {
+      // Return fallback when limit reached
+      const langFallbacks = fallbacks[lang as keyof typeof fallbacks] || fallbacks.en
+      return c.json({ 
+        reflection: langFallbacks[Math.floor(Math.random() * langFallbacks.length)],
+        limitReached: true,
+        message: lang === 'en' 
+          ? 'AI limit reached for today.'
+          : '本日のAI制限に達しました。'
+      })
+    }
   }
   
   if (!apiKey) {
@@ -2066,6 +2261,12 @@ Embody: deep listening, gratitude, the beauty of human connection`
       : `ユーザーは${person}${qType.ja}について振り返りました：「${userResponse}」。内観ガイドとして簡潔に応答してください。`
 
     const reflection = await callGemini(apiKey, prompt, systemPrompt)
+    
+    // Record usage after successful AI call
+    if (user && db) {
+      await incrementUsage(db, user.id, 'ai_chat')
+    }
+    
     return c.json({ reflection, ai: true })
   } catch (error) {
     console.error('Gemini API error:', error)
@@ -2091,6 +2292,239 @@ app.post('/api/garden/action', async (c) => {
     completed,
     message: completed ? msg.success : msg.undo
   })
+})
+
+// ========================================
+// Pricing Page
+// ========================================
+
+app.get('/pricing', async (c) => {
+  const lang = getLanguage(c)
+  const user = await getCurrentUser(c)
+  const db = c.env.DB
+  
+  let currentPlan: 'free' | 'premium' = 'free'
+  if (user && db) {
+    const subscription = await getUserSubscription(db, user.id)
+    currentPlan = subscription.plan
+  }
+  
+  const t = {
+    title: { en: 'Choose Your Path', ja: 'あなたの道を選ぶ' },
+    subtitle: { 
+      en: 'Deepen your mindfulness journey with Premium', 
+      ja: 'プレミアムでマインドフルネスの旅を深める' 
+    },
+    freePlan: { en: 'Free', ja: '無料' },
+    premiumPlan: { en: 'Premium', ja: 'プレミアム' },
+    monthly: { en: '/month', ja: '/月' },
+    yearly: { en: '/year', ja: '/年' },
+    currentPlan: { en: 'Current Plan', ja: '現在のプラン' },
+    upgrade: { en: 'Upgrade to Premium', ja: 'プレミアムにアップグレード' },
+    bestValue: { en: 'Best Value', ja: 'お得' },
+    save: { en: 'Save 33%', ja: '33%お得' },
+    features: {
+      free: {
+        en: [
+          '✓ Access to all 3 rooms (Garden, Study, Tatami)',
+          '✓ 3 AI conversations per day',
+          '✓ 1 daily check-in',
+          '✓ 7 days of history',
+          '✓ 5 basic vessel designs',
+          '✓ Weekly report (basic)',
+        ],
+        ja: [
+          '✓ 全3部屋へのアクセス（庭・書斎・座敷）',
+          '✓ 1日3回のAI対話',
+          '✓ 1日1回のチェックイン',
+          '✓ 7日間の履歴',
+          '✓ 基本の器デザイン5種',
+          '✓ 週間レポート（基本版）',
+        ]
+      },
+      premium: {
+        en: [
+          '✓ Everything in Free',
+          '✓ Unlimited AI conversations',
+          '✓ Unlimited daily check-ins',
+          '✓ Full history access',
+          '✓ 15 premium vessel designs',
+          '✓ Detailed analytics & insights',
+          '✓ Guided audio meditations',
+          '✓ Data export',
+          '✓ Priority support',
+        ],
+        ja: [
+          '✓ 無料プランの全機能',
+          '✓ 無制限のAI対話',
+          '✓ 無制限のチェックイン',
+          '✓ 全履歴へのアクセス',
+          '✓ プレミアム器デザイン15種',
+          '✓ 詳細な分析とインサイト',
+          '✓ 音声ガイド付き瞑想',
+          '✓ データエクスポート',
+          '✓ 優先サポート',
+        ]
+      }
+    },
+    faq: { en: 'Frequently Asked Questions', ja: 'よくある質問' },
+    faqs: [
+      {
+        q: { en: 'Can I cancel anytime?', ja: 'いつでも解約できますか？' },
+        a: { 
+          en: 'Yes, you can cancel your subscription at any time. You will continue to have access until the end of your billing period.', 
+          ja: 'はい、いつでも解約できます。課金期間の終わりまでアクセスは継続します。' 
+        }
+      },
+      {
+        q: { en: 'What payment methods do you accept?', ja: 'どんな支払い方法に対応していますか？' },
+        a: { 
+          en: 'We accept all major credit cards through Stripe secure payment.', 
+          ja: 'Stripeの安全な決済を通じて、主要なクレジットカードに対応しています。' 
+        }
+      },
+      {
+        q: { en: 'Is my data safe?', ja: 'データは安全ですか？' },
+        a: { 
+          en: 'Absolutely. Your mindfulness data is encrypted and never shared with third parties.', 
+          ja: 'もちろんです。あなたのデータは暗号化され、第三者と共有されることはありません。' 
+        }
+      }
+    ],
+    notReady: { 
+      en: 'Not ready to upgrade? No problem. Enjoy the free plan for as long as you like.', 
+      ja: 'まだアップグレードの準備ができていませんか？問題ありません。無料プランを好きなだけお楽しみください。' 
+    }
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] flex flex-col transition-colors duration-300" data-lang={lang}>
+      <Header currentLang={lang} />
+
+      <main class="flex-1 py-12 px-6">
+        <div class="max-w-5xl mx-auto">
+          {/* Title */}
+          <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl text-indigo-800 dark:text-[#e8e4dc] mb-4">{t.title[lang]}</h1>
+            <p class="text-ink-500 dark:text-[#78716c] text-lg">{t.subtitle[lang]}</p>
+          </div>
+
+          {/* Pricing Cards */}
+          <div class="grid md:grid-cols-2 gap-8 mb-16">
+            {/* Free Plan */}
+            <div class={`bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi ${currentPlan === 'free' ? 'ring-2 ring-indigo-500' : ''}`}>
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl text-indigo-800 dark:text-[#e8e4dc]">{t.freePlan[lang]}</h2>
+                {currentPlan === 'free' && (
+                  <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm rounded-full">
+                    {t.currentPlan[lang]}
+                  </span>
+                )}
+              </div>
+              <div class="mb-6">
+                <span class="text-4xl text-indigo-800 dark:text-[#e8e4dc] font-light">¥0</span>
+                <span class="text-ink-500 dark:text-[#78716c]">{t.monthly[lang]}</span>
+              </div>
+              <ul class="space-y-3 mb-8">
+                {t.features.free[lang].map((feature) => (
+                  <li class="text-ink-600 dark:text-[#a8a29e] text-sm">{feature}</li>
+                ))}
+              </ul>
+              {currentPlan === 'free' ? (
+                <button disabled class="w-full px-6 py-3 bg-ecru-200 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#78716c] rounded-full cursor-not-allowed">
+                  {t.currentPlan[lang]}
+                </button>
+              ) : (
+                <a href={`/profile?lang=${lang}`} class="block w-full px-6 py-3 bg-ecru-200 dark:bg-[#2d2d2d] text-ink-600 dark:text-[#a8a29e] rounded-full text-center hover:bg-ecru-300 dark:hover:bg-[#3d3d3d] transition-colors">
+                  {lang === 'en' ? 'Downgrade' : 'ダウングレード'}
+                </a>
+              )}
+            </div>
+
+            {/* Premium Plan */}
+            <div class={`bg-gradient-to-br from-indigo-800 to-indigo-900 dark:from-[#1e3a5f] dark:to-[#0d1f33] rounded-2xl p-8 shadow-wabi-lg text-ecru relative overflow-hidden ${currentPlan === 'premium' ? 'ring-2 ring-gold' : ''}`}>
+              {/* Best Value Badge */}
+              <div class="absolute top-4 right-4">
+                <span class="px-3 py-1 bg-gold text-ink text-xs font-medium rounded-full">
+                  {t.bestValue[lang]}
+                </span>
+              </div>
+              
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl">{t.premiumPlan[lang]}</h2>
+                {currentPlan === 'premium' && (
+                  <span class="px-3 py-1 bg-gold/20 text-gold text-sm rounded-full">
+                    {t.currentPlan[lang]}
+                  </span>
+                )}
+              </div>
+              
+              {/* Pricing Options */}
+              <div class="mb-6 space-y-3">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-4xl font-light">¥980</span>
+                  <span class="text-ecru-300">{t.monthly[lang]}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-lg text-ecru-300">or</span>
+                  <span class="text-2xl font-light">¥7,800</span>
+                  <span class="text-ecru-300">{t.yearly[lang]}</span>
+                  <span class="px-2 py-0.5 bg-gold/20 text-gold text-xs rounded-full">{t.save[lang]}</span>
+                </div>
+              </div>
+              
+              <ul class="space-y-3 mb-8">
+                {t.features.premium[lang].map((feature) => (
+                  <li class="text-ecru-200 text-sm">{feature}</li>
+                ))}
+              </ul>
+              
+              {currentPlan === 'premium' ? (
+                <button disabled class="w-full px-6 py-3 bg-gold/50 text-ecru rounded-full cursor-not-allowed">
+                  {t.currentPlan[lang]}
+                </button>
+              ) : user ? (
+                <button 
+                  id="upgrade-btn"
+                  class="w-full px-6 py-3 bg-gold text-ink font-medium rounded-full hover:bg-gold-400 transition-colors"
+                >
+                  {t.upgrade[lang]}
+                </button>
+              ) : (
+                <a 
+                  href="/api/auth/login/google"
+                  class="block w-full px-6 py-3 bg-gold text-ink font-medium rounded-full text-center hover:bg-gold-400 transition-colors"
+                >
+                  {lang === 'en' ? 'Sign in to Upgrade' : 'ログインしてアップグレード'}
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* FAQ Section */}
+          <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi mb-8">
+            <h2 class="text-2xl text-indigo-800 dark:text-[#e8e4dc] mb-6 text-center">{t.faq[lang]}</h2>
+            <div class="space-y-6 max-w-2xl mx-auto">
+              {t.faqs.map((faq) => (
+                <div class="border-b border-ecru-200 dark:border-[#3d3d3d] pb-4 last:border-0">
+                  <h3 class="text-indigo-800 dark:text-[#e8e4dc] font-medium mb-2">{faq.q[lang]}</h3>
+                  <p class="text-ink-500 dark:text-[#78716c] text-sm">{faq.a[lang]}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Not Ready */}
+          <p class="text-center text-ink-500 dark:text-[#78716c] text-sm">
+            {t.notReady[lang]}
+          </p>
+        </div>
+      </main>
+
+      <Footer currentLang={lang} />
+    </div>,
+    { title: lang === 'en' ? 'Pricing — KINTSUGI MIND' : '料金プラン — KINTSUGI MIND' }
+  )
 })
 
 // Weekly Report Page
@@ -2721,6 +3155,183 @@ app.get('/api/checkins', async (c) => {
   } catch (e) {
     console.error('Get checkins error:', e)
     return c.json({ checkins: [], source: 'local' })
+  }
+})
+
+// ========================================
+// Subscription API Routes
+// ========================================
+
+// Get subscription status
+app.get('/api/subscription', async (c) => {
+  const user = await getCurrentUser(c)
+  
+  if (!user) {
+    // Return free plan for non-logged in users
+    return c.json({
+      plan: 'free',
+      status: 'active',
+      limits: PLAN_LIMITS.free,
+      expiresAt: null,
+      usage: {}
+    })
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ plan: 'free', status: 'active', limits: PLAN_LIMITS.free })
+  }
+  
+  try {
+    const subscription = await getUserSubscription(db, user.id)
+    const limits = subscription.plan === 'premium' ? PLAN_LIMITS.premium : PLAN_LIMITS.free
+    
+    // Get today's usage
+    const today = new Date().toISOString().split('T')[0]
+    const usageRows = await db.prepare(`
+      SELECT feature, count FROM usage 
+      WHERE user_id = ? AND reset_date = ?
+    `).bind(user.id, today).all()
+    
+    const usage: Record<string, number> = {}
+    for (const row of (usageRows.results || []) as { feature: string; count: number }[]) {
+      usage[row.feature] = row.count
+    }
+    
+    return c.json({
+      plan: subscription.plan,
+      status: subscription.status,
+      limits,
+      expiresAt: subscription.expiresAt,
+      usage
+    })
+  } catch (e) {
+    console.error('Get subscription error:', e)
+    return c.json({ plan: 'free', status: 'active', limits: PLAN_LIMITS.free })
+  }
+})
+
+// Check feature usage (for frontend to check before action)
+app.get('/api/subscription/check/:feature', async (c) => {
+  const feature = c.req.param('feature')
+  const user = await getCurrentUser(c)
+  
+  if (!user) {
+    // Allow limited usage for non-logged in users (stored in localStorage)
+    return c.json({ 
+      allowed: true, 
+      remaining: PLAN_LIMITS.free[feature as keyof typeof PLAN_LIMITS.free] || -1,
+      limit: PLAN_LIMITS.free[feature as keyof typeof PLAN_LIMITS.free] || -1,
+      requiresLogin: true
+    })
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ allowed: true, remaining: -1, limit: -1 })
+  }
+  
+  try {
+    const subscription = await getUserSubscription(db, user.id)
+    const usage = await checkUsageLimit(db, user.id, feature, subscription.plan)
+    
+    return c.json({
+      ...usage,
+      plan: subscription.plan,
+      requiresLogin: false
+    })
+  } catch (e) {
+    console.error('Check feature error:', e)
+    return c.json({ allowed: true, remaining: -1, limit: -1 })
+  }
+})
+
+// Record feature usage
+app.post('/api/subscription/use/:feature', async (c) => {
+  const feature = c.req.param('feature')
+  const user = await getCurrentUser(c)
+  
+  if (!user) {
+    return c.json({ success: false, error: 'Not authenticated' }, 401)
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ success: false, error: 'Database not available' }, 500)
+  }
+  
+  try {
+    const subscription = await getUserSubscription(db, user.id)
+    const usage = await checkUsageLimit(db, user.id, feature, subscription.plan)
+    
+    if (!usage.allowed) {
+      return c.json({ 
+        success: false, 
+        error: 'Usage limit reached',
+        remaining: 0,
+        limit: usage.limit,
+        upgradeUrl: '/pricing'
+      }, 429)
+    }
+    
+    await incrementUsage(db, user.id, feature)
+    
+    return c.json({ 
+      success: true, 
+      remaining: usage.remaining - 1,
+      limit: usage.limit
+    })
+  } catch (e) {
+    console.error('Record usage error:', e)
+    return c.json({ success: false, error: 'Failed to record usage' }, 500)
+  }
+})
+
+// Get premium vessels
+app.get('/api/vessels', async (c) => {
+  const user = await getCurrentUser(c)
+  const db = c.env.DB
+  
+  // Basic vessels always available
+  const basicVessels = [
+    { id: 'chawan', name: 'Tea Bowl', name_ja: '茶碗', emoji: '🍵', is_premium: 0 },
+    { id: 'tsubo', name: 'Jar', name_ja: '壺', emoji: '🏺', is_premium: 0 },
+    { id: 'sara', name: 'Plate', name_ja: '皿', emoji: '🍽️', is_premium: 0 },
+    { id: 'tokkuri', name: 'Sake Bottle', name_ja: '徳利', emoji: '🍶', is_premium: 0 },
+    { id: 'hachi', name: 'Bowl', name_ja: '鉢', emoji: '🥣', is_premium: 0 },
+  ]
+  
+  if (!db) {
+    return c.json({ vessels: basicVessels, plan: 'free' })
+  }
+  
+  try {
+    let plan: 'free' | 'premium' = 'free'
+    
+    if (user) {
+      const subscription = await getUserSubscription(db, user.id)
+      plan = subscription.plan
+    }
+    
+    // Get premium vessels from database
+    const premiumVessels = await db.prepare(`
+      SELECT id, name, name_ja, emoji, description, description_ja, is_premium
+      FROM premium_vessels
+      ORDER BY sort_order
+    `).all()
+    
+    const allVessels = [
+      ...basicVessels,
+      ...((premiumVessels.results || []) as any[]).map(v => ({
+        ...v,
+        locked: plan === 'free' && v.is_premium === 1
+      }))
+    ]
+    
+    return c.json({ vessels: allVessels, plan })
+  } catch (e) {
+    console.error('Get vessels error:', e)
+    return c.json({ vessels: basicVessels, plan: 'free' })
   }
 })
 

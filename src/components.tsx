@@ -115,6 +115,12 @@ export const Header = ({
               <a href={`/?lang=${currentLang}#philosophy`} class="hover:text-gold transition-colors">
                 {currentLang === 'en' ? 'Philosophy' : '哲学'}
               </a>
+              <a href={`/pricing?lang=${currentLang}`} class="hover:text-gold transition-colors flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+                <span>{currentLang === 'en' ? 'Premium' : 'プレミアム'}</span>
+              </a>
               <a href={`/profile?lang=${currentLang}`} class="hover:text-gold transition-colors flex items-center gap-1">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
