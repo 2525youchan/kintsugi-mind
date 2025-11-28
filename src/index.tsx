@@ -1091,20 +1091,54 @@ app.get('/install', (c) => {
                 </div>
               </div>
               <ol class="space-y-4">
-                {t.ios.steps[lang].map((item) => (
-                  <li class="flex items-start gap-4">
-                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 text-indigo-700 font-medium">
-                      {item.step}
-                    </div>
-                    <div class="flex-1 pt-1">
-                      <p class="text-ink-700">{item.text}</p>
-                      {item.detail && <p class="text-xs text-ink-400 mt-1">{item.detail}</p>}
-                    </div>
-                    <div class="w-10 h-10 bg-ecru-200 rounded-lg flex items-center justify-center text-indigo-600 font-medium">
-                      {item.icon}
-                    </div>
-                  </li>
-                ))}
+                {/* Step 1: Share button with accurate iOS icon */}
+                <li class="flex items-start gap-4">
+                  <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 text-indigo-700 font-medium">
+                    1
+                  </div>
+                  <div class="flex-1 pt-1">
+                    <p class="text-ink-700">{t.ios.steps[lang][0].text}</p>
+                    {t.ios.steps[lang][0].detail && <p class="text-xs text-ink-400 mt-1">{t.ios.steps[lang][0].detail}</p>}
+                  </div>
+                  <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center border-2 border-indigo-200 shadow-sm">
+                    {/* Accurate iOS Share icon */}
+                    <svg class="w-7 h-7 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="5" y="9" width="14" height="12" rx="2" stroke="currentColor" fill="none"/>
+                      <path d="M12 3v12" stroke="currentColor" stroke-linecap="round"/>
+                      <path d="M8 7l4-4 4 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                </li>
+                {/* Step 2: Add to Home Screen */}
+                <li class="flex items-start gap-4">
+                  <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 text-indigo-700 font-medium">
+                    2
+                  </div>
+                  <div class="flex-1 pt-1">
+                    <p class="text-ink-700">{t.ios.steps[lang][1].text}</p>
+                    {t.ios.steps[lang][1].detail && <p class="text-xs text-ink-400 mt-1">{t.ios.steps[lang][1].detail}</p>}
+                  </div>
+                  <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center border-2 border-indigo-200 shadow-sm">
+                    {/* Plus icon in square */}
+                    <svg class="w-7 h-7 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" fill="none"/>
+                      <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </li>
+                {/* Step 3: Tap Add */}
+                <li class="flex items-start gap-4">
+                  <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 text-indigo-700 font-medium">
+                    3
+                  </div>
+                  <div class="flex-1 pt-1">
+                    <p class="text-ink-700">{t.ios.steps[lang][2].text}</p>
+                    {t.ios.steps[lang][2].detail && <p class="text-xs text-ink-400 mt-1">{t.ios.steps[lang][2].detail}</p>}
+                  </div>
+                  <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <span class="text-white text-sm font-medium">{lang === 'en' ? 'Add' : '追加'}</span>
+                  </div>
+                </li>
               </ol>
             </div>
           </section>
