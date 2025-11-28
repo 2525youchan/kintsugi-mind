@@ -549,15 +549,17 @@ async function recordAction(action, completed, lang) {
 }
 
 // ========================================
-// STUDY Mode (Naikan Therapy)
+// STUDY Mode (Naikan Therapy) with Connection Mandala
 // ========================================
 
 let naikanStep = 1;
 let naikanResponses = [];
+let naikanConnections = []; // Store person + response for mandala
 
 function initStudy() {
   const chatContainer = document.getElementById('naikan-chat');
   const inputEl = document.getElementById('naikan-input');
+  const personEl = document.getElementById('naikan-person');
   const sendBtn = document.getElementById('naikan-send-btn');
   const lang = getLang();
   
@@ -570,23 +572,47 @@ function initStudy() {
   
   sendBtn.addEventListener('click', () => {
     const response = inputEl.value.trim();
+    const person = personEl ? personEl.value.trim() : '';
+    
     if (response) {
-      addUserMessage(response, chatContainer);
+      // Store connection data
+      const connectionTypes = ['received', 'given', 'forgiven'];
+      naikanConnections.push({
+        person: person || (lang === 'en' ? 'Someone' : '誰か'),
+        description: response,
+        type: connectionTypes[naikanStep - 1]
+      });
+      
+      // Show user message with person name
+      const displayMessage = person ? `${person}: ${response}` : response;
+      addUserMessage(displayMessage, chatContainer);
       naikanResponses.push(response);
+      
+      // Clear inputs
       inputEl.value = '';
+      if (personEl) personEl.value = '';
       
       setTimeout(() => {
         naikanStep++;
         if (naikanStep <= 3) {
           addNaikanQuestion(naikanStep, chatContainer, lang);
           updateProgress(naikanStep, lang);
+          updatePersonInputLabel(naikanStep, lang);
         } else {
           showNaikanConclusion(chatContainer, lang);
           
           // Record study session completion
           let profile = loadProfile();
-          profile = recordActivityToProfile(profile, 'study', { questionsAnswered: 3 });
+          profile = recordActivityToProfile(profile, 'study', { 
+            questionsAnswered: 3,
+            connections: naikanConnections 
+          });
           saveProfile(profile);
+          
+          // Show mandala after a brief moment
+          setTimeout(() => {
+            showConnectionMandala(naikanConnections, lang);
+          }, 2000);
         }
       }, 1000);
     }
@@ -597,6 +623,39 @@ function initStudy() {
       sendBtn.click();
     }
   });
+  
+  if (personEl) {
+    personEl.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        inputEl.focus();
+      }
+    });
+  }
+}
+
+// Update the person input label based on question
+function updatePersonInputLabel(step, lang) {
+  const labels = {
+    1: { en: 'Who helped you? (name or role)', ja: '誰に助けられましたか？（名前や役割）' },
+    2: { en: 'Who did you help? (name or role)', ja: '誰を助けましたか？（名前や役割）' },
+    3: { en: 'Who showed you patience? (name or role)', ja: '誰が寛容でしたか？（名前や役割）' }
+  };
+  
+  const placeholders = {
+    1: { en: 'e.g., Mom, a coworker, the barista...', ja: '例：母、同僚、カフェの店員...' },
+    2: { en: 'e.g., A friend, my child, a stranger...', ja: '例：友人、子供、見知らぬ人...' },
+    3: { en: 'e.g., My partner, my boss, myself...', ja: '例：パートナー、上司、自分自身...' }
+  };
+  
+  const labelEl = document.querySelector('label[for="naikan-person"], label.text-xs.text-ink-500');
+  const personEl = document.getElementById('naikan-person');
+  
+  if (labelEl && labels[step]) {
+    labelEl.textContent = labels[step][lang];
+  }
+  if (personEl && placeholders[step]) {
+    personEl.placeholder = placeholders[step][lang];
+  }
 }
 
 function addUserMessage(text, container) {
@@ -654,12 +713,281 @@ function showNaikanConclusion(container, lang) {
     <p class="text-ink-600 mb-4">${c.title[lang]}</p>
     <p class="text-ink-600 mb-4">${c.message[lang]}</p>
     <p class="text-ink-500 text-sm italic">${c.quote[lang]}</p>
+    <p class="text-ink-400 text-xs mt-4">
+      ${lang === 'en' ? '✨ Preparing your Connection Mandala...' : '✨ 縁の曼荼羅を準備しています...'}
+    </p>
   `;
   container.appendChild(message);
   container.scrollTop = container.scrollHeight;
   
   updateProgress(4, lang);
 }
+
+// ========================================
+// Connection Mandala Visualization
+// ========================================
+
+function showConnectionMandala(connections, lang) {
+  const chatSection = document.getElementById('study-chat-section');
+  const mandalaSection = document.getElementById('mandala-section');
+  const mandalaContainer = document.getElementById('mandala-container');
+  
+  if (!chatSection || !mandalaSection || !mandalaContainer) return;
+  
+  // Fade out chat, fade in mandala
+  chatSection.classList.add('animate-fade-out');
+  setTimeout(() => {
+    chatSection.classList.add('hidden');
+    mandalaSection.classList.remove('hidden');
+    mandalaSection.classList.add('animate-fade-in');
+    
+    // Generate and render the mandala
+    renderMandala(mandalaContainer, connections, lang);
+  }, 500);
+}
+
+function renderMandala(container, connections, lang) {
+  const size = 400;
+  const center = size / 2;
+  const innerRadius = 40;
+  const outerRadius = 150;
+  
+  // Color scheme for connection types
+  const colors = {
+    received: { main: '#fbbf24', glow: 'rgba(251, 191, 36, 0.5)' },  // amber
+    given: { main: '#4ade80', glow: 'rgba(74, 222, 128, 0.5)' },     // green
+    forgiven: { main: '#c084fc', glow: 'rgba(192, 132, 252, 0.5)' }  // purple
+  };
+  
+  // Create SVG
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+  svg.setAttribute('class', 'w-full h-full');
+  
+  // Defs for gradients and filters
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  
+  // Glow filter
+  defs.innerHTML = `
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  `;
+  svg.appendChild(defs);
+  
+  // Background circles (mandala rings)
+  for (let i = 3; i >= 1; i--) {
+    const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    ring.setAttribute('cx', center);
+    ring.setAttribute('cy', center);
+    ring.setAttribute('r', innerRadius + (outerRadius - innerRadius) * (i / 3));
+    ring.setAttribute('fill', 'none');
+    ring.setAttribute('stroke', 'rgba(201, 162, 39, 0.15)');
+    ring.setAttribute('stroke-width', '1');
+    ring.classList.add('mandala-ring-anim');
+    ring.style.animationDelay = `${i * 0.2}s`;
+    svg.appendChild(ring);
+  }
+  
+  // Center node (You)
+  const centerGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  centerGroup.classList.add('mandala-center');
+  
+  const centerGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  centerGlow.setAttribute('cx', center);
+  centerGlow.setAttribute('cy', center);
+  centerGlow.setAttribute('r', innerRadius);
+  centerGlow.setAttribute('fill', 'rgba(201, 162, 39, 0.3)');
+  centerGlow.setAttribute('filter', 'url(#softGlow)');
+  centerGroup.appendChild(centerGlow);
+  
+  const centerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  centerCircle.setAttribute('cx', center);
+  centerCircle.setAttribute('cy', center);
+  centerCircle.setAttribute('r', innerRadius - 5);
+  centerCircle.setAttribute('fill', '#c9a227');
+  centerCircle.setAttribute('filter', 'url(#glow)');
+  centerGroup.appendChild(centerCircle);
+  
+  const centerText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  centerText.setAttribute('x', center);
+  centerText.setAttribute('y', center + 5);
+  centerText.setAttribute('text-anchor', 'middle');
+  centerText.setAttribute('fill', '#1e3a5f');
+  centerText.setAttribute('font-size', '14');
+  centerText.setAttribute('font-weight', '600');
+  centerText.textContent = lang === 'en' ? 'You' : 'あなた';
+  centerGroup.appendChild(centerText);
+  
+  svg.appendChild(centerGroup);
+  
+  // Connection nodes
+  const totalNodes = connections.length;
+  connections.forEach((conn, index) => {
+    const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2;
+    const nodeRadius = outerRadius - 20;
+    const x = center + Math.cos(angle) * nodeRadius;
+    const y = center + Math.sin(angle) * nodeRadius;
+    
+    const color = colors[conn.type] || colors.received;
+    const delay = 0.5 + index * 0.3;
+    
+    // Connection line
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', center);
+    line.setAttribute('y1', center);
+    line.setAttribute('x2', x);
+    line.setAttribute('y2', y);
+    line.setAttribute('stroke', color.main);
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('opacity', '0.6');
+    line.classList.add('mandala-line');
+    line.style.animationDelay = `${delay}s`;
+    svg.appendChild(line);
+    
+    // Node group
+    const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    nodeGroup.classList.add('mandala-node');
+    nodeGroup.style.animationDelay = `${delay + 0.2}s`;
+    
+    // Node glow
+    const nodeGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    nodeGlow.setAttribute('cx', x);
+    nodeGlow.setAttribute('cy', y);
+    nodeGlow.setAttribute('r', 35);
+    nodeGlow.setAttribute('fill', color.glow);
+    nodeGlow.setAttribute('filter', 'url(#softGlow)');
+    nodeGroup.appendChild(nodeGlow);
+    
+    // Node circle
+    const nodeCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    nodeCircle.setAttribute('cx', x);
+    nodeCircle.setAttribute('cy', y);
+    nodeCircle.setAttribute('r', 28);
+    nodeCircle.setAttribute('fill', color.main);
+    nodeCircle.setAttribute('filter', 'url(#glow)');
+    nodeGroup.appendChild(nodeCircle);
+    
+    // Person name
+    const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    nameText.setAttribute('x', x);
+    nameText.setAttribute('y', y + 4);
+    nameText.setAttribute('text-anchor', 'middle');
+    nameText.setAttribute('fill', '#1e3a5f');
+    nameText.setAttribute('font-size', '11');
+    nameText.setAttribute('font-weight', '500');
+    // Truncate long names
+    const displayName = conn.person.length > 8 ? conn.person.substring(0, 7) + '…' : conn.person;
+    nameText.textContent = displayName;
+    nodeGroup.appendChild(nameText);
+    
+    svg.appendChild(nodeGroup);
+    
+    // Tooltip with description (positioned below/beside node)
+    const tooltipY = y > center ? y + 45 : y - 45;
+    const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    tooltip.setAttribute('x', x);
+    tooltip.setAttribute('y', tooltipY);
+    tooltip.setAttribute('text-anchor', 'middle');
+    tooltip.setAttribute('fill', 'rgba(245, 240, 232, 0.7)');
+    tooltip.setAttribute('font-size', '9');
+    tooltip.classList.add('mandala-tooltip');
+    tooltip.style.animationDelay = `${delay + 0.5}s`;
+    // Truncate description
+    const desc = conn.description.length > 25 ? conn.description.substring(0, 24) + '…' : conn.description;
+    tooltip.textContent = desc;
+    svg.appendChild(tooltip);
+  });
+  
+  // Clear and append
+  container.innerHTML = '';
+  container.appendChild(svg);
+}
+
+// Add CSS for mandala animations
+function addMandalaStyles() {
+  if (document.getElementById('mandala-styles')) return;
+  
+  const style = document.createElement('style');
+  style.id = 'mandala-styles';
+  style.textContent = `
+    @keyframes mandalaFadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    @keyframes mandalaLineGrow {
+      from { stroke-dashoffset: 200; opacity: 0; }
+      to { stroke-dashoffset: 0; opacity: 0.6; }
+    }
+    
+    @keyframes mandalaNodePop {
+      0% { opacity: 0; transform: scale(0); }
+      70% { transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    @keyframes mandalaRingSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes tooltipFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .animate-fade-out {
+      animation: fadeOut 0.5s ease-out forwards;
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    .mandala-center {
+      animation: mandalaFadeIn 0.8s ease-out forwards;
+    }
+    
+    .mandala-line {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: mandalaLineGrow 0.6s ease-out forwards;
+    }
+    
+    .mandala-node {
+      opacity: 0;
+      transform-origin: center;
+      animation: mandalaNodePop 0.5s ease-out forwards;
+    }
+    
+    .mandala-ring-anim {
+      transform-origin: center;
+      animation: mandalaRingSpin 60s linear infinite;
+    }
+    
+    .mandala-tooltip {
+      opacity: 0;
+      animation: tooltipFadeIn 0.5s ease-out forwards;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// Initialize mandala styles on load
+addMandalaStyles();
 
 // ========================================
 // TATAMI Mode (Zen / Breathing)

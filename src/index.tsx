@@ -325,6 +325,17 @@ app.get('/garden', (c) => {
 app.get('/study', (c) => {
   const lang = getLanguage(c)
   
+  const mandalaTexts = {
+    title: { en: 'Your Connection Mandala', ja: '縁の曼荼羅' },
+    subtitle: { en: 'You are held by many connections', ja: 'あなたは多くの縁に支えられています' },
+    received: { en: 'Received', ja: '受けた恩' },
+    given: { en: 'Given', ja: '与えた恩' },
+    forgiven: { en: 'Forgiven', ja: '許された恩' },
+    center: { en: 'You', ja: 'あなた' },
+    save: { en: 'Save to Profile', ja: 'プロフィールに保存' },
+    continue: { en: 'Continue Journey', ja: '歩みを続ける' }
+  }
+  
   return c.render(
     <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
       <Header currentLang={lang} roomName={lang === 'en' ? 'STUDY' : '書斎 STUDY'} roomIcon="📚" />
@@ -332,52 +343,106 @@ app.get('/study', (c) => {
       {/* Content */}
       <main class="flex-1 flex items-center justify-center p-6">
         <div class="max-w-2xl w-full">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl text-indigo-800 mb-2">{tx('study', 'title', lang)} — Deep Reflection</h1>
-            <p class="text-ink-500">{tx('study', 'subtitle', lang)}</p>
-          </div>
-          
-          {/* Chat Interface */}
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-wabi-lg overflow-hidden">
-            <div id="naikan-chat" class="h-96 overflow-y-auto p-6 space-y-4">
-              {/* Initial message */}
-              <div class="chat-bubble bg-ecru-200 p-4 max-w-[80%]">
-                <p class="text-ink-700 text-sm mb-1">
-                  <span class="text-gold">{tx('study', 'guideName', lang)}</span>
-                </p>
-                <p class="text-ink-600">
-                  {tx('study', 'q1', lang)}<br/>
-                  <span class="text-xs text-ink-400">{tx('study', 'q1Hint', lang)}</span>
-                </p>
+          {/* Chat Section (hidden when mandala shows) */}
+          <div id="study-chat-section">
+            <div class="text-center mb-8">
+              <h1 class="text-3xl text-indigo-800 mb-2">{tx('study', 'title', lang)} — Deep Reflection</h1>
+              <p class="text-ink-500">{tx('study', 'subtitle', lang)}</p>
+            </div>
+            
+            {/* Chat Interface */}
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-wabi-lg overflow-hidden">
+              <div id="naikan-chat" class="h-96 overflow-y-auto p-6 space-y-4">
+                {/* Initial message with person input */}
+                <div class="chat-bubble bg-ecru-200 p-4 max-w-[85%]">
+                  <p class="text-ink-700 text-sm mb-1">
+                    <span class="text-gold">{tx('study', 'guideName', lang)}</span>
+                  </p>
+                  <p class="text-ink-600 mb-3">
+                    {tx('study', 'q1', lang)}
+                  </p>
+                  <p class="text-xs text-ink-400">{tx('study', 'q1Hint', lang)}</p>
+                </div>
+              </div>
+              
+              {/* Input with person name field */}
+              <div class="border-t border-ecru-300 p-4">
+                {/* Person name input */}
+                <div class="mb-3">
+                  <label class="text-xs text-ink-500 mb-1 block">
+                    {lang === 'en' ? 'Who helped you? (name or role)' : '誰に助けられましたか？（名前や役割）'}
+                  </label>
+                  <input 
+                    type="text" 
+                    id="naikan-person"
+                    placeholder={lang === 'en' ? 'e.g., Mom, a coworker, the barista...' : '例：母、同僚、カフェの店員...'}
+                    class="w-full px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 text-sm"
+                  />
+                </div>
+                {/* Description input */}
+                <div class="flex gap-3">
+                  <input 
+                    type="text" 
+                    id="naikan-input"
+                    placeholder={tx('study', 'inputPlaceholder', lang)}
+                    class="flex-1 px-4 py-3 bg-ecru-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50"
+                  />
+                  <button 
+                    id="naikan-send-btn"
+                    class="px-6 py-3 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors"
+                  >
+                    {tx('study', 'sendButton', lang)}
+                  </button>
+                </div>
               </div>
             </div>
             
-            {/* Input */}
-            <div class="border-t border-ecru-300 p-4">
-              <div class="flex gap-3">
-                <input 
-                  type="text" 
-                  id="naikan-input"
-                  placeholder={tx('study', 'inputPlaceholder', lang)}
-                  class="flex-1 px-4 py-3 bg-ecru-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50"
-                />
-                <button 
-                  id="naikan-send-btn"
-                  class="px-6 py-3 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors"
-                >
-                  {tx('study', 'sendButton', lang)}
-                </button>
+            {/* Progress */}
+            <div class="mt-6 text-center">
+              <p id="progress-text" class="text-ink-400 text-sm">{tx('study', 'question', lang)} 1 / 3</p>
+              <div class="flex justify-center gap-2 mt-2">
+                <div id="dot-1" class="w-3 h-3 rounded-full bg-gold"></div>
+                <div id="dot-2" class="w-3 h-3 rounded-full bg-ecru-300"></div>
+                <div id="dot-3" class="w-3 h-3 rounded-full bg-ecru-300"></div>
               </div>
             </div>
           </div>
           
-          {/* Progress */}
-          <div class="mt-6 text-center">
-            <p class="text-ink-400 text-sm">{tx('study', 'question', lang)} 1 / 3</p>
-            <div class="flex justify-center gap-2 mt-2">
-              <div class="w-3 h-3 rounded-full bg-gold"></div>
-              <div class="w-3 h-3 rounded-full bg-ecru-300"></div>
-              <div class="w-3 h-3 rounded-full bg-ecru-300"></div>
+          {/* Connection Mandala Section (hidden initially) */}
+          <div id="mandala-section" class="hidden">
+            <div class="text-center mb-8">
+              <h2 class="text-3xl text-indigo-800 mb-2">{mandalaTexts.title[lang]}</h2>
+              <p class="text-ink-500">{mandalaTexts.subtitle[lang]}</p>
+            </div>
+            
+            {/* Mandala Canvas */}
+            <div class="bg-gradient-to-b from-indigo-900 to-indigo-800 rounded-2xl p-8 shadow-wabi-lg">
+              <div id="mandala-container" class="relative w-full aspect-square max-w-md mx-auto">
+                {/* SVG will be rendered here by JavaScript */}
+              </div>
+              
+              {/* Legend */}
+              <div class="flex justify-center gap-6 mt-6 text-sm">
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                  <span class="text-ecru-300">{mandalaTexts.received[lang]}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                  <span class="text-ecru-300">{mandalaTexts.given[lang]}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-purple-400"></div>
+                  <span class="text-ecru-300">{mandalaTexts.forgiven[lang]}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Actions */}
+            <div class="flex justify-center gap-4 mt-8">
+              <a href={`/profile?lang=${lang}`} class="px-6 py-3 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors">
+                {mandalaTexts.continue[lang]}
+              </a>
             </div>
           </div>
         </div>
