@@ -2806,6 +2806,116 @@ function initWeeklyReport() {
   if (encouragementEl) {
     encouragementEl.textContent = randomMessage;
   }
+  
+  // Initialize share functionality
+  initShareFeature(profile, totalSessions, randomMessage, lang);
+}
+
+// ========================================
+// Share Feature
+// ========================================
+
+function initShareFeature(profile, totalSessions, encouragement, lang) {
+  // Update share card values
+  const shareStreakEl = document.getElementById('share-streak-value');
+  const shareMessageEl = document.getElementById('share-message');
+  
+  if (shareStreakEl) {
+    shareStreakEl.textContent = profile.stats.currentStreak;
+  }
+  if (shareMessageEl) {
+    // Use a shorter version for share
+    const shareMessages = {
+      en: [
+        '"Your scars make you beautiful."',
+        '"One step at a time, one breath at a time."',
+        '"Every day is a new beginning."',
+        '"In stillness, find strength."'
+      ],
+      ja: [
+        '「傷は、あなたを美しくする。」',
+        '「一歩ずつ、一呼吸ずつ。」',
+        '「毎日が新しい始まり。」',
+        '「静けさの中に、強さを見つける。」'
+      ]
+    };
+    const msg = shareMessages[lang][Math.floor(Math.random() * shareMessages[lang].length)];
+    shareMessageEl.textContent = msg;
+  }
+  
+  // Generate share text
+  const generateShareText = () => {
+    const streakText = lang === 'en' 
+      ? `🎯 ${profile.stats.currentStreak} day streak`
+      : `🎯 ${profile.stats.currentStreak}日連続`;
+    
+    const sessionText = lang === 'en'
+      ? `📊 ${totalSessions} sessions this week`
+      : `📊 今週${totalSessions}セッション`;
+    
+    const tagline = lang === 'en'
+      ? '✨ Your scars make you beautiful'
+      : '✨ 傷が、あなたを美しくする';
+    
+    return `${streakText}\n${sessionText}\n\n${tagline}\n\n#KintsugiMind #金継ぎ #Mindfulness`;
+  };
+  
+  // Copy text button
+  const copyBtn = document.getElementById('share-copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const text = generateShareText();
+      try {
+        await navigator.clipboard.writeText(text);
+        // Show feedback
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>${lang === 'en' ? 'Copied!' : 'コピーしました！'}`;
+        copyBtn.classList.add('bg-green-100', 'text-green-700');
+        setTimeout(() => {
+          copyBtn.innerHTML = originalText;
+          copyBtn.classList.remove('bg-green-100', 'text-green-700');
+        }, 2000);
+      } catch (e) {
+        console.error('Copy failed:', e);
+      }
+    });
+  }
+  
+  // Twitter/X button
+  const twitterBtn = document.getElementById('share-twitter-btn');
+  if (twitterBtn) {
+    twitterBtn.addEventListener('click', () => {
+      const text = generateShareText();
+      const url = window.location.origin;
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+      window.open(twitterUrl, '_blank', 'width=550,height=420');
+    });
+  }
+  
+  // Native share button
+  const nativeBtn = document.getElementById('share-native-btn');
+  if (nativeBtn) {
+    // Only show if Web Share API is supported
+    if (navigator.share) {
+      nativeBtn.addEventListener('click', async () => {
+        const text = generateShareText();
+        try {
+          await navigator.share({
+            title: 'KINTSUGI MIND',
+            text: text,
+            url: window.location.origin
+          });
+        } catch (e) {
+          if (e.name !== 'AbortError') {
+            console.error('Share failed:', e);
+          }
+        }
+      });
+    } else {
+      // Hide native share button if not supported
+      nativeBtn.style.display = 'none';
+    }
+  }
 }
 
 // ========================================
