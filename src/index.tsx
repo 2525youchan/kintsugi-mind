@@ -271,6 +271,58 @@ app.get('/garden', (c) => {
     <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
       <Header currentLang={lang} roomName={lang === 'en' ? 'GARDEN' : '庭 GARDEN'} roomIcon="🌱" />
 
+      {/* Sound Control - Floating */}
+      <div id="garden-sound-control" class="fixed bottom-4 right-4 z-50">
+        <div class="flex flex-col items-end gap-2">
+          {/* Presets (hidden by default) */}
+          <div id="garden-sound-presets" class="hidden flex flex-col gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-ecru-300">
+            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 text-ink-600 text-left" data-preset="garden">
+              <span>🌅</span>
+              <span>{lang === 'en' ? 'Morning Garden' : '朝の庭'}</span>
+            </button>
+            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 text-ink-600 text-left" data-preset="gardenForest">
+              <span>🌲</span>
+              <span>{lang === 'en' ? 'Forest Bathing' : '森林浴'}</span>
+            </button>
+            <button class="sound-preset flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-ecru-200 text-ink-600 text-left" data-preset="gardenWater">
+              <span>💧</span>
+              <span>{lang === 'en' ? 'Water Garden' : '水の庭'}</span>
+            </button>
+            <div class="border-t border-ecru-300 mt-1 pt-1">
+              <div class="flex items-center gap-2 px-2">
+                <svg class="w-3 h-3 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                </svg>
+                <input 
+                  type="range" 
+                  id="garden-volume-slider" 
+                  min="0" 
+                  max="100" 
+                  value="50"
+                  class="w-20 h-1 bg-ecru-300 rounded-lg appearance-none cursor-pointer accent-green-600"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Toggle Button */}
+          <button 
+            id="garden-sound-toggle"
+            class="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-ecru-300 text-ink-600 rounded-full hover:bg-ecru-100 transition-colors shadow-lg text-sm"
+            data-mode="garden"
+          >
+            <svg id="garden-sound-icon-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+            </svg>
+            <svg id="garden-sound-icon-on" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+            </svg>
+            <span>{lang === 'en' ? 'Sound' : '環境音'}</span>
+          </button>
+        </div>
+      </div>
+
       {/* Split Screen */}
       <main class="flex-1 flex flex-col md:flex-row">
         {/* SKY Section - Emotions */}
@@ -539,6 +591,57 @@ app.get('/tatami', (c) => {
           >
             {tx('tatami', 'startButton', lang)}
           </button>
+          
+          {/* Sound Control */}
+          <div id="sound-control" class="flex flex-col items-center gap-3 mb-8">
+            <div class="flex items-center gap-3">
+              <button 
+                id="sound-toggle-btn"
+                class="flex items-center gap-2 px-4 py-2 bg-ecru/10 border border-ecru/20 text-ecru/70 rounded-full hover:bg-ecru/20 transition-colors text-sm"
+                data-mode="tatami"
+              >
+                <svg id="sound-icon-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+                </svg>
+                <svg id="sound-icon-on" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                </svg>
+                <span id="sound-label">{lang === 'en' ? 'Ambient Sound' : '環境音'}</span>
+              </button>
+            </div>
+            
+            {/* Sound Preset Selector */}
+            <div id="sound-presets" class="hidden flex-wrap justify-center gap-2 max-w-sm">
+              <button class="sound-preset px-3 py-1 text-xs rounded-full bg-ecru/10 text-ecru/60 hover:bg-ecru/20 border border-ecru/20" data-preset="tatami">
+                {lang === 'en' ? '🔔 Zen Space' : '🔔 禅の空間'}
+              </button>
+              <button class="sound-preset px-3 py-1 text-xs rounded-full bg-ecru/10 text-ecru/60 hover:bg-ecru/20 border border-ecru/20" data-preset="tatamiRain">
+                {lang === 'en' ? '🌧️ Rain' : '🌧️ 雨音'}
+              </button>
+              <button class="sound-preset px-3 py-1 text-xs rounded-full bg-ecru/10 text-ecru/60 hover:bg-ecru/20 border border-ecru/20" data-preset="tatamiNight">
+                {lang === 'en' ? '🌙 Night' : '🌙 夜'}
+              </button>
+            </div>
+            
+            {/* Volume Slider */}
+            <div id="volume-control" class="hidden flex items-center gap-2">
+              <svg class="w-4 h-4 text-ecru/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+              </svg>
+              <input 
+                type="range" 
+                id="volume-slider" 
+                min="0" 
+                max="100" 
+                value="50"
+                class="w-24 h-1 bg-ecru/20 rounded-lg appearance-none cursor-pointer accent-gold"
+              />
+              <svg class="w-4 h-4 text-ecru/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+              </svg>
+            </div>
+          </div>
           
           {/* Koan (Hidden until session ends) */}
           <div id="koan-container" class="hidden mt-12 max-w-md mx-auto">

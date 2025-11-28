@@ -1618,6 +1618,143 @@ function toggleMobileMenu() {
 window.toggleMobileMenu = toggleMobileMenu;
 
 // ========================================
+// Soundscape Control
+// ========================================
+
+function initSoundControl(mode) {
+  const lang = getLang();
+  
+  if (mode === 'tatami') {
+    initTatamiSoundControl(lang);
+  } else if (mode === 'garden') {
+    initGardenSoundControl(lang);
+  }
+}
+
+function initTatamiSoundControl(lang) {
+  const toggleBtn = document.getElementById('sound-toggle-btn');
+  const iconOff = document.getElementById('sound-icon-off');
+  const iconOn = document.getElementById('sound-icon-on');
+  const presetsContainer = document.getElementById('sound-presets');
+  const volumeControl = document.getElementById('volume-control');
+  const volumeSlider = document.getElementById('volume-slider');
+  const presetButtons = document.querySelectorAll('#sound-presets .sound-preset');
+  
+  if (!toggleBtn || !window.soundscape) return;
+  
+  let currentPreset = 'tatami';
+  let isPlaying = false;
+  
+  // Toggle button
+  toggleBtn.addEventListener('click', async () => {
+    if (isPlaying) {
+      window.soundscape.stop();
+      isPlaying = false;
+      iconOff.classList.remove('hidden');
+      iconOn.classList.add('hidden');
+      presetsContainer.classList.add('hidden');
+      volumeControl.classList.add('hidden');
+    } else {
+      await window.soundscape.play(currentPreset);
+      isPlaying = true;
+      iconOff.classList.add('hidden');
+      iconOn.classList.remove('hidden');
+      presetsContainer.classList.remove('hidden');
+      presetsContainer.classList.add('flex');
+      volumeControl.classList.remove('hidden');
+      volumeControl.classList.add('flex');
+      updatePresetButtons(currentPreset, presetButtons);
+    }
+  });
+  
+  // Preset buttons
+  presetButtons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      currentPreset = btn.dataset.preset;
+      await window.soundscape.play(currentPreset);
+      isPlaying = true;
+      iconOff.classList.add('hidden');
+      iconOn.classList.remove('hidden');
+      updatePresetButtons(currentPreset, presetButtons);
+    });
+  });
+  
+  // Volume slider
+  if (volumeSlider) {
+    volumeSlider.addEventListener('input', (e) => {
+      window.soundscape.setVolume(e.target.value / 100);
+    });
+  }
+}
+
+function initGardenSoundControl(lang) {
+  const toggleBtn = document.getElementById('garden-sound-toggle');
+  const iconOff = document.getElementById('garden-sound-icon-off');
+  const iconOn = document.getElementById('garden-sound-icon-on');
+  const presetsContainer = document.getElementById('garden-sound-presets');
+  const volumeSlider = document.getElementById('garden-volume-slider');
+  const presetButtons = document.querySelectorAll('#garden-sound-presets .sound-preset');
+  
+  if (!toggleBtn || !window.soundscape) return;
+  
+  let currentPreset = 'garden';
+  let isPlaying = false;
+  
+  // Toggle button - shows/hides presets
+  toggleBtn.addEventListener('click', async () => {
+    if (isPlaying) {
+      window.soundscape.stop();
+      isPlaying = false;
+      iconOff.classList.remove('hidden');
+      iconOn.classList.add('hidden');
+      presetsContainer.classList.add('hidden');
+    } else {
+      // Show presets first time, play default
+      if (presetsContainer.classList.contains('hidden')) {
+        presetsContainer.classList.remove('hidden');
+        presetsContainer.classList.add('flex', 'flex-col');
+      }
+      await window.soundscape.play(currentPreset);
+      isPlaying = true;
+      iconOff.classList.add('hidden');
+      iconOn.classList.remove('hidden');
+      updatePresetButtons(currentPreset, presetButtons);
+    }
+  });
+  
+  // Preset buttons
+  presetButtons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      currentPreset = btn.dataset.preset;
+      await window.soundscape.play(currentPreset);
+      isPlaying = true;
+      iconOff.classList.add('hidden');
+      iconOn.classList.remove('hidden');
+      updatePresetButtons(currentPreset, presetButtons);
+    });
+  });
+  
+  // Volume slider
+  if (volumeSlider) {
+    volumeSlider.addEventListener('input', (e) => {
+      window.soundscape.setVolume(e.target.value / 100);
+    });
+  }
+}
+
+function updatePresetButtons(activePreset, buttons) {
+  buttons.forEach(btn => {
+    if (btn.dataset.preset === activePreset) {
+      btn.classList.add('bg-gold/30', 'text-gold', 'border-gold/50');
+      btn.classList.remove('bg-ecru/10', 'text-ecru/60');
+    } else {
+      btn.classList.remove('bg-gold/30', 'text-gold', 'border-gold/50');
+      btn.classList.add('bg-ecru/10', 'text-ecru/60');
+    }
+  });
+}
+
+// ========================================
 // Initialize based on current page
 // ========================================
 
@@ -1645,10 +1782,12 @@ document.addEventListener('DOMContentLoaded', () => {
     saveProfile(profile);
   } else if (path === '/garden') {
     initGarden();
+    initSoundControl('garden');
   } else if (path === '/study') {
     initStudy();
   } else if (path === '/tatami') {
     initTatami();
+    initSoundControl('tatami');
   } else if (path === '/') {
     // Home page - just record visit
     let profile = loadProfile();

@@ -139,6 +139,7 @@ export const renderer = jsxRenderer(({ children, title }) => {
       </head>
       <body class="bg-ecru text-ink font-serif min-h-screen">
         {children}
+        <script src="/static/soundscape.js"></script>
         <script src="/static/app.js"></script>
         
         {/* Service Worker Registration */}
