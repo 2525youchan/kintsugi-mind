@@ -88,7 +88,7 @@ export const Header = ({
 
   const textClass = variant === 'transparent' 
     ? 'text-ecru/80' 
-    : 'text-indigo-800'
+    : 'text-indigo-800 dark:text-ecru'
 
   return (
     <header class={baseClass}>
