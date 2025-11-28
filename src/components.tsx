@@ -26,7 +26,7 @@ export const LanguageSwitcher = ({ currentLang }: { currentLang: Language }) => 
             : 'text-ink-600 hover:text-indigo-800'
         }`}
       >
-        日本語
+        JP
       </a>
     </div>
   )
