@@ -1143,6 +1143,22 @@ app.get('/profile', (c) => {
                   {lang === 'en' ? 'Sign out' : 'ログアウト'}
                 </button>
               </div>
+              {/* Cloud sync status */}
+              <div id="sync-status" class="mt-3 pt-3 border-t border-wabi dark:border-[#4a4a4a] flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+                <span id="sync-status-text" class="text-ink-500 dark:text-[#78716c]">
+                  {lang === 'en' ? 'Synced to cloud' : 'クラウドに同期済み'}
+                </span>
+                <button 
+                  id="sync-now-btn"
+                  class="ml-auto text-xs text-indigo-600 dark:text-gold hover:underline"
+                  onclick="manualSync()"
+                >
+                  {lang === 'en' ? 'Sync now' : '今すぐ同期'}
+                </button>
+              </div>
             </div>
           </div>
           
@@ -3332,6 +3348,301 @@ app.get('/api/vessels', async (c) => {
   } catch (e) {
     console.error('Get vessels error:', e)
     return c.json({ vessels: basicVessels, plan: 'free' })
+  }
+})
+
+// ========================================
+// Data Sync API - LocalStorage ↔ Server
+// ========================================
+
+// Get full profile data from server
+app.get('/api/sync/profile', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ error: 'Not authenticated', source: 'local' }, 401)
+  }
+  
+  const db = c.env?.DB
+  if (!db) {
+    return c.json({ error: 'Database not available', source: 'local' }, 500)
+  }
+  
+  try {
+    // Get profile
+    const profile = await db.prepare(`
+      SELECT * FROM profiles WHERE user_id = ?
+    `).bind(user.id).first()
+    
+    if (!profile) {
+      return c.json({ 
+        profile: null, 
+        checkins: [], 
+        activities: [],
+        cracks: [],
+        source: 'server' 
+      })
+    }
+    
+    // Get checkins (last 365 days)
+    const checkins = await db.prepare(`
+      SELECT id, weather, note, created_at FROM checkins 
+      WHERE profile_id = ? 
+      AND created_at > datetime('now', '-365 days')
+      ORDER BY created_at DESC
+    `).bind(profile.id).all()
+    
+    // Get activities (last 30 days)
+    const activities = await db.prepare(`
+      SELECT id, type, data, created_at FROM activities 
+      WHERE profile_id = ? 
+      AND created_at > datetime('now', '-30 days')
+      ORDER BY created_at DESC
+    `).bind(profile.id).all()
+    
+    // Get cracks
+    const cracks = await db.prepare(`
+      SELECT id, type, repaired, created_at, repaired_at FROM cracks 
+      WHERE profile_id = ?
+      ORDER BY created_at DESC
+    `).bind(profile.id).all()
+    
+    return c.json({
+      profile: {
+        id: profile.id,
+        totalRepairs: profile.total_repairs,
+        lastVisit: profile.last_visit,
+        stats: {
+          totalVisits: profile.stats_total_visits,
+          currentStreak: profile.stats_current_streak,
+          longestStreak: profile.stats_longest_streak,
+          gardenActions: profile.stats_garden_actions,
+          studySessions: profile.stats_study_sessions,
+          tatamiSessions: profile.stats_tatami_sessions
+        }
+      },
+      checkins: checkins.results || [],
+      activities: activities.results || [],
+      cracks: cracks.results || [],
+      source: 'server'
+    })
+  } catch (e) {
+    console.error('Get profile error:', e)
+    return c.json({ error: 'Failed to get profile', source: 'local' }, 500)
+  }
+})
+
+// Sync profile data from client to server (merge strategy)
+app.post('/api/sync/profile', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ error: 'Not authenticated', synced: false }, 401)
+  }
+  
+  const db = c.env?.DB
+  if (!db) {
+    return c.json({ error: 'Database not available', synced: false }, 500)
+  }
+  
+  try {
+    const body = await c.req.json()
+    const { profile: clientProfile, checkins: clientCheckins, vessel } = body
+    
+    // Get or create profile
+    let profile = await db.prepare(`
+      SELECT * FROM profiles WHERE user_id = ?
+    `).bind(user.id).first()
+    
+    const profileId = profile?.id || `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    
+    if (!profile) {
+      // Create new profile
+      await db.prepare(`
+        INSERT INTO profiles (id, user_id, total_repairs, last_visit, 
+          stats_total_visits, stats_current_streak, stats_longest_streak,
+          stats_garden_actions, stats_study_sessions, stats_tatami_sessions)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        profileId,
+        user.id,
+        clientProfile?.totalRepairs || 0,
+        clientProfile?.lastVisit || new Date().toISOString(),
+        clientProfile?.stats?.totalVisits || 1,
+        clientProfile?.stats?.currentStreak || 1,
+        clientProfile?.stats?.longestStreak || 1,
+        clientProfile?.stats?.gardenActions || 0,
+        clientProfile?.stats?.studySessions || 0,
+        clientProfile?.stats?.tatamiSessions || 0
+      ).run()
+    } else {
+      // Merge: Take maximum values for stats (server wins for conflicts)
+      const mergedStats = {
+        totalVisits: Math.max(profile.stats_total_visits || 0, clientProfile?.stats?.totalVisits || 0),
+        currentStreak: Math.max(profile.stats_current_streak || 0, clientProfile?.stats?.currentStreak || 0),
+        longestStreak: Math.max(profile.stats_longest_streak || 0, clientProfile?.stats?.longestStreak || 0),
+        gardenActions: Math.max(profile.stats_garden_actions || 0, clientProfile?.stats?.gardenActions || 0),
+        studySessions: Math.max(profile.stats_study_sessions || 0, clientProfile?.stats?.studySessions || 0),
+        tatamiSessions: Math.max(profile.stats_tatami_sessions || 0, clientProfile?.stats?.tatamiSessions || 0)
+      }
+      
+      await db.prepare(`
+        UPDATE profiles SET 
+          total_repairs = ?,
+          last_visit = ?,
+          stats_total_visits = ?,
+          stats_current_streak = ?,
+          stats_longest_streak = ?,
+          stats_garden_actions = ?,
+          stats_study_sessions = ?,
+          stats_tatami_sessions = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(
+        Math.max(profile.total_repairs || 0, clientProfile?.totalRepairs || 0),
+        new Date().toISOString(),
+        mergedStats.totalVisits,
+        mergedStats.currentStreak,
+        mergedStats.longestStreak,
+        mergedStats.gardenActions,
+        mergedStats.studySessions,
+        mergedStats.tatamiSessions,
+        profile.id
+      ).run()
+    }
+    
+    // Update vessel type if provided
+    if (vessel) {
+      await db.prepare(`
+        UPDATE users SET vessel_type = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+      `).bind(vessel, user.id).run()
+    }
+    
+    // Sync checkins (avoid duplicates by date)
+    if (clientCheckins && clientCheckins.length > 0) {
+      for (const checkin of clientCheckins) {
+        const dateStr = checkin.date || checkin.created_at?.split('T')[0]
+        if (!dateStr) continue
+        
+        // Check if checkin for this date already exists
+        const existing = await db.prepare(`
+          SELECT id FROM checkins 
+          WHERE profile_id = ? AND date(created_at) = date(?)
+        `).bind(profileId, dateStr).first()
+        
+        if (!existing) {
+          const checkinId = `checkin_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          await db.prepare(`
+            INSERT INTO checkins (id, profile_id, weather, note, created_at)
+            VALUES (?, ?, ?, ?, ?)
+          `).bind(
+            checkinId,
+            profileId,
+            checkin.weather,
+            checkin.note || null,
+            dateStr + 'T12:00:00Z'
+          ).run()
+        }
+      }
+    }
+    
+    return c.json({ 
+      synced: true, 
+      profileId,
+      message: 'Data synced successfully'
+    })
+  } catch (e) {
+    console.error('Sync profile error:', e)
+    return c.json({ error: 'Failed to sync profile', synced: false }, 500)
+  }
+})
+
+// Record activity (for logged-in users)
+app.post('/api/sync/activity', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ saved: false, source: 'local' })
+  }
+  
+  const db = c.env?.DB
+  if (!db) {
+    return c.json({ saved: false, source: 'local' })
+  }
+  
+  try {
+    const { type, data } = await c.req.json()
+    
+    // Get profile
+    const profile = await db.prepare(`
+      SELECT id FROM profiles WHERE user_id = ?
+    `).bind(user.id).first()
+    
+    if (!profile) {
+      return c.json({ saved: false, source: 'local' })
+    }
+    
+    // Insert activity
+    const activityId = `activity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    await db.prepare(`
+      INSERT INTO activities (id, profile_id, type, data)
+      VALUES (?, ?, ?, ?)
+    `).bind(activityId, profile.id, type, JSON.stringify(data || {})).run()
+    
+    // Update profile stats based on activity type
+    const statField = type === 'garden' ? 'stats_garden_actions'
+      : type === 'study' ? 'stats_study_sessions'
+      : type === 'tatami' ? 'stats_tatami_sessions'
+      : null
+    
+    if (statField) {
+      await db.prepare(`
+        UPDATE profiles SET ${statField} = ${statField} + 1, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(profile.id).run()
+    }
+    
+    return c.json({ saved: true, source: 'server', activityId })
+  } catch (e) {
+    console.error('Save activity error:', e)
+    return c.json({ saved: false, source: 'local' })
+  }
+})
+
+// Get sync status
+app.get('/api/sync/status', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ 
+      authenticated: false, 
+      synced: false,
+      message: 'Login to sync your data across devices'
+    })
+  }
+  
+  const db = c.env?.DB
+  if (!db) {
+    return c.json({ 
+      authenticated: true, 
+      synced: false,
+      message: 'Database not available'
+    })
+  }
+  
+  try {
+    const profile = await db.prepare(`
+      SELECT id, updated_at FROM profiles WHERE user_id = ?
+    `).bind(user.id).first()
+    
+    return c.json({
+      authenticated: true,
+      synced: !!profile,
+      lastSync: profile?.updated_at || null,
+      message: profile ? 'Data synced to cloud' : 'Ready to sync'
+    })
+  } catch (e) {
+    return c.json({ 
+      authenticated: true, 
+      synced: false,
+      message: 'Sync status unknown'
+    })
   }
 })
 

@@ -380,19 +380,117 @@ function updateAuthUI(user) {
 // Sync local data to server after login
 async function syncLocalDataToServer() {
   const localProfile = loadProfile();
+  const checkinHistory = getCheckinHistory();
+  const vessel = getSelectedVessel();
   
   try {
-    const response = await fetch('/api/auth/sync', {
+    // Send local data to server
+    const response = await fetch('/api/sync/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile: localProfile })
+      body: JSON.stringify({ 
+        profile: localProfile,
+        checkins: checkinHistory,
+        vessel: vessel
+      })
     });
     
     if (response.ok) {
-      console.log('[Auth] Local data synced to server');
+      const result = await response.json();
+      console.log('[Sync] Local data synced to server:', result);
+      
+      // Now fetch merged data from server and update local
+      await syncServerDataToLocal();
     }
   } catch (e) {
-    console.error('Sync failed:', e);
+    console.error('[Sync] Failed to sync to server:', e);
+  }
+}
+
+// Sync server data to local (for logged-in users)
+async function syncServerDataToLocal() {
+  try {
+    const response = await fetch('/api/sync/profile');
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    if (data.source !== 'server' || !data.profile) return;
+    
+    // Update local profile with server data
+    const localProfile = loadProfile();
+    const mergedProfile = {
+      ...localProfile,
+      totalRepairs: Math.max(localProfile.totalRepairs || 0, data.profile.totalRepairs || 0),
+      lastVisit: data.profile.lastVisit || localProfile.lastVisit,
+      stats: {
+        totalVisits: Math.max(localProfile.stats?.totalVisits || 0, data.profile.stats?.totalVisits || 0),
+        currentStreak: Math.max(localProfile.stats?.currentStreak || 0, data.profile.stats?.currentStreak || 0),
+        longestStreak: Math.max(localProfile.stats?.longestStreak || 0, data.profile.stats?.longestStreak || 0),
+        gardenActions: Math.max(localProfile.stats?.gardenActions || 0, data.profile.stats?.gardenActions || 0),
+        studySessions: Math.max(localProfile.stats?.studySessions || 0, data.profile.stats?.studySessions || 0),
+        tatamiSessions: Math.max(localProfile.stats?.tatamiSessions || 0, data.profile.stats?.tatamiSessions || 0)
+      }
+    };
+    
+    saveProfile(mergedProfile);
+    console.log('[Sync] Local profile updated from server');
+    
+    // Merge checkins
+    if (data.checkins && data.checkins.length > 0) {
+      const localCheckins = getCheckinHistory();
+      const localDates = new Set(localCheckins.map(c => c.date));
+      
+      // Add server checkins that don't exist locally
+      for (const serverCheckin of data.checkins) {
+        const dateStr = serverCheckin.created_at?.split('T')[0];
+        if (dateStr && !localDates.has(dateStr)) {
+          localCheckins.push({
+            date: dateStr,
+            weather: serverCheckin.weather,
+            timestamp: new Date(serverCheckin.created_at).getTime()
+          });
+        }
+      }
+      
+      // Save merged checkins
+      localStorage.setItem(CHECKIN_HISTORY_KEY, JSON.stringify(localCheckins));
+      console.log('[Sync] Checkin history merged');
+    }
+    
+    // Update UI if on profile page
+    if (window.location.pathname === '/profile') {
+      updateProfileUI(mergedProfile, getLang());
+    }
+    
+  } catch (e) {
+    console.error('[Sync] Failed to sync from server:', e);
+  }
+}
+
+// Get checkin history for sync
+function getCheckinHistory() {
+  try {
+    const data = localStorage.getItem(CHECKIN_HISTORY_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// Update profile UI with new data (simple version for sync updates)
+function updateProfileUISimple(profile) {
+  const lang = getLang();
+  // Try to use the full updateProfileUI if on profile page
+  const vesselContainer = document.getElementById('vessel-container');
+  if (vesselContainer) {
+    // On profile page, use full update
+    updateProfileUI(profile, lang);
+  } else {
+    // Simple update for other pages
+    const totalVisitsEl = document.getElementById('stat-total-visits');
+    const currentStreakEl = document.getElementById('stat-current-streak');
+    if (totalVisitsEl) totalVisitsEl.textContent = profile.stats?.totalVisits || 0;
+    if (currentStreakEl) currentStreakEl.textContent = profile.stats?.currentStreak || 0;
   }
 }
 
@@ -653,13 +751,34 @@ function recordActivityToProfile(profile, type, details = {}) {
     stats.tatamiSessions += 1;
   }
   
-  return {
+  const updatedProfile = {
     ...profile,
     cracks: updatedCracks,
     totalRepairs: profile.totalRepairs + repairCount,
     activities: [...profile.activities, activity],
     stats
   };
+  
+  // Sync activity to server (non-blocking)
+  syncActivityToServer(type, details);
+  
+  return updatedProfile;
+}
+
+// Sync activity to server (for logged-in users)
+async function syncActivityToServer(type, data) {
+  if (!currentUser) return; // Only sync if logged in
+  
+  try {
+    await fetch('/api/sync/activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, data })
+    });
+  } catch (e) {
+    // Silently fail - data is saved locally anyway
+    console.log('[Sync] Activity sync failed, saved locally');
+  }
 }
 
 // Calculate vessel visual properties
@@ -877,7 +996,108 @@ function initProfile() {
   
   // Initialize check-in calendar
   initCheckinCalendar(lang);
+  
+  // Check sync status if logged in
+  if (currentUser) {
+    updateSyncStatus(lang);
+  }
 }
+
+// Update sync status display
+async function updateSyncStatus(lang) {
+  const statusEl = document.getElementById('sync-status');
+  const statusText = document.getElementById('sync-status-text');
+  
+  if (!statusEl || !statusText) return;
+  
+  try {
+    const response = await fetch('/api/sync/status');
+    const data = await response.json();
+    
+    if (data.synced) {
+      const lastSync = data.lastSync ? new Date(data.lastSync) : null;
+      let syncText = lang === 'en' ? 'Synced to cloud' : 'クラウドに同期済み';
+      
+      if (lastSync) {
+        const timeAgo = getTimeAgo(lastSync, lang);
+        syncText += ` (${timeAgo})`;
+      }
+      
+      statusText.textContent = syncText;
+      statusEl.querySelector('svg').classList.remove('text-yellow-500');
+      statusEl.querySelector('svg').classList.add('text-green-500');
+    } else {
+      statusText.textContent = lang === 'en' ? 'Not synced yet' : '未同期';
+      statusEl.querySelector('svg').classList.remove('text-green-500');
+      statusEl.querySelector('svg').classList.add('text-yellow-500');
+    }
+  } catch (e) {
+    statusText.textContent = lang === 'en' ? 'Sync status unknown' : '同期状態不明';
+  }
+}
+
+// Get relative time ago string
+function getTimeAgo(date, lang) {
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 1) {
+    return lang === 'en' ? 'just now' : 'たった今';
+  } else if (diffMins < 60) {
+    return lang === 'en' ? `${diffMins}m ago` : `${diffMins}分前`;
+  } else if (diffHours < 24) {
+    return lang === 'en' ? `${diffHours}h ago` : `${diffHours}時間前`;
+  } else {
+    return lang === 'en' ? `${diffDays}d ago` : `${diffDays}日前`;
+  }
+}
+
+// Manual sync button handler
+async function manualSync() {
+  const lang = getLang();
+  const statusText = document.getElementById('sync-status-text');
+  const syncBtn = document.getElementById('sync-now-btn');
+  
+  if (statusText) {
+    statusText.textContent = lang === 'en' ? 'Syncing...' : '同期中...';
+  }
+  if (syncBtn) {
+    syncBtn.disabled = true;
+    syncBtn.textContent = lang === 'en' ? 'Syncing...' : '同期中...';
+  }
+  
+  try {
+    await syncLocalDataToServer();
+    
+    if (statusText) {
+      statusText.textContent = lang === 'en' ? 'Synced successfully!' : '同期完了！';
+    }
+    
+    // Refresh UI after sync
+    setTimeout(() => {
+      updateSyncStatus(lang);
+      if (syncBtn) {
+        syncBtn.disabled = false;
+        syncBtn.textContent = lang === 'en' ? 'Sync now' : '今すぐ同期';
+      }
+    }, 1500);
+    
+  } catch (e) {
+    if (statusText) {
+      statusText.textContent = lang === 'en' ? 'Sync failed' : '同期失敗';
+    }
+    if (syncBtn) {
+      syncBtn.disabled = false;
+      syncBtn.textContent = lang === 'en' ? 'Retry' : '再試行';
+    }
+  }
+}
+
+// Make manualSync globally accessible
+window.manualSync = manualSync;
 
 // ========================================
 // Check-in Calendar
