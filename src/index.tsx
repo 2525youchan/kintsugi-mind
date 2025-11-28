@@ -847,6 +847,105 @@ app.get('/profile', (c) => {
                   </div>
                 </div>
               </div>
+              
+              {/* Daily Reminders */}
+              <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-lg text-indigo-800">
+                    {lang === 'en' ? '🔔 Daily Reminders' : '🔔 毎日のリマインダー'}
+                  </h3>
+                  <div id="notification-status" class="text-xs px-2 py-1 rounded-full bg-ink-100 text-ink-500">
+                    {lang === 'en' ? 'Off' : 'オフ'}
+                  </div>
+                </div>
+                
+                <p class="text-ink-500 text-sm mb-4">
+                  {lang === 'en' 
+                    ? 'Get gentle reminders to practice mindfulness each day.' 
+                    : '毎日のマインドフルネスを優しくリマインドします。'}
+                </p>
+                
+                {/* Enable/Disable Toggle */}
+                <div id="reminder-toggle-container" class="mb-4">
+                  <button 
+                    id="enable-reminders-btn"
+                    class="w-full px-4 py-3 bg-indigo-100 text-indigo-700 rounded-xl hover:bg-indigo-200 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span>{lang === 'en' ? 'Enable Reminders' : 'リマインダーを有効にする'}</span>
+                  </button>
+                </div>
+                
+                {/* Reminder Settings (hidden until enabled) */}
+                <div id="reminder-settings" class="hidden space-y-4">
+                  {/* Morning Reminder */}
+                  <div class="flex items-center justify-between p-3 bg-ecru-100 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🌅</span>
+                      <div>
+                        <p class="text-ink-700 text-sm font-medium">
+                          {lang === 'en' ? 'Morning Check-in' : '朝のチェックイン'}
+                        </p>
+                        <p class="text-ink-500 text-xs">
+                          {lang === 'en' ? 'Start your day mindfully' : '一日をマインドフルに始める'}
+                        </p>
+                      </div>
+                    </div>
+                    <input 
+                      type="time" 
+                      id="morning-time" 
+                      value="08:00"
+                      class="px-2 py-1 bg-white border border-ecru-300 rounded-lg text-sm text-ink-700"
+                    />
+                  </div>
+                  
+                  {/* Evening Reminder */}
+                  <div class="flex items-center justify-between p-3 bg-ecru-100 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🌙</span>
+                      <div>
+                        <p class="text-ink-700 text-sm font-medium">
+                          {lang === 'en' ? 'Evening Reflection' : '夜の振り返り'}
+                        </p>
+                        <p class="text-ink-500 text-xs">
+                          {lang === 'en' ? 'Wind down before sleep' : '眠る前のひととき'}
+                        </p>
+                      </div>
+                    </div>
+                    <input 
+                      type="time" 
+                      id="evening-time" 
+                      value="21:00"
+                      class="px-2 py-1 bg-white border border-ecru-300 rounded-lg text-sm text-ink-700"
+                    />
+                  </div>
+                  
+                  {/* Test & Disable buttons */}
+                  <div class="flex gap-2 pt-2">
+                    <button 
+                      id="test-notification-btn"
+                      class="flex-1 px-3 py-2 bg-ecru-200 text-ink-600 rounded-lg text-sm hover:bg-ecru-300 transition-colors"
+                    >
+                      {lang === 'en' ? 'Test Notification' : 'テスト通知'}
+                    </button>
+                    <button 
+                      id="disable-reminders-btn"
+                      class="flex-1 px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm hover:bg-red-200 transition-colors"
+                    >
+                      {lang === 'en' ? 'Disable' : '無効にする'}
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Permission denied message */}
+                <p id="notification-denied" class="hidden text-red-500 text-sm mt-2">
+                  {lang === 'en' 
+                    ? '⚠️ Notifications are blocked. Please enable them in your browser settings.' 
+                    : '⚠️ 通知がブロックされています。ブラウザの設定で有効にしてください。'}
+                </p>
+              </div>
             </div>
           </div>
           

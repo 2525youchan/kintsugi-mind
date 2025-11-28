@@ -353,6 +353,99 @@ function initProfile() {
   
   // Update UI
   updateProfileUI(profile, lang);
+  
+  // Initialize notification settings
+  initNotificationSettings(lang);
+}
+
+function initNotificationSettings(lang) {
+  const enableBtn = document.getElementById('enable-reminders-btn');
+  const disableBtn = document.getElementById('disable-reminders-btn');
+  const testBtn = document.getElementById('test-notification-btn');
+  const settingsContainer = document.getElementById('reminder-settings');
+  const toggleContainer = document.getElementById('reminder-toggle-container');
+  const statusEl = document.getElementById('notification-status');
+  const deniedEl = document.getElementById('notification-denied');
+  const morningTimeInput = document.getElementById('morning-time');
+  const eveningTimeInput = document.getElementById('evening-time');
+  
+  if (!enableBtn || !window.kintsugiNotifications) return;
+  
+  const notifications = window.kintsugiNotifications;
+  
+  // Update UI based on current state
+  function updateNotificationUI() {
+    const status = notifications.getStatus();
+    
+    if (status.permission === 'denied') {
+      deniedEl?.classList.remove('hidden');
+      enableBtn.disabled = true;
+      enableBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+    
+    if (status.enabled) {
+      settingsContainer?.classList.remove('hidden');
+      toggleContainer?.classList.add('hidden');
+      statusEl.textContent = lang === 'en' ? 'On' : 'オン';
+      statusEl.classList.remove('bg-ink-100', 'text-ink-500');
+      statusEl.classList.add('bg-green-100', 'text-green-700');
+      
+      // Set current times
+      if (morningTimeInput && status.morningReminder) {
+        morningTimeInput.value = status.morningReminder.time;
+      }
+      if (eveningTimeInput && status.eveningReminder) {
+        eveningTimeInput.value = status.eveningReminder.time;
+      }
+    } else {
+      settingsContainer?.classList.add('hidden');
+      toggleContainer?.classList.remove('hidden');
+      statusEl.textContent = lang === 'en' ? 'Off' : 'オフ';
+      statusEl.classList.remove('bg-green-100', 'text-green-700');
+      statusEl.classList.add('bg-ink-100', 'text-ink-500');
+    }
+  }
+  
+  // Initial UI update
+  updateNotificationUI();
+  
+  // Enable button
+  enableBtn.addEventListener('click', async () => {
+    const enabled = await notifications.enable();
+    if (enabled) {
+      updateNotificationUI();
+    } else {
+      const permission = notifications.checkPermission();
+      if (permission === 'denied') {
+        deniedEl?.classList.remove('hidden');
+      }
+    }
+  });
+  
+  // Disable button
+  disableBtn?.addEventListener('click', () => {
+    notifications.disable();
+    updateNotificationUI();
+  });
+  
+  // Test button
+  testBtn?.addEventListener('click', async () => {
+    const sent = await notifications.testNotification();
+    if (!sent) {
+      alert(lang === 'en' 
+        ? 'Could not send test notification. Please check permissions.' 
+        : 'テスト通知を送信できませんでした。権限を確認してください。');
+    }
+  });
+  
+  // Time inputs
+  morningTimeInput?.addEventListener('change', (e) => {
+    notifications.updateReminder('morning', { time: e.target.value });
+  });
+  
+  eveningTimeInput?.addEventListener('change', (e) => {
+    notifications.updateReminder('evening', { time: e.target.value });
+  });
 }
 
 function updateProfileUI(profile, lang) {
