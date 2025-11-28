@@ -2481,33 +2481,9 @@ async function showKoan(container, lang) {
 }
 
 // ========================================
-// Mobile Menu Toggle
+// Mobile Menu Toggle (initialized in initMobileMenu at DOMContentLoaded)
 // ========================================
-
-function toggleMobileMenu() {
-  const mobileMenu = document.getElementById('mobile-menu');
-  const iconOpen = document.getElementById('menu-icon-open');
-  const iconClose = document.getElementById('menu-icon-close');
-  
-  if (mobileMenu) {
-    const isHidden = mobileMenu.classList.contains('hidden');
-    
-    if (isHidden) {
-      mobileMenu.classList.remove('hidden');
-      mobileMenu.classList.add('animate-fade-in');
-      if (iconOpen) iconOpen.classList.add('hidden');
-      if (iconClose) iconClose.classList.remove('hidden');
-    } else {
-      mobileMenu.classList.add('hidden');
-      mobileMenu.classList.remove('animate-fade-in');
-      if (iconOpen) iconOpen.classList.remove('hidden');
-      if (iconClose) iconClose.classList.add('hidden');
-    }
-  }
-}
-
-// Make toggleMobileMenu available globally (for onclick attribute)
-window.toggleMobileMenu = toggleMobileMenu;
+// Note: Main mobile menu functions are defined at end of file with initMobileMenu()
 
 // ========================================
 // Soundscape Control
@@ -3300,4 +3276,81 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUrl.searchParams.set('lang', lang);
     link.href = currentUrl.toString();
   });
+  
+  // Initialize mobile menu
+  initMobileMenu();
 });
+
+// ========================================
+// Mobile Menu System
+// ========================================
+
+let mobileMenuOpen = false;
+
+function toggleMobileMenu() {
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+  
+  if (!mobileMenu) return;
+  
+  mobileMenuOpen = !mobileMenuOpen;
+  
+  if (mobileMenuOpen) {
+    mobileMenu.classList.remove('hidden');
+    if (iconOpen) iconOpen.classList.add('hidden');
+    if (iconClose) iconClose.classList.remove('hidden');
+  } else {
+    mobileMenu.classList.add('hidden');
+    if (iconOpen) iconOpen.classList.remove('hidden');
+    if (iconClose) iconClose.classList.add('hidden');
+  }
+}
+
+function closeMobileMenu() {
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+  
+  if (!mobileMenu) return;
+  
+  mobileMenuOpen = false;
+  mobileMenu.classList.add('hidden');
+  if (iconOpen) iconOpen.classList.remove('hidden');
+  if (iconClose) iconClose.classList.add('hidden');
+}
+
+function initMobileMenu() {
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    
+    if (!mobileMenu || !menuBtn) return;
+    
+    // Check if click is outside menu and menu button
+    if (mobileMenuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+      closeMobileMenu();
+    }
+  });
+  
+  // Close menu when pressing Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mobileMenuOpen) {
+      closeMobileMenu();
+    }
+  });
+  
+  // Close menu when clicking on menu links
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (mobileMenu) {
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        closeMobileMenu();
+      });
+    });
+  }
+}
+
+// Make toggleMobileMenu globally accessible
+window.toggleMobileMenu = toggleMobileMenu;

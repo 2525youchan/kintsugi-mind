@@ -1,5 +1,5 @@
 // KINTSUGI MIND Service Worker
-const CACHE_NAME = 'kintsugi-mind-v2';
+const CACHE_NAME = 'kintsugi-mind-v3';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache on install (only local assets, no external CDN)
@@ -62,20 +62,33 @@ self.addEventListener('activate', (event) => {
 // Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  const url = new URL(request.url);
   
-  // Skip non-GET requests
+  // Skip non-GET requests early
   if (request.method !== 'GET') {
     return;
   }
   
+  // Safely parse URL - handle any scheme issues
+  let url;
+  try {
+    url = new URL(request.url);
+  } catch (e) {
+    console.log('[SW] Invalid URL, skipping:', request.url);
+    return;
+  }
+  
   // Skip unsupported schemes (chrome-extension, moz-extension, etc.)
-  if (!url.protocol.startsWith('http')) {
+  // These cause TypeError when trying to cache
+  const supportedProtocols = ['http:', 'https:'];
+  if (!supportedProtocols.includes(url.protocol)) {
+    // Don't try to handle browser extension requests
     return;
   }
   
   // Skip external CDN requests (they may have CORS issues)
-  if (url.hostname !== self.location.hostname && url.hostname.includes('cdn')) {
+  // This prevents CORS errors with tailwindcss and other CDNs
+  if (url.hostname !== self.location.hostname) {
+    // Let the browser handle external requests normally
     return;
   }
   
