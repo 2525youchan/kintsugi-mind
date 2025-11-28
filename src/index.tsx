@@ -1,16 +1,12 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { renderer } from './renderer'
+import { translations, getLanguage, type Language } from './i18n'
+import { Header, Footer, RoomCard, WeatherIcon, KintsugiVessel, LanguageSwitcher } from './components'
 
 // Types
-type Bindings = {
-  // Future D1 Database binding
-  // DB: D1Database;
-}
-
-type Variables = {
-  // Session data etc.
-}
+type Bindings = {}
+type Variables = {}
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
@@ -18,60 +14,50 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 app.use('*', cors())
 app.use(renderer)
 
+// Helper to get text
+const tx = (section: keyof typeof translations, key: string, lang: Language): string => {
+  const s = translations[section] as any
+  if (s && s[key] && s[key][lang]) {
+    return s[key][lang]
+  }
+  return key
+}
+
 // ========================================
 // Pages
 // ========================================
 
 // Home / Entrance - The Tea House
 app.get('/', (c) => {
+  const lang = getLanguage(c)
+  
   return c.render(
     <div class="min-h-screen bg-ecru">
-      {/* Header */}
-      <header class="fixed top-0 left-0 right-0 z-50 bg-ecru/80 backdrop-blur-sm border-b border-wabi">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full gradient-gold"></div>
-            <span class="text-xl font-medium text-indigo-800">KINTSUGI MIND</span>
-          </div>
-          <nav class="hidden md:flex items-center gap-8 text-ink-600">
-            <a href="#about" class="hover:text-gold transition-colors">About</a>
-            <a href="#philosophy" class="hover:text-gold transition-colors">Philosophy</a>
-            <a href="/check-in" class="px-5 py-2 bg-indigo-800 text-ecru rounded-full hover:bg-indigo-700 transition-colors">
-              Begin
-            </a>
-          </nav>
-        </div>
-      </header>
+      <Header currentLang={lang} variant="fixed" />
 
       {/* Hero Section */}
       <section class="pt-32 pb-20 px-6">
         <div class="max-w-4xl mx-auto text-center">
-          <p class="text-gold font-medium mb-4 animate-fade-in">日本発：回復と調和のメンタルヘルス</p>
+          <p class="text-gold font-medium mb-4 animate-fade-in">
+            {tx('common', 'tagline', lang)}
+          </p>
           <h1 class="text-5xl md:text-7xl font-light text-indigo-800 mb-8 leading-tight animate-slide-up">
-            Your Scars<br />
-            <span class="text-gradient-gold font-medium">Make You Beautiful</span>
+            {tx('home', 'heroTitle', lang)}<br />
+            <span class="text-gradient-gold font-medium">{tx('home', 'heroTitleAccent', lang)}</span>
           </h1>
           <p class="text-xl text-ink-600 max-w-2xl mx-auto mb-12 animate-slide-up" style="animation-delay: 0.2s">
-            古来より伝わる日本の知恵 ― 森田療法・内観法・禅 ― をAIが現代に届ける、新しいウェルビーイングの形。
+            {tx('home', 'heroDescription', lang)}
           </p>
           
           {/* Weather Check-in Preview */}
           <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-wabi max-w-md mx-auto animate-slide-up" style="animation-delay: 0.4s">
-            <p class="text-indigo-700 mb-6 font-jp">今の心の天気は？</p>
-            <p class="text-ink-500 text-sm mb-8">How is your inner weather today?</p>
+            <p class="text-indigo-700 mb-2 font-jp text-lg">{tx('home', 'weatherQuestion', lang)}</p>
+            <p class="text-ink-500 text-sm mb-8">{tx('home', 'weatherSubtext', lang)}</p>
             <div class="flex justify-center gap-6">
-              <a href="/check-in?weather=sunny" class="weather-icon w-14 h-14 weather-sun flex items-center justify-center text-2xl hover:scale-110 transition-transform" title="Clear">
-                ☀️
-              </a>
-              <a href="/check-in?weather=cloudy" class="weather-icon w-14 h-14 weather-cloudy flex items-center justify-center text-2xl hover:scale-110 transition-transform" title="Cloudy">
-                ⛅
-              </a>
-              <a href="/check-in?weather=rainy" class="weather-icon w-14 h-14 flex items-center justify-center text-2xl hover:scale-110 transition-transform" title="Rainy">
-                🌧️
-              </a>
-              <a href="/check-in?weather=stormy" class="weather-icon w-14 h-14 weather-storm flex items-center justify-center text-2xl hover:scale-110 transition-transform" title="Stormy">
-                ⛈️
-              </a>
+              <WeatherIcon type="sunny" currentLang={lang} />
+              <WeatherIcon type="cloudy" currentLang={lang} />
+              <WeatherIcon type="rainy" currentLang={lang} />
+              <WeatherIcon type="stormy" currentLang={lang} />
             </div>
           </div>
         </div>
@@ -80,59 +66,17 @@ app.get('/', (c) => {
       {/* Philosophy Section */}
       <section id="philosophy" class="py-20 px-6 bg-gradient-to-b from-ecru to-ecru-300">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl md:text-4xl text-indigo-800 text-center mb-4">The Tea House Architecture</h2>
+          <h2 class="text-3xl md:text-4xl text-indigo-800 text-center mb-4">
+            {tx('home', 'teaHouseTitle', lang)}
+          </h2>
           <p class="text-ink-500 text-center mb-16 max-w-2xl mx-auto">
-            心の茶室 ― あなたの状態に合わせて、最適な「部屋」へご案内します。
+            {tx('home', 'teaHouseDescription', lang)}
           </p>
           
           <div class="grid md:grid-cols-3 gap-8">
-            {/* GARDEN Room */}
-            <a href="/garden" class="room-card bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi cursor-pointer block">
-              <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-200 to-green-400 flex items-center justify-center text-3xl mb-6">
-                🌱
-              </div>
-              <h3 class="text-2xl text-indigo-800 mb-2">GARDEN</h3>
-              <p class="text-gold text-sm mb-4 font-jp">庭 ― 森田療法</p>
-              <p class="text-ink-600 text-sm mb-4">
-                不安を消すのではなく、不安とともに行動する。感情と行動を分離し、「目的本位」の生き方へ。
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <span class="px-3 py-1 bg-ecru-200 rounded-full text-xs text-ink-600">Arugamama</span>
-                <span class="px-3 py-1 bg-ecru-200 rounded-full text-xs text-ink-600">Action</span>
-              </div>
-            </a>
-
-            {/* STUDY Room */}
-            <a href="/study" class="room-card bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi cursor-pointer block">
-              <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-200 to-amber-400 flex items-center justify-center text-3xl mb-6">
-                📚
-              </div>
-              <h3 class="text-2xl text-indigo-800 mb-2">STUDY</h3>
-              <p class="text-gold text-sm mb-4 font-jp">書斎 ― 内観法</p>
-              <p class="text-ink-600 text-sm mb-4">
-                3つの問いで自分と世界の繋がりを再発見。孤独ではないことを、縁の図として可視化します。
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <span class="px-3 py-1 bg-ecru-200 rounded-full text-xs text-ink-600">Kansha</span>
-                <span class="px-3 py-1 bg-ecru-200 rounded-full text-xs text-ink-600">Connection</span>
-              </div>
-            </a>
-
-            {/* TATAMI Room */}
-            <a href="/tatami" class="room-card bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi cursor-pointer block">
-              <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-200 to-indigo-400 flex items-center justify-center text-3xl mb-6">
-                🧘
-              </div>
-              <h3 class="text-2xl text-indigo-800 mb-2">TATAMI</h3>
-              <p class="text-gold text-sm mb-4 font-jp">座敷 ― 禅</p>
-              <p class="text-ink-600 text-sm mb-4">
-                思考を止め、身体感覚に戻る。デバイスの振動に合わせた呼吸と、答えのない公案が気づきを促します。
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <span class="px-3 py-1 bg-ecru-200 rounded-full text-xs text-ink-600">Mu</span>
-                <span class="px-3 py-1 bg-ecru-200 rounded-full text-xs text-ink-600">Stillness</span>
-              </div>
-            </a>
+            <RoomCard room="garden" currentLang={lang} />
+            <RoomCard room="study" currentLang={lang} />
+            <RoomCard room="tatami" currentLang={lang} />
           </div>
         </div>
       </section>
@@ -142,45 +86,13 @@ app.get('/', (c) => {
         <div class="max-w-4xl mx-auto">
           <div class="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 class="text-3xl text-indigo-800 mb-6">No Fixing Needed</h2>
-              <p class="text-ink-600 mb-4">
-                西洋的な「修正・コントロール」のアプローチに疲れていませんか？
-              </p>
-              <p class="text-ink-600 mb-4">
-                KINTSUGI MINDは、心を「直す」のではなく、あるがまま「使う」ことを提案します。
-              </p>
-              <p class="text-ink-600">
-                金継ぎの器のように、傷を否定せず、それを美として昇華する ― それが私たちのウェルビーイングです。
-              </p>
+              <h2 class="text-3xl text-indigo-800 mb-6">{tx('home', 'aboutTitle', lang)}</h2>
+              <p class="text-ink-600 mb-4">{tx('home', 'aboutP1', lang)}</p>
+              <p class="text-ink-600 mb-4">{tx('home', 'aboutP2', lang)}</p>
+              <p class="text-ink-600">{tx('home', 'aboutP3', lang)}</p>
             </div>
             <div class="flex justify-center">
-              {/* Kintsugi Vessel Visualization */}
-              <div class="relative">
-                <svg width="200" height="240" viewBox="0 0 200 240" class="drop-shadow-lg">
-                  {/* Vessel body */}
-                  <path 
-                    d="M40 60 Q40 20 100 20 Q160 20 160 60 L150 200 Q150 220 100 220 Q50 220 50 200 Z" 
-                    fill="url(#vesselGradient)"
-                    stroke="#8f7d5e"
-                    stroke-width="1"
-                  />
-                  {/* Golden cracks */}
-                  <path d="M80 40 L75 80 L85 120 L70 160" stroke="#c9a227" stroke-width="3" fill="none" class="gold-glow"/>
-                  <path d="M120 50 L130 90 L115 130" stroke="#c9a227" stroke-width="3" fill="none" class="gold-glow"/>
-                  <path d="M90 140 L110 180 L95 210" stroke="#c9a227" stroke-width="2" fill="none" class="gold-glow"/>
-                  
-                  <defs>
-                    <linearGradient id="vesselGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style="stop-color:#d4c4b0"/>
-                      <stop offset="50%" style="stop-color:#c9b99c"/>
-                      <stop offset="100%" style="stop-color:#a89880"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <p class="text-center text-sm text-ink-500 mt-4 italic">
-                  "Your scars make you beautiful"
-                </p>
-              </div>
+              <KintsugiVessel />
             </div>
           </div>
         </div>
@@ -189,23 +101,15 @@ app.get('/', (c) => {
       {/* CTA Section */}
       <section class="py-20 px-6 bg-indigo-800 text-ecru">
         <div class="max-w-2xl mx-auto text-center">
-          <h2 class="text-3xl mb-6">Begin Your Journey</h2>
-          <p class="text-ecru-300 mb-8">
-            不安があっても、美しく強く生きられる。<br />
-            今日から、あなたの金継ぎを始めましょう。
-          </p>
-          <a href="/check-in" class="inline-block px-8 py-4 bg-gold text-ink rounded-full hover:bg-gold-400 transition-colors font-medium">
-            Enter the Tea House
+          <h2 class="text-3xl mb-6">{tx('home', 'ctaTitle', lang)}</h2>
+          <p class="text-ecru-300 mb-8" dangerouslySetInnerHTML={{ __html: tx('home', 'ctaDescription', lang) }}></p>
+          <a href={`/check-in?lang=${lang}`} class="inline-block px-8 py-4 bg-gold text-ink rounded-full hover:bg-gold-400 transition-colors font-medium">
+            {tx('home', 'ctaButton', lang)}
           </a>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer class="py-8 px-6 bg-ink-900 text-ecru-400">
-        <div class="max-w-6xl mx-auto text-center">
-          <p class="text-sm">© 2024 KINTSUGI MIND — The Japanese Art of Resilience</p>
-        </div>
-      </footer>
+      <Footer currentLang={lang} />
     </div>,
     { title: 'KINTSUGI MIND — The Japanese Art of Resilience' }
   )
@@ -213,80 +117,45 @@ app.get('/', (c) => {
 
 // Check-in Page
 app.get('/check-in', (c) => {
+  const lang = getLanguage(c)
   const weather = c.req.query('weather') || ''
+  
+  const weatherMessages: Record<string, { en: string; ja: string }> = {
+    sunny: { en: tx('checkin', 'sunny', 'en'), ja: tx('checkin', 'sunny', 'ja') },
+    cloudy: { en: tx('checkin', 'cloudy', 'en'), ja: tx('checkin', 'cloudy', 'ja') },
+    rainy: { en: tx('checkin', 'rainy', 'en'), ja: tx('checkin', 'rainy', 'ja') },
+    stormy: { en: tx('checkin', 'stormy', 'en'), ja: tx('checkin', 'stormy', 'ja') }
+  }
   
   return c.render(
     <div class="min-h-screen bg-ecru flex flex-col">
-      {/* Header */}
-      <header class="bg-ecru/80 backdrop-blur-sm border-b border-wabi">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full gradient-gold"></div>
-            <span class="text-xl font-medium text-indigo-800">KINTSUGI MIND</span>
-          </a>
-        </div>
-      </header>
+      <Header currentLang={lang} />
 
       {/* Check-in Content */}
       <main class="flex-1 flex items-center justify-center p-6">
         <div class="max-w-lg w-full">
           <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi-lg text-center">
-            <p class="text-gold font-medium mb-2">心の茶室へようこそ</p>
-            <h1 class="text-2xl text-indigo-800 mb-8">Welcome to the Tea House</h1>
+            <p class="text-gold font-medium mb-2">{tx('checkin', 'welcome', lang)}</p>
+            <h1 class="text-2xl text-indigo-800 mb-8">
+              {lang === 'en' ? 'Welcome to the Tea House' : '心の茶室へようこそ'}
+            </h1>
             
-            <p class="text-ink-600 mb-2 font-jp text-lg">今の心の天気はどうですか？</p>
-            <p class="text-ink-400 text-sm mb-8">How is your inner weather?</p>
+            <p class="text-ink-600 mb-2 font-jp text-lg">{tx('checkin', 'question', lang)}</p>
+            <p class="text-ink-400 text-sm mb-8">
+              {lang === 'en' ? 'Select how you\'re feeling' : '今日の気分を選んでください'}
+            </p>
             
             <div id="weather-selection" class="flex justify-center gap-4 mb-8">
-              <button 
-                data-weather="sunny"
-                class={`weather-icon w-16 h-16 weather-sun flex items-center justify-center text-3xl rounded-full transition-all ${weather === 'sunny' ? 'selected ring-2 ring-gold ring-offset-2' : ''}`}
-                title="Clear & Calm"
-              >
-                ☀️
-              </button>
-              <button 
-                data-weather="cloudy"
-                class={`weather-icon w-16 h-16 weather-cloudy flex items-center justify-center text-3xl rounded-full transition-all ${weather === 'cloudy' ? 'selected ring-2 ring-gold ring-offset-2' : ''}`}
-                title="Slightly Cloudy"
-              >
-                ⛅
-              </button>
-              <button 
-                data-weather="rainy"
-                class={`weather-icon w-16 h-16 bg-gray-200 flex items-center justify-center text-3xl rounded-full transition-all ${weather === 'rainy' ? 'selected ring-2 ring-gold ring-offset-2' : ''}`}
-                title="Feeling Down"
-              >
-                🌧️
-              </button>
-              <button 
-                data-weather="stormy"
-                class={`weather-icon w-16 h-16 weather-storm flex items-center justify-center text-3xl rounded-full transition-all ${weather === 'stormy' ? 'selected ring-2 ring-gold ring-offset-2' : ''}`}
-                title="Overwhelmed"
-              >
-                ⛈️
-              </button>
+              <WeatherIcon type="sunny" currentLang={lang} size="lg" selected={weather === 'sunny'} />
+              <WeatherIcon type="cloudy" currentLang={lang} size="lg" selected={weather === 'cloudy'} />
+              <WeatherIcon type="rainy" currentLang={lang} size="lg" selected={weather === 'rainy'} />
+              <WeatherIcon type="stormy" currentLang={lang} size="lg" selected={weather === 'stormy'} />
             </div>
             
             <div id="weather-message" class="min-h-[80px] mb-6">
-              {weather && (
+              {weather && weatherMessages[weather] && (
                 <div class="animate-fade-in">
-                  {weather === 'sunny' && (
-                    <p class="text-ink-600">穏やかな日ですね。この調和を大切にしましょう。<br/>
-                    <span class="text-sm text-ink-400">A calm day. Let's cherish this harmony.</span></p>
-                  )}
-                  {weather === 'cloudy' && (
-                    <p class="text-ink-600">少し曇り空。それも自然なことです。<br/>
-                    <span class="text-sm text-ink-400">A bit cloudy. That's natural too.</span></p>
-                  )}
-                  {weather === 'rainy' && (
-                    <p class="text-ink-600">雨の日は、雨の中を歩きましょう。<br/>
-                    <span class="text-sm text-ink-400">On rainy days, let's walk in the rain.</span></p>
-                  )}
-                  {weather === 'stormy' && (
-                    <p class="text-ink-600">嵐の中でも、あなたはここにいます。<br/>
-                    <span class="text-sm text-ink-400">Even in the storm, you are here.</span></p>
-                  )}
+                  <p class="text-ink-600">{weatherMessages[weather][lang]}</p>
                 </div>
               )}
             </div>
@@ -294,36 +163,36 @@ app.get('/check-in', (c) => {
             <div id="room-suggestion" class="space-y-3">
               {weather && (
                 <div class="animate-slide-up">
-                  <p class="text-sm text-ink-500 mb-4">おすすめの部屋 / Suggested Room</p>
+                  <p class="text-sm text-ink-500 mb-4">{tx('checkin', 'suggestedRoom', lang)}</p>
                   {(weather === 'stormy' || weather === 'rainy') && (
-                    <a href="/garden" class="block p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl hover:shadow-md transition-all">
+                    <a href={`/garden?lang=${lang}`} class="block p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl hover:shadow-md transition-all">
                       <div class="flex items-center gap-4">
                         <span class="text-3xl">🌱</span>
                         <div class="text-left">
-                          <p class="font-medium text-indigo-800">GARDEN — 庭</p>
-                          <p class="text-sm text-ink-500">不安とともに、小さな行動から</p>
+                          <p class="font-medium text-indigo-800">GARDEN — {lang === 'en' ? 'The Garden' : '庭'}</p>
+                          <p class="text-sm text-ink-500">{tx('checkin', 'gardenSuggestion', lang)}</p>
                         </div>
                       </div>
                     </a>
                   )}
                   {weather === 'cloudy' && (
-                    <a href="/study" class="block p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl hover:shadow-md transition-all">
+                    <a href={`/study?lang=${lang}`} class="block p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl hover:shadow-md transition-all">
                       <div class="flex items-center gap-4">
                         <span class="text-3xl">📚</span>
                         <div class="text-left">
-                          <p class="font-medium text-indigo-800">STUDY — 書斎</p>
-                          <p class="text-sm text-ink-500">繋がりを見つめ直す時間</p>
+                          <p class="font-medium text-indigo-800">STUDY — {lang === 'en' ? 'The Study' : '書斎'}</p>
+                          <p class="text-sm text-ink-500">{tx('checkin', 'studySuggestion', lang)}</p>
                         </div>
                       </div>
                     </a>
                   )}
                   {weather === 'sunny' && (
-                    <a href="/tatami" class="block p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-xl hover:shadow-md transition-all">
+                    <a href={`/tatami?lang=${lang}`} class="block p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-xl hover:shadow-md transition-all">
                       <div class="flex items-center gap-4">
                         <span class="text-3xl">🧘</span>
                         <div class="text-left">
-                          <p class="font-medium text-indigo-800">TATAMI — 座敷</p>
-                          <p class="text-sm text-ink-500">静寂の中で、今に還る</p>
+                          <p class="font-medium text-indigo-800">TATAMI — {lang === 'en' ? 'The Tatami Room' : '座敷'}</p>
+                          <p class="text-sm text-ink-500">{tx('checkin', 'tatamiSuggestion', lang)}</p>
                         </div>
                       </div>
                     </a>
@@ -333,14 +202,14 @@ app.get('/check-in', (c) => {
             </div>
             
             {!weather && (
-              <p class="text-ink-400 text-sm">天気を選んで、今日の心の状態を教えてください</p>
+              <p class="text-ink-400 text-sm">{tx('checkin', 'selectPrompt', lang)}</p>
             )}
           </div>
           
           {/* All Rooms Link */}
           <div class="text-center mt-6">
-            <a href="/#philosophy" class="text-indigo-600 hover:text-gold transition-colors text-sm">
-              すべての部屋を見る →
+            <a href={`/?lang=${lang}#philosophy`} class="text-indigo-600 hover:text-gold transition-colors text-sm">
+              {tx('checkin', 'viewAllRooms', lang)}
             </a>
           </div>
         </div>
@@ -352,38 +221,25 @@ app.get('/check-in', (c) => {
 
 // GARDEN Mode - Morita Therapy (Split Screen)
 app.get('/garden', (c) => {
+  const lang = getLanguage(c)
+  
   return c.render(
-    <div class="min-h-screen bg-ecru flex flex-col">
-      {/* Header */}
-      <header class="bg-ecru/80 backdrop-blur-sm border-b border-wabi z-10">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full gradient-gold"></div>
-            <span class="text-xl font-medium text-indigo-800">KINTSUGI MIND</span>
-          </a>
-          <div class="flex items-center gap-2 text-green-700">
-            <span class="text-2xl">🌱</span>
-            <span class="font-jp">庭 GARDEN</span>
-          </div>
-        </div>
-      </header>
+    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+      <Header currentLang={lang} roomName={lang === 'en' ? 'GARDEN' : '庭 GARDEN'} roomIcon="🌱" />
 
       {/* Split Screen */}
       <main class="flex-1 flex flex-col md:flex-row">
         {/* SKY Section - Emotions */}
         <section class="flex-1 sky-section p-6 md:p-8 relative flex flex-col">
           <div class="text-center mb-6">
-            <h2 class="text-xl text-indigo-700 mb-2">空 — Sky</h2>
-            <p class="text-ink-500 text-sm">感情を雲として浮かべる / Let your emotions float as clouds</p>
+            <h2 class="text-xl text-indigo-700 mb-2">{tx('garden', 'skyTitle', lang)} — Sky</h2>
+            <p class="text-ink-500 text-sm">{tx('garden', 'skyDescription', lang)}</p>
           </div>
           
           {/* Cloud Input Area */}
           <div class="flex-1 relative" id="cloud-container">
-            {/* Clouds will be added here dynamically */}
             <div class="absolute inset-0 flex items-center justify-center opacity-50">
-              <p class="text-ink-400 text-center">
-                下に不安や感情を入力すると<br/>雲として浮かびます
-              </p>
+              <p class="text-ink-400 text-center" dangerouslySetInnerHTML={{ __html: tx('garden', 'cloudPlaceholder', lang) }}></p>
             </div>
           </div>
           
@@ -393,18 +249,18 @@ app.get('/garden', (c) => {
               <input 
                 type="text" 
                 id="emotion-input"
-                placeholder="今感じている不安や感情を書いてください..."
+                placeholder={tx('garden', 'inputPlaceholder', lang)}
                 class="flex-1 px-4 py-3 bg-white/80 border border-ecru-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50"
               />
               <button 
                 id="add-cloud-btn"
                 class="px-6 py-3 bg-indigo-100 text-indigo-700 rounded-xl hover:bg-indigo-200 transition-colors"
               >
-                浮かべる
+                {tx('garden', 'floatButton', lang)}
               </button>
             </div>
             <p class="text-xs text-ink-400 mt-2 text-center">
-              これらの雲は消えません。それで大丈夫です。
+              {tx('garden', 'cloudNote', lang)}
             </p>
           </div>
           
@@ -414,41 +270,38 @@ app.get('/garden', (c) => {
         {/* GROUND Section - Actions */}
         <section class="flex-1 ground-section p-6 md:p-8 flex flex-col">
           <div class="text-center mb-6">
-            <h2 class="text-xl text-green-800 mb-2">地 — Ground</h2>
-            <p class="text-ink-500 text-sm">小さな行動を選ぶ / Choose a micro-action</p>
+            <h2 class="text-xl text-green-800 mb-2">{tx('garden', 'groundTitle', lang)} — Ground</h2>
+            <p class="text-ink-500 text-sm">{tx('garden', 'groundDescription', lang)}</p>
           </div>
           
           {/* AI Guidance */}
           <div id="morita-guidance" class="bg-white/60 rounded-xl p-4 mb-6">
-            <p class="text-ink-600 text-sm">
-              <span class="text-gold">●</span> 不安ですか。それは人間として自然です。<br/>
-              <span class="text-ink-400 text-xs">では、手は何をしますか？</span>
-            </p>
+            <p class="text-ink-600 text-sm" dangerouslySetInnerHTML={{ __html: `<span class="text-gold">●</span> ${tx('garden', 'guidanceDefault', lang)}` }}></p>
           </div>
           
           {/* Micro Actions */}
           <div class="flex-1">
-            <p class="text-sm text-ink-500 mb-3">おすすめのMicro-Action:</p>
+            <p class="text-sm text-ink-500 mb-3">{tx('garden', 'microActionTitle', lang)}</p>
             <div id="action-list" class="space-y-3">
               <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
                 <input type="checkbox" class="w-5 h-5 accent-gold" data-action="cup" />
-                <span class="text-ink-700">コップを一つ洗う</span>
-                <span class="text-ink-400 text-xs ml-auto">30秒</span>
+                <span class="text-ink-700">{tx('garden', 'actionCup', lang)}</span>
+                <span class="text-ink-400 text-xs ml-auto">30s</span>
               </label>
               <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
                 <input type="checkbox" class="w-5 h-5 accent-gold" data-action="stand" />
-                <span class="text-ink-700">1分だけ立ち上がる</span>
-                <span class="text-ink-400 text-xs ml-auto">1分</span>
+                <span class="text-ink-700">{tx('garden', 'actionStand', lang)}</span>
+                <span class="text-ink-400 text-xs ml-auto">1min</span>
               </label>
               <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
                 <input type="checkbox" class="w-5 h-5 accent-gold" data-action="water" />
-                <span class="text-ink-700">水を一杯飲む</span>
-                <span class="text-ink-400 text-xs ml-auto">15秒</span>
+                <span class="text-ink-700">{tx('garden', 'actionWater', lang)}</span>
+                <span class="text-ink-400 text-xs ml-auto">15s</span>
               </label>
               <label class="flex items-center gap-3 p-3 bg-white/60 rounded-lg cursor-pointer hover:bg-white/80 transition-colors">
                 <input type="checkbox" class="w-5 h-5 accent-gold" data-action="window" />
-                <span class="text-ink-700">窓を開けて外を見る</span>
-                <span class="text-ink-400 text-xs ml-auto">30秒</span>
+                <span class="text-ink-700">{tx('garden', 'actionWindow', lang)}</span>
+                <span class="text-ink-400 text-xs ml-auto">30s</span>
               </label>
             </div>
           </div>
@@ -456,9 +309,8 @@ app.get('/garden', (c) => {
           {/* Garden Growth Visualization */}
           <div class="mt-6">
             <div class="flex items-end justify-center gap-2 h-20" id="garden-plants">
-              {/* Plants grow here when actions are completed */}
               <div class="text-center text-ink-400 text-sm">
-                行動を完了すると、植物が育ちます
+                {tx('garden', 'plantGrowth', lang)}
               </div>
             </div>
           </div>
@@ -471,28 +323,18 @@ app.get('/garden', (c) => {
 
 // STUDY Mode - Naikan Therapy
 app.get('/study', (c) => {
+  const lang = getLanguage(c)
+  
   return c.render(
-    <div class="min-h-screen bg-ecru flex flex-col">
-      {/* Header */}
-      <header class="bg-ecru/80 backdrop-blur-sm border-b border-wabi">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full gradient-gold"></div>
-            <span class="text-xl font-medium text-indigo-800">KINTSUGI MIND</span>
-          </a>
-          <div class="flex items-center gap-2 text-amber-700">
-            <span class="text-2xl">📚</span>
-            <span class="font-jp">書斎 STUDY</span>
-          </div>
-        </div>
-      </header>
+    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+      <Header currentLang={lang} roomName={lang === 'en' ? 'STUDY' : '書斎 STUDY'} roomIcon="📚" />
 
       {/* Content */}
       <main class="flex-1 flex items-center justify-center p-6">
         <div class="max-w-2xl w-full">
           <div class="text-center mb-8">
-            <h1 class="text-3xl text-indigo-800 mb-2">内観 — Deep Reflection</h1>
-            <p class="text-ink-500">3つの問いで、自分と世界のつながりを見つめ直す</p>
+            <h1 class="text-3xl text-indigo-800 mb-2">{tx('study', 'title', lang)} — Deep Reflection</h1>
+            <p class="text-ink-500">{tx('study', 'subtitle', lang)}</p>
           </div>
           
           {/* Chat Interface */}
@@ -501,11 +343,11 @@ app.get('/study', (c) => {
               {/* Initial message */}
               <div class="chat-bubble bg-ecru-200 p-4 max-w-[80%]">
                 <p class="text-ink-700 text-sm mb-1">
-                  <span class="text-gold">内観ガイド</span>
+                  <span class="text-gold">{tx('study', 'guideName', lang)}</span>
                 </p>
                 <p class="text-ink-600">
-                  今日、誰かの仕事や優しさに助けられた瞬間はありましたか？<br/>
-                  <span class="text-xs text-ink-400">どんな小さなことでも構いません。</span>
+                  {tx('study', 'q1', lang)}<br/>
+                  <span class="text-xs text-ink-400">{tx('study', 'q1Hint', lang)}</span>
                 </p>
               </div>
             </div>
@@ -516,14 +358,14 @@ app.get('/study', (c) => {
                 <input 
                   type="text" 
                   id="naikan-input"
-                  placeholder="思い浮かんだことを書いてください..."
+                  placeholder={tx('study', 'inputPlaceholder', lang)}
                   class="flex-1 px-4 py-3 bg-ecru-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50"
                 />
                 <button 
                   id="naikan-send-btn"
                   class="px-6 py-3 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors"
                 >
-                  送信
+                  {tx('study', 'sendButton', lang)}
                 </button>
               </div>
             </div>
@@ -531,7 +373,7 @@ app.get('/study', (c) => {
           
           {/* Progress */}
           <div class="mt-6 text-center">
-            <p class="text-ink-400 text-sm">問い 1 / 3</p>
+            <p class="text-ink-400 text-sm">{tx('study', 'question', lang)} 1 / 3</p>
             <div class="flex justify-center gap-2 mt-2">
               <div class="w-3 h-3 rounded-full bg-gold"></div>
               <div class="w-3 h-3 rounded-full bg-ecru-300"></div>
@@ -547,21 +389,11 @@ app.get('/study', (c) => {
 
 // TATAMI Mode - Zen
 app.get('/tatami', (c) => {
+  const lang = getLanguage(c)
+  
   return c.render(
-    <div class="min-h-screen bg-indigo-900 flex flex-col">
-      {/* Minimal Header */}
-      <header class="absolute top-0 left-0 right-0 z-10">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full gradient-gold opacity-80"></div>
-            <span class="text-xl font-medium text-ecru/80">KINTSUGI MIND</span>
-          </a>
-          <div class="flex items-center gap-2 text-ecru/60">
-            <span class="text-2xl">🧘</span>
-            <span class="font-jp">座敷 TATAMI</span>
-          </div>
-        </div>
-      </header>
+    <div class="min-h-screen bg-indigo-900 flex flex-col" data-lang={lang}>
+      <Header currentLang={lang} variant="transparent" roomName={lang === 'en' ? 'TATAMI' : '座敷 TATAMI'} roomIcon="🧘" />
 
       {/* Zen Space */}
       <main class="flex-1 flex items-center justify-center p-6 relative overflow-hidden">
@@ -572,15 +404,17 @@ app.get('/tatami', (c) => {
         </div>
         
         <div class="text-center relative z-10">
-          <p class="text-ecru/60 mb-8 font-jp">無 — Mu</p>
+          <p class="text-ecru/60 mb-8 font-jp">{tx('tatami', 'mu', lang)}</p>
           
           {/* Breathing Circle */}
           <div id="breathing-circle" class="breathing-circle w-48 h-48 mx-auto flex items-center justify-center mb-8">
             <div class="text-center">
               <p id="breath-instruction" class="text-ecru text-2xl font-light">
-                息を吸う
+                {tx('tatami', 'breatheIn', lang)}
               </p>
-              <p class="text-ecru/50 text-sm mt-2">Breathe in</p>
+              <p id="breath-instruction-sub" class="text-ecru/50 text-sm mt-2">
+                {lang === 'en' ? '' : 'Breathe in'}
+              </p>
             </div>
           </div>
           
@@ -588,26 +422,23 @@ app.get('/tatami', (c) => {
           <button 
             id="start-zen-btn"
             class="px-8 py-4 bg-gold/20 border border-gold/40 text-gold rounded-full hover:bg-gold/30 transition-colors mb-8"
+            data-start-text={tx('tatami', 'startButton', lang)}
+            data-stop-text={tx('tatami', 'stopButton', lang)}
           >
-            座禅を始める
+            {tx('tatami', 'startButton', lang)}
           </button>
           
           {/* Koan (Hidden until session ends) */}
           <div id="koan-container" class="hidden mt-12 max-w-md mx-auto">
-            <p class="text-ecru/40 text-sm mb-4">公案 — Zen Puzzle</p>
-            <p id="koan-text" class="text-ecru text-xl italic">
-              "両手を打てば音がする。では、片手の音は？"
-            </p>
+            <p class="text-ecru/40 text-sm mb-4">{tx('tatami', 'koanTitle', lang)}</p>
+            <p id="koan-text" class="text-ecru text-xl italic"></p>
             <p class="text-ecru/40 text-sm mt-4">
-              答えを探さないでください。問いと共に歩んでください。
+              {tx('tatami', 'koanNote', lang)}
             </p>
           </div>
           
           {/* Haptic Instruction */}
-          <p class="text-ecru/40 text-xs mt-12">
-            ※ デバイスの振動に合わせて呼吸してください<br/>
-            (振動機能をオンにしてください)
-          </p>
+          <p class="text-ecru/40 text-xs mt-12" dangerouslySetInnerHTML={{ __html: tx('tatami', 'hapticNote', lang) }}></p>
         </div>
       </main>
     </div>,
@@ -621,44 +452,48 @@ app.get('/tatami', (c) => {
 
 // API: Get Morita guidance
 app.post('/api/morita/guidance', async (c) => {
-  const { emotion } = await c.req.json()
+  const { emotion, lang = 'en' } = await c.req.json()
   
-  // Mock responses based on Morita therapy principles
-  const responses = [
-    "不安ですね。それは人間として自然です。では、手は何をしますか？",
-    "その感情を消す必要はありません。感情は空の雲のようなもの。行動は地上で続きます。",
-    "あるがまま (Arugamama) — 感じることと、することは別です。",
-    "不安を抱えたまま、一つだけ手を動かしてみませんか？",
-    "感情は天気。変えられません。でも、傘をさすことはできます。"
-  ]
+  const responses = {
+    en: [
+      "Feeling anxious? That's natural for a human being. So, what will your hands do?",
+      "You don't need to erase that emotion. Emotions are like clouds in the sky. Action continues on the ground.",
+      "Arugamama — Feeling and doing are separate things.",
+      "Can you move your hands just once, while carrying that anxiety?",
+      "Emotions are like weather. You can't change them. But you can carry an umbrella."
+    ],
+    ja: [
+      "不安ですね。それは人間として自然です。では、手は何をしますか？",
+      "その感情を消す必要はありません。感情は空の雲のようなもの。行動は地上で続きます。",
+      "あるがまま (Arugamama) — 感じることと、することは別です。",
+      "不安を抱えたまま、一つだけ手を動かしてみませんか？",
+      "感情は天気。変えられません。でも、傘をさすことはできます。"
+    ]
+  }
   
-  const response = responses[Math.floor(Math.random() * responses.length)]
+  const langResponses = responses[lang as keyof typeof responses] || responses.en
+  const response = langResponses[Math.floor(Math.random() * langResponses.length)]
   
-  return c.json({
-    guidance: response,
-    emotion: emotion
-  })
+  return c.json({ guidance: response, emotion })
 })
 
 // API: Get Naikan questions
 app.get('/api/naikan/question', (c) => {
   const step = parseInt(c.req.query('step') || '1')
+  const lang = (c.req.query('lang') || 'en') as Language
   
   const questions = {
     1: {
-      japanese: "今日、誰かの仕事や優しさに助けられた瞬間はありましたか？",
-      english: "Was there a moment today when someone's work or kindness helped you?",
-      hint: "コンビニの店員、家族、電車の運転手...どんな小さなことでも。"
+      text: tx('study', 'q1', lang),
+      hint: tx('study', 'q1Hint', lang)
     },
     2: {
-      japanese: "今日、あなたは世界に何を提供しましたか？",
-      english: "What did you offer to the world today?",
-      hint: "仕事、笑顔、誰かへの言葉...何でも構いません。"
+      text: tx('study', 'q2', lang),
+      hint: tx('study', 'q2Hint', lang)
     },
     3: {
-      japanese: "誰かの寛容さに甘えた場面はありましたか？",
-      english: "Was there a moment when you relied on someone's tolerance?",
-      hint: "これは反省ではなく、繋がりへの気づきです。"
+      text: tx('study', 'q3', lang),
+      hint: tx('study', 'q3Hint', lang)
     }
   }
   
@@ -667,45 +502,51 @@ app.get('/api/naikan/question', (c) => {
 
 // API: Get Zen Koan
 app.get('/api/zen/koan', (c) => {
+  const lang = (c.req.query('lang') || 'en') as Language
+  
   const koans = [
     {
-      japanese: "両手を打てば音がする。では、片手の音は？",
-      english: "Two hands clap and there is a sound. What is the sound of one hand?"
+      en: "Two hands clap and there is a sound. What is the sound of one hand?",
+      ja: "両手を打てば音がする。では、片手の音は？"
     },
     {
-      japanese: "風が旗を動かすのか、旗が風を動かすのか。",
-      english: "Does the wind move the flag, or does the flag move the wind?"
+      en: "Does the wind move the flag, or does the flag move the wind?",
+      ja: "風が旗を動かすのか、旗が風を動かすのか。"
     },
     {
-      japanese: "あなたが生まれる前、あなたは何者だったか。",
-      english: "Before you were born, who were you?"
+      en: "Before you were born, who were you?",
+      ja: "あなたが生まれる前、あなたは何者だったか。"
     },
     {
-      japanese: "鏡を見ずに、自分の顔を見なさい。",
-      english: "Show me your face before your parents were born."
+      en: "Show me your face before your parents were born.",
+      ja: "鏡を見ずに、自分の顔を見なさい。"
     },
     {
-      japanese: "竹林の中で竹が倒れる。聞く者がいなければ、音はあるか。",
-      english: "If bamboo falls in a grove with no one to hear, is there sound?"
+      en: "If bamboo falls in a grove with no one to hear, is there sound?",
+      ja: "竹林の中で竹が倒れる。聞く者がいなければ、音はあるか。"
     }
   ]
   
   const koan = koans[Math.floor(Math.random() * koans.length)]
-  return c.json(koan)
+  return c.json({ text: koan[lang] })
 })
 
 // API: Record action (for garden growth)
 app.post('/api/garden/action', async (c) => {
-  const { action, completed } = await c.req.json()
+  const { action, completed, lang = 'en' } = await c.req.json()
   
-  // In future: save to D1 database
-  // For now, just acknowledge
+  const messages = {
+    en: { success: "Your garden grew a little.", undo: "Undone." },
+    ja: { success: "植物が少し育ちました。", undo: "取り消しました。" }
+  }
+  
+  const msg = messages[lang as keyof typeof messages] || messages.en
   
   return c.json({
     success: true,
     action,
     completed,
-    message: completed ? "植物が少し育ちました。" : "取り消しました。"
+    message: completed ? msg.success : msg.undo
   })
 })
 
