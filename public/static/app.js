@@ -272,18 +272,43 @@ function calculateVesselVisual(profile) {
   return { depth, goldIntensity, repairedCount };
 }
 
-// Generate crack SVG paths
-function generateCrackPaths(cracks) {
-  const pathVariations = [
-    (h) => `M${60 + (h % 40)} 40 L${55 + (h % 30)} 80 L${65 + (h % 20)} 120 L${50 + (h % 40)} 160`,
-    (h) => `M${100 + (h % 30)} 50 L${110 + (h % 20)} 90 L${95 + (h % 25)} 130`,
-    (h) => `M${70 + (h % 30)} 100 L${85 + (h % 20)} 140 L${75 + (h % 25)} 180`,
-    (h) => `M${110 + (h % 25)} 70 L${120 + (h % 20)} 110 L${105 + (h % 30)} 150 L${115 + (h % 20)} 190`,
-    (h) => `M${80 + (h % 20)} 130 L${95 + (h % 25)} 170 L${85 + (h % 20)} 200`,
-    (h) => `M${50 + (h % 30)} 80 L${60 + (h % 25)} 120 L${45 + (h % 30)} 160`,
-    (h) => `M${130 + (h % 20)} 60 L${140 + (h % 15)} 100 L${125 + (h % 25)} 140`,
-    (h) => `M${90 + (h % 25)} 50 L${100 + (h % 20)} 85 L${85 + (h % 30)} 120 L${95 + (h % 20)} 155`
-  ];
+// Generate crack SVG paths based on vessel type
+function generateCrackPaths(cracks, vesselType = 'chawan') {
+  // Different crack patterns for each vessel type
+  const pathVariationsByType = {
+    chawan: [
+      (h) => `M${60 + (h % 40)} 40 L${55 + (h % 30)} 80 L${65 + (h % 20)} 120 L${50 + (h % 40)} 160`,
+      (h) => `M${100 + (h % 30)} 50 L${110 + (h % 20)} 90 L${95 + (h % 25)} 130`,
+      (h) => `M${70 + (h % 30)} 100 L${85 + (h % 20)} 140 L${75 + (h % 25)} 180`,
+      (h) => `M${110 + (h % 25)} 70 L${120 + (h % 20)} 110 L${105 + (h % 30)} 150`,
+    ],
+    tsubo: [
+      (h) => `M${80 + (h % 20)} 50 L${75 + (h % 25)} 90 L${85 + (h % 20)} 130 L${70 + (h % 30)} 170`,
+      (h) => `M${120 + (h % 15)} 60 L${125 + (h % 20)} 100 L${115 + (h % 25)} 140 L${130 + (h % 15)} 180`,
+      (h) => `M${100 + (h % 20)} 80 L${95 + (h % 25)} 120 L${105 + (h % 20)} 160`,
+      (h) => `M${90 + (h % 15)} 100 L${85 + (h % 20)} 140 L${95 + (h % 15)} 180 L${88 + (h % 20)} 210`,
+    ],
+    sara: [
+      (h) => `M${50 + (h % 30)} 100 L${60 + (h % 25)} 120 L${45 + (h % 35)} 140 L${55 + (h % 30)} 160`,
+      (h) => `M${130 + (h % 30)} 100 L${140 + (h % 20)} 120 L${125 + (h % 25)} 140 L${135 + (h % 30)} 160`,
+      (h) => `M${80 + (h % 25)} 95 L${95 + (h % 20)} 115 L${85 + (h % 25)} 135 L${100 + (h % 20)} 155`,
+      (h) => `M${100 + (h % 20)} 90 L${110 + (h % 25)} 110 L${95 + (h % 30)} 130`,
+    ],
+    tokkuri: [
+      (h) => `M${95 + (h % 10)} 30 L${90 + (h % 15)} 50 L${100 + (h % 10)} 70`,
+      (h) => `M${70 + (h % 20)} 100 L${65 + (h % 25)} 140 L${75 + (h % 20)} 180 L${60 + (h % 30)} 210`,
+      (h) => `M${130 + (h % 15)} 100 L${135 + (h % 20)} 140 L${125 + (h % 25)} 180 L${140 + (h % 15)} 210`,
+      (h) => `M${100 + (h % 15)} 120 L${95 + (h % 20)} 160 L${105 + (h % 15)} 200`,
+    ],
+    hachi: [
+      (h) => `M${60 + (h % 30)} 70 L${55 + (h % 25)} 110 L${65 + (h % 20)} 150 L${50 + (h % 30)} 190`,
+      (h) => `M${140 + (h % 20)} 70 L${145 + (h % 15)} 110 L${135 + (h % 25)} 150 L${150 + (h % 15)} 190`,
+      (h) => `M${100 + (h % 25)} 80 L${95 + (h % 20)} 120 L${105 + (h % 25)} 160 L${90 + (h % 30)} 200`,
+      (h) => `M${80 + (h % 20)} 100 L${90 + (h % 25)} 140 L${75 + (h % 20)} 180`,
+    ]
+  };
+  
+  const pathVariations = pathVariationsByType[vesselType] || pathVariationsByType.chawan;
   
   return cracks.map((crack, index) => {
     // Simple hash from id
@@ -532,6 +557,45 @@ function initNotificationSettings(lang) {
   });
 }
 
+// Vessel SVG paths for different vessel types
+const VESSEL_PATHS = {
+  // 茶碗 (Tea Bowl) - Default, wide and shallow
+  chawan: {
+    path: 'M40 60 Q40 20 100 20 Q160 20 160 60 L150 200 Q150 220 100 220 Q50 220 50 200 Z',
+    viewBox: '0 0 200 240',
+    name: { en: 'Tea Bowl', ja: '茶碗' },
+    emoji: '🍵'
+  },
+  // 壺 (Jar) - Tall and rounded
+  tsubo: {
+    path: 'M70 30 Q70 10 100 10 Q130 10 130 30 L135 50 Q160 70 160 120 Q160 180 130 200 L125 220 Q125 230 100 230 Q75 230 75 220 L70 200 Q40 180 40 120 Q40 70 65 50 Z',
+    viewBox: '0 0 200 240',
+    name: { en: 'Jar', ja: '壺' },
+    emoji: '🏺'
+  },
+  // 皿 (Plate) - Wide and flat
+  sara: {
+    path: 'M20 120 Q20 80 100 80 Q180 80 180 120 L170 160 Q170 180 100 180 Q30 180 30 160 Z',
+    viewBox: '0 0 200 240',
+    name: { en: 'Plate', ja: '皿' },
+    emoji: '🍽️'
+  },
+  // 徳利 (Sake Bottle) - Narrow neck, wide body
+  tokkuri: {
+    path: 'M85 20 Q85 10 100 10 Q115 10 115 20 L115 50 Q115 60 120 70 L140 90 Q160 110 160 150 Q160 200 130 220 Q130 230 100 230 Q70 230 70 220 Q40 200 40 150 Q40 110 60 90 L80 70 Q85 60 85 50 Z',
+    viewBox: '0 0 200 240',
+    name: { en: 'Sake Bottle', ja: '徳利' },
+    emoji: '🍶'
+  },
+  // 鉢 (Bowl) - Deep and rounded
+  hachi: {
+    path: 'M30 80 Q30 50 100 50 Q170 50 170 80 L165 180 Q165 220 100 220 Q35 220 35 180 Z',
+    viewBox: '0 0 200 240',
+    name: { en: 'Bowl', ja: '鉢' },
+    emoji: '🥣'
+  }
+};
+
 function updateProfileUI(profile, lang) {
   // Stats
   document.getElementById('stat-visits').textContent = profile.stats.totalVisits;
@@ -548,6 +612,22 @@ function updateProfileUI(profile, lang) {
   document.getElementById('stat-repaired').textContent = repairedCount;
   document.getElementById('stat-unrepaired').textContent = unrepairedCount;
   
+  // Update vessel shape based on selected type
+  const vesselType = profile.vesselType || getSelectedVessel() || 'chawan';
+  const vesselData = VESSEL_PATHS[vesselType] || VESSEL_PATHS.chawan;
+  
+  // Update SVG path
+  const vesselShape = document.getElementById('vessel-shape');
+  if (vesselShape) {
+    vesselShape.setAttribute('d', vesselData.path);
+  }
+  
+  // Update vessel type display
+  const vesselTypeDisplay = document.getElementById('vessel-type-display');
+  if (vesselTypeDisplay) {
+    vesselTypeDisplay.innerHTML = `${vesselData.emoji} ${vesselData.name[lang]}`;
+  }
+  
   // Vessel visual
   const visual = calculateVesselVisual(profile);
   
@@ -556,11 +636,11 @@ function updateProfileUI(profile, lang) {
   document.getElementById('gold-value').textContent = `${Math.round(visual.goldIntensity)}%`;
   document.getElementById('gold-bar').style.width = `${visual.goldIntensity}%`;
   
-  // Render cracks on vessel
+  // Render cracks on vessel (adjusted for vessel type)
   const cracksGroup = document.getElementById('cracks-group');
   if (cracksGroup) {
     cracksGroup.innerHTML = '';
-    const crackPaths = generateCrackPaths(profile.cracks);
+    const crackPaths = generateCrackPaths(profile.cracks, vesselType);
     
     crackPaths.forEach(crack => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');

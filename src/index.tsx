@@ -913,10 +913,12 @@ app.get('/profile', (c) => {
           <div class="grid md:grid-cols-2 gap-8">
             {/* Vessel Visualization */}
             <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi text-center">
+              {/* Vessel type indicator - will be read by JS */}
+              <div id="vessel-type-display" class="text-xs text-ink-400 dark:text-[#78716c] mb-2"></div>
               <div id="vessel-container" class="mb-6">
-                {/* Dynamic vessel will be rendered here by JS */}
+                {/* Dynamic vessel will be rendered here by JS based on selected vessel type */}
                 <svg id="kintsugi-vessel" width="200" height="240" viewBox="0 0 200 240" class="mx-auto drop-shadow-lg">
-                  {/* Base vessel */}
+                  {/* Base vessel - shape will be updated by JS */}
                   <defs>
                     <linearGradient id="vesselGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" style="stop-color:#d4c4b0"/>
@@ -932,6 +934,7 @@ app.get('/profile', (c) => {
                     </filter>
                   </defs>
                   <path 
+                    id="vessel-shape"
                     d="M40 60 Q40 20 100 20 Q160 20 160 60 L150 200 Q150 220 100 220 Q50 220 50 200 Z" 
                     fill="url(#vesselGrad)"
                     stroke="#8f7d5e"
