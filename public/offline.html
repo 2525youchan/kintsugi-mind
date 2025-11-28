@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline — KINTSUGI MIND</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+      background: linear-gradient(135deg, #f5f0e8 0%, #ebe4d8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      color: #1a1a1a;
+    }
+    
+    .container {
+      text-align: center;
+      max-width: 400px;
+    }
+    
+    .vessel {
+      width: 120px;
+      height: 144px;
+      margin: 0 auto 2rem;
+      opacity: 0.6;
+    }
+    
+    .vessel svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+      color: #1e3a5f;
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+    
+    p {
+      color: #666;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    
+    .breathing-hint {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .breathing-hint h2 {
+      font-size: 1rem;
+      color: #c9a227;
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .breathing-hint p {
+      font-size: 0.875rem;
+      margin-bottom: 0;
+    }
+    
+    .breath-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9a227 0%, #d4af37 100%);
+      margin: 1rem auto;
+      animation: breathe 8s ease-in-out infinite;
+      opacity: 0.8;
+    }
+    
+    @keyframes breathe {
+      0%, 100% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+    
+    .retry-btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      background: #1e3a5f;
+      color: #f5f0e8;
+      border: none;
+      border-radius: 2rem;
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .retry-btn:hover {
+      background: #2a4a6f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="vessel">
+      <svg viewBox="0 0 200 240">
+        <defs>
+          <linearGradient id="vesselGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#d4c4b0"/>
+            <stop offset="50%" style="stop-color:#c9b99c"/>
+            <stop offset="100%" style="stop-color:#a89880"/>
+          </linearGradient>
+        </defs>
+        <path 
+          d="M40 60 Q40 20 100 20 Q160 20 160 60 L150 200 Q150 220 100 220 Q50 220 50 200 Z" 
+          fill="url(#vesselGrad)"
+          stroke="#8f7d5e"
+          stroke-width="1"
+        />
+        <path d="M80 40 L75 80 L85 120 L70 160" stroke="#c9a227" stroke-width="3" fill="none"/>
+        <path d="M120 50 L130 90 L115 130" stroke="#c9a227" stroke-width="3" fill="none"/>
+      </svg>
+    </div>
+    
+    <h1>オフラインです</h1>
+    <p>
+      インターネット接続がありません。<br>
+      接続が回復したら、再度お試しください。
+    </p>
+    
+    <div class="breathing-hint">
+      <h2>✦ 待っている間に</h2>
+      <p>ゆっくり呼吸をしてみましょう</p>
+      <div class="breath-circle"></div>
+      <p>円の動きに合わせて<br>吸って…吐いて…</p>
+    </div>
+    
+    <button class="retry-btn" onclick="location.reload()">
+      再接続を試す
+    </button>
+  </div>
+</body>
+</html>

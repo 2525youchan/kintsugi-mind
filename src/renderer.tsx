@@ -9,6 +9,18 @@ export const renderer = jsxRenderer(({ children, title }) => {
         <title>{title || 'KINTSUGI MIND'}</title>
         <meta name="description" content="The Japanese Art of Resilience - Transform your anxiety into strength through ancient wisdom" />
         
+        {/* PWA Meta Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#1e3a5f" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="金継ぎ" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        {/* Favicon */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+        
         {/* Tailwind CSS */}
         <script src="https://cdn.tailwindcss.com"></script>
         
@@ -123,6 +135,23 @@ export const renderer = jsxRenderer(({ children, title }) => {
       <body class="bg-ecru text-ink font-serif min-h-screen">
         {children}
         <script src="/static/app.js"></script>
+        
+        {/* Service Worker Registration */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                  .then(function(registration) {
+                    console.log('[PWA] Service Worker registered:', registration.scope);
+                  })
+                  .catch(function(error) {
+                    console.log('[PWA] Service Worker registration failed:', error);
+                  });
+              });
+            }
+          `
+        }} />
       </body>
     </html>
   )

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/static/*",
+    "/icons/*",
+    "/manifest.json",
+    "/sw.js",
+    "/offline.html",
+    "/apple-touch-icon.png",
+    "/favicon.ico"
+  ]
+}

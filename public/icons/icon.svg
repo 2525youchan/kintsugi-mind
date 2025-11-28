@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#2a4a70"/>
+    </linearGradient>
+    <linearGradient id="vessel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4c4b0"/>
+      <stop offset="50%" style="stop-color:#c9b99c"/>
+      <stop offset="100%" style="stop-color:#a89880"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="url(#bg)"/>
+  
+  <!-- Vessel -->
+  <g transform="translate(156, 96) scale(1)">
+    <path 
+      d="M40 60 Q40 20 100 20 Q160 20 160 60 L150 200 Q150 220 100 220 Q50 220 50 200 Z" 
+      fill="url(#vessel)"
+      stroke="#8f7d5e"
+      stroke-width="2"
+    />
+    <!-- Gold kintsugi lines -->
+    <path d="M80 35 L72 85 L82 130 L68 175" stroke="#c9a227" stroke-width="5" fill="none" filter="url(#glow)"/>
+    <path d="M120 45 L132 95 L118 140 L128 185" stroke="#c9a227" stroke-width="5" fill="none" filter="url(#glow)"/>
+    <path d="M95 120 L105 165 L90 200" stroke="#c9a227" stroke-width="4" fill="none" filter="url(#glow)"/>
+  </g>
+</svg>
