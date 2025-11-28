@@ -72,10 +72,10 @@ export const Header = ({
           
           {variant !== 'transparent' && (
             <nav class="hidden md:flex items-center gap-6 text-ink-600">
-              <a href={`/#about?lang=${currentLang}`} class="hover:text-gold transition-colors">
-                {currentLang === 'en' ? 'About' : 'About'}
+              <a href={`/?lang=${currentLang}#about`} class="hover:text-gold transition-colors">
+                {currentLang === 'en' ? 'About' : '概要'}
               </a>
-              <a href={`/#philosophy?lang=${currentLang}`} class="hover:text-gold transition-colors">
+              <a href={`/?lang=${currentLang}#philosophy`} class="hover:text-gold transition-colors">
                 {currentLang === 'en' ? 'Philosophy' : '哲学'}
               </a>
             </nav>
