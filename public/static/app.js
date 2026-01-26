@@ -3476,6 +3476,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update seasonal greetings and messages
     const lang = getLang();
     updateSeasonalElements(lang);
+    
+    // Update challenge progress mini display
+    updateChallengeMini();
+  } else if (path === '/challenge') {
+    // Challenge page is handled by inline script
   }
   
   // Smooth scroll for anchor links
@@ -3500,6 +3505,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize mobile menu
   initMobileMenu();
 });
+
+// ========================================
+// Challenge Progress Mini Display
+// ========================================
+
+function updateChallengeMini() {
+  const CHALLENGE_KEY = 'kintsugi-challenge';
+  const progressBar = document.getElementById('challenge-bar-mini');
+  const daysText = document.getElementById('challenge-days-mini');
+  
+  if (!progressBar || !daysText) return;
+  
+  try {
+    const saved = localStorage.getItem(CHALLENGE_KEY);
+    if (saved) {
+      const challenge = JSON.parse(saved);
+      const completed = challenge.completedDays?.length || 0;
+      const progress = (completed / 7) * 100;
+      
+      progressBar.style.width = progress + '%';
+      daysText.textContent = completed + '/7';
+    }
+  } catch (e) {
+    console.log('Challenge progress load failed');
+  }
+}
 
 // ========================================
 // Mobile Menu System

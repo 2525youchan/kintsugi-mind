@@ -602,6 +602,44 @@ app.get('/', (c) => {
             <RoomCard room="study" currentLang={lang} />
             <RoomCard room="tatami" currentLang={lang} />
           </div>
+          
+          {/* 7-Day Challenge Banner */}
+          <div class="mt-16 max-w-2xl mx-auto">
+            <a 
+              href={`/challenge?lang=${lang}`}
+              class="block bg-gradient-to-r from-gold/20 via-gold/30 to-gold/20 dark:from-gold/30 dark:via-gold/40 dark:to-gold/30 border-2 border-gold/50 rounded-2xl p-6 hover:border-gold hover:shadow-lg transition-all duration-300 group"
+            >
+              <div class="flex items-center gap-4">
+                <div class="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <span class="text-3xl">🏆</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-medium text-indigo-800 dark:text-[#e8e4dc] mb-1">
+                    {lang === 'en' ? '7-Day Kintsugi Challenge' : '7日間金継ぎチャレンジ'}
+                  </h3>
+                  <p class="text-sm text-ink-500 dark:text-[#a8a29e]">
+                    {lang === 'en' 
+                      ? 'Complete daily tasks to unlock your Golden Vessel' 
+                      : '毎日のタスクを完了して「黄金の器」を手に入れよう'}
+                  </p>
+                </div>
+                <div class="flex-shrink-0">
+                  <svg class="w-6 h-6 text-gold group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </div>
+              </div>
+              <div id="challenge-progress-mini" class="mt-4">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Progress' : '進捗'}</span>
+                  <span id="challenge-days-mini" class="text-xs text-gold font-medium">0/7</span>
+                </div>
+                <div class="w-full bg-ink-200 dark:bg-[#2d2d2d] rounded-full h-1.5 overflow-hidden">
+                  <div id="challenge-bar-mini" class="bg-gradient-to-r from-gold to-gold-400 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -2083,6 +2121,420 @@ app.get('/install', (c) => {
 })
 
 // ========================================
+// 7-Day Kintsugi Challenge
+// ========================================
+
+// Challenge page
+app.get('/challenge', (c) => {
+  const lang = getLanguage(c)
+  
+  const t = {
+    title: { en: '7-Day Kintsugi Challenge', ja: '7日間金継ぎチャレンジ' },
+    subtitle: { 
+      en: 'Transform your vessel through daily practice', 
+      ja: '毎日の実践で、あなたの器を輝かせる' 
+    },
+    intro: {
+      en: 'Just like the ancient art of Kintsugi repairs broken pottery with gold, this 7-day challenge helps you repair and beautify your inner vessel through daily micro-practices.',
+      ja: '金継ぎが壊れた器を金で美しく修復するように、この7日間チャレンジは毎日の小さな実践であなたの心の器を修復し、輝かせます。'
+    },
+    howItWorks: { en: 'How It Works', ja: 'チャレンジの流れ' },
+    step1: { 
+      en: 'Complete one small task each day', 
+      ja: '毎日1つの小さなタスクを完了する' 
+    },
+    step2: { 
+      en: 'Watch your vessel gain golden repairs', 
+      ja: '器に金の修復が刻まれていく' 
+    },
+    step3: { 
+      en: 'Complete all 7 days to unlock your Golden Vessel', 
+      ja: '7日間完走で「黄金の器」を解放' 
+    },
+    day: { en: 'Day', ja: '日目' },
+    startChallenge: { en: 'Start Challenge', ja: 'チャレンジを始める' },
+    continueChallenge: { en: 'Continue Challenge', ja: 'チャレンジを続ける' },
+    completed: { en: 'Completed', ja: '完了' },
+    locked: { en: 'Locked', ja: '未解放' },
+    today: { en: "Today's Task", ja: '今日のタスク' },
+    complete: { en: 'Mark Complete', ja: '完了にする' },
+    share: { en: 'Share Progress', ja: '進捗をシェア' },
+    congratulations: { en: 'Congratulations!', ja: 'おめでとうございます！' },
+    challengeComplete: { 
+      en: 'You have completed the 7-Day Kintsugi Challenge!', 
+      ja: '7日間金継ぎチャレンジを完走しました！' 
+    },
+    goldenVessel: { 
+      en: 'Your Golden Vessel has been unlocked', 
+      ja: '「黄金の器」が解放されました' 
+    },
+    progress: { en: 'Progress', ja: '進捗' },
+    daysCompleted: { en: 'days completed', ja: '日完了' }
+  }
+  
+  // Daily tasks for the challenge
+  const dailyTasks = [
+    { 
+      en: { title: 'Gratitude Awakening', task: 'Write down 3 things you are grateful for today, no matter how small.' },
+      ja: { title: '感謝の目覚め', task: '今日感謝していることを3つ、どんな小さなことでも書き出してください。' }
+    },
+    { 
+      en: { title: 'Mindful Breathing', task: 'Complete a 5-minute breathing session in the Tatami room.' },
+      ja: { title: '意識的な呼吸', task: '和室で5分間の呼吸セッションを完了してください。' }
+    },
+    { 
+      en: { title: 'Action Despite Feeling', task: 'Do one small action you\'ve been avoiding, regardless of how you feel.' },
+      ja: { title: '感情に関わらず行動', task: '気持ちに関係なく、先延ばしにしていた小さな行動を1つ実行してください。' }
+    },
+    { 
+      en: { title: 'Reflection on Receiving', task: 'In the Study, reflect on what you have received from one person in your life.' },
+      ja: { title: '受けたものへの内省', task: '書斎で、人生の中の一人から受け取ったものについて振り返ってください。' }
+    },
+    { 
+      en: { title: 'Garden of Actions', task: 'Complete 3 micro-actions in the Garden room.' },
+      ja: { title: '行動の庭', task: '庭の部屋で3つのマイクロアクションを完了してください。' }
+    },
+    { 
+      en: { title: 'Sitting with Discomfort', task: 'Notice an uncomfortable feeling today. Sit with it for 2 minutes without trying to change it.' },
+      ja: { title: '不快感と共に座る', task: '今日、不快な感情に気づいてください。それを変えようとせず、2分間その感情と共にいてください。' }
+    },
+    { 
+      en: { title: 'Golden Integration', task: 'Write a brief letter to yourself about what you\'ve learned this week.' },
+      ja: { title: '金継ぎの統合', task: '今週学んだことについて、自分への短い手紙を書いてください。' }
+    }
+  ]
+  
+  return c.render(
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] transition-colors duration-300" data-lang={lang}>
+      <Header currentLang={lang} />
+      
+      <main class="py-12 px-6">
+        <div class="max-w-2xl mx-auto">
+          {/* Header */}
+          <div class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-gold to-gold-600 mb-6 shadow-lg">
+              <span class="text-4xl">🏆</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-3">
+              {t.title[lang]}
+            </h1>
+            <p class="text-lg text-ink-500 dark:text-[#a8a29e]">
+              {t.subtitle[lang]}
+            </p>
+          </div>
+          
+          {/* Introduction */}
+          <div class="bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-wabi">
+            <p class="text-ink-600 dark:text-[#a8a29e] leading-relaxed">
+              {t.intro[lang]}
+            </p>
+          </div>
+          
+          {/* Progress Bar */}
+          <div id="challenge-progress" class="bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-wabi">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-sm font-medium text-indigo-700 dark:text-[#d4af37]">{t.progress[lang]}</span>
+              <span id="progress-text" class="text-sm text-ink-500 dark:text-[#78716c]">0/7 {t.daysCompleted[lang]}</span>
+            </div>
+            <div class="w-full bg-ink-200 dark:bg-[#2d2d2d] rounded-full h-3 overflow-hidden">
+              <div id="progress-bar" class="bg-gradient-to-r from-gold to-gold-400 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+          
+          {/* Challenge Completion Banner (hidden by default) */}
+          <div id="completion-banner" class="hidden bg-gradient-to-r from-gold/20 to-gold-400/20 dark:from-gold/30 dark:to-gold-400/30 border-2 border-gold rounded-2xl p-8 mb-8 text-center">
+            <div class="text-5xl mb-4">🎉</div>
+            <h2 class="text-2xl font-medium text-indigo-800 dark:text-[#e8e4dc] mb-2">{t.congratulations[lang]}</h2>
+            <p class="text-ink-600 dark:text-[#a8a29e] mb-2">{t.challengeComplete[lang]}</p>
+            <p class="text-gold font-medium">{t.goldenVessel[lang]}</p>
+          </div>
+          
+          {/* Daily Tasks */}
+          <div class="space-y-4 mb-8">
+            {dailyTasks.map((task, index) => (
+              <div 
+                id={`day-${index + 1}`}
+                class="challenge-day bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-xl p-5 shadow-wabi border-2 border-transparent transition-all duration-300"
+                data-day={index + 1}
+              >
+                <div class="flex items-start gap-4">
+                  {/* Day Number */}
+                  <div class="flex-shrink-0 w-12 h-12 rounded-full bg-ink-100 dark:bg-[#2d2d2d] flex items-center justify-center">
+                    <span class="day-number text-lg font-medium text-ink-500 dark:text-[#78716c]">{index + 1}</span>
+                  </div>
+                  
+                  {/* Task Content */}
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                      <h3 class="font-medium text-indigo-800 dark:text-[#e8e4dc]">
+                        {t.day[lang]} {index + 1}: {task[lang].title}
+                      </h3>
+                      <span class="day-status text-xs px-2 py-0.5 rounded-full bg-ink-200 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#78716c]">
+                        {t.locked[lang]}
+                      </span>
+                    </div>
+                    <p class="text-sm text-ink-500 dark:text-[#a8a29e] mb-3">
+                      {task[lang].task}
+                    </p>
+                    
+                    {/* Complete Button (hidden for locked/completed days) */}
+                    <button 
+                      class="complete-btn hidden px-4 py-2 bg-gold hover:bg-gold-400 text-ink rounded-lg text-sm font-medium transition-colors"
+                      data-day={index + 1}
+                    >
+                      ✓ {t.complete[lang]}
+                    </button>
+                  </div>
+                  
+                  {/* Completion Check */}
+                  <div class="completion-check hidden flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Share Button */}
+          <div class="text-center">
+            <button 
+              id="share-btn"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-800 hover:bg-indigo-700 dark:bg-[#d4af37] dark:hover:bg-[#c9a433] text-ecru dark:text-[#1e1e1e] rounded-full font-medium transition-colors"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+              </svg>
+              {t.share[lang]}
+            </button>
+          </div>
+          
+          {/* How It Works */}
+          <div class="mt-12 bg-gradient-to-br from-indigo-800/10 to-gold/10 dark:from-[#1e3a5f]/30 dark:to-gold/20 rounded-2xl p-6">
+            <h2 class="text-xl font-medium text-indigo-800 dark:text-[#e8e4dc] mb-4 text-center">
+              {t.howItWorks[lang]}
+            </h2>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="text-center p-4">
+                <div class="text-3xl mb-2">📝</div>
+                <p class="text-sm text-ink-600 dark:text-[#a8a29e]">{t.step1[lang]}</p>
+              </div>
+              <div class="text-center p-4">
+                <div class="text-3xl mb-2">✨</div>
+                <p class="text-sm text-ink-600 dark:text-[#a8a29e]">{t.step2[lang]}</p>
+              </div>
+              <div class="text-center p-4">
+                <div class="text-3xl mb-2">🏆</div>
+                <p class="text-sm text-ink-600 dark:text-[#a8a29e]">{t.step3[lang]}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      
+      <Footer currentLang={lang} />
+      
+      {/* Challenge JavaScript */}
+      <script dangerouslySetInnerHTML={{ __html: `
+        (function() {
+          const CHALLENGE_KEY = 'kintsugi-challenge';
+          const lang = '${lang}';
+          
+          // Load challenge state
+          function loadChallenge() {
+            const saved = localStorage.getItem(CHALLENGE_KEY);
+            if (saved) {
+              try {
+                return JSON.parse(saved);
+              } catch (e) {
+                return createNewChallenge();
+              }
+            }
+            return null;
+          }
+          
+          // Create new challenge
+          function createNewChallenge() {
+            return {
+              startDate: new Date().toISOString().split('T')[0],
+              completedDays: [],
+              currentDay: 1
+            };
+          }
+          
+          // Save challenge state
+          function saveChallenge(challenge) {
+            localStorage.setItem(CHALLENGE_KEY, JSON.stringify(challenge));
+          }
+          
+          // Update UI based on challenge state
+          function updateUI(challenge) {
+            if (!challenge) {
+              // Show start state - day 1 available
+              const day1 = document.getElementById('day-1');
+              if (day1) {
+                day1.classList.add('border-gold');
+                day1.querySelector('.day-status').textContent = lang === 'en' ? "Today's Task" : '今日のタスク';
+                day1.querySelector('.day-status').classList.remove('bg-ink-200', 'dark:bg-[#2d2d2d]', 'text-ink-500');
+                day1.querySelector('.day-status').classList.add('bg-gold/20', 'text-gold');
+                day1.querySelector('.complete-btn').classList.remove('hidden');
+              }
+              return;
+            }
+            
+            const { completedDays, currentDay } = challenge;
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const completionBanner = document.getElementById('completion-banner');
+            
+            // Update progress
+            const progress = (completedDays.length / 7) * 100;
+            progressBar.style.width = progress + '%';
+            progressText.textContent = completedDays.length + '/7 ' + (lang === 'en' ? 'days completed' : '日完了');
+            
+            // Show completion banner if all days done
+            if (completedDays.length >= 7) {
+              completionBanner.classList.remove('hidden');
+            }
+            
+            // Update each day
+            for (let i = 1; i <= 7; i++) {
+              const dayEl = document.getElementById('day-' + i);
+              if (!dayEl) continue;
+              
+              const status = dayEl.querySelector('.day-status');
+              const completeBtn = dayEl.querySelector('.complete-btn');
+              const completionCheck = dayEl.querySelector('.completion-check');
+              const dayNumber = dayEl.querySelector('.day-number');
+              
+              if (completedDays.includes(i)) {
+                // Completed
+                dayEl.classList.add('border-green-500/50');
+                status.textContent = lang === 'en' ? 'Completed' : '完了';
+                status.classList.remove('bg-ink-200', 'dark:bg-[#2d2d2d]', 'text-ink-500', 'bg-gold/20', 'text-gold');
+                status.classList.add('bg-green-500/20', 'text-green-600');
+                completeBtn.classList.add('hidden');
+                completionCheck.classList.remove('hidden');
+                completionCheck.classList.add('flex');
+                dayNumber.classList.add('text-green-600');
+              } else if (i === currentDay && completedDays.length < 7) {
+                // Current day (available)
+                dayEl.classList.add('border-gold');
+                status.textContent = lang === 'en' ? "Today's Task" : '今日のタスク';
+                status.classList.remove('bg-ink-200', 'dark:bg-[#2d2d2d]', 'text-ink-500');
+                status.classList.add('bg-gold/20', 'text-gold');
+                completeBtn.classList.remove('hidden');
+              }
+              // Locked days stay as default
+            }
+          }
+          
+          // Handle day completion
+          function completeDay(day) {
+            let challenge = loadChallenge();
+            if (!challenge) {
+              challenge = createNewChallenge();
+            }
+            
+            if (!challenge.completedDays.includes(day)) {
+              challenge.completedDays.push(day);
+              challenge.currentDay = Math.min(day + 1, 7);
+              saveChallenge(challenge);
+              
+              // Sync to server if logged in
+              syncChallengeToServer(challenge);
+              
+              // Add celebration animation
+              celebrateCompletion(day);
+            }
+            
+            updateUI(challenge);
+          }
+          
+          // Celebration animation
+          function celebrateCompletion(day) {
+            const dayEl = document.getElementById('day-' + day);
+            if (dayEl) {
+              dayEl.classList.add('animate-pulse');
+              setTimeout(() => dayEl.classList.remove('animate-pulse'), 1000);
+            }
+            
+            // Confetti effect (simple)
+            const confetti = ['🎉', '✨', '⭐', '💫'];
+            for (let i = 0; i < 10; i++) {
+              setTimeout(() => {
+                const span = document.createElement('span');
+                span.textContent = confetti[Math.floor(Math.random() * confetti.length)];
+                span.style.cssText = 'position:fixed;font-size:2rem;z-index:9999;pointer-events:none;animation:fall 2s ease-out forwards;left:' + (Math.random() * 100) + 'vw;top:-50px;';
+                document.body.appendChild(span);
+                setTimeout(() => span.remove(), 2000);
+              }, i * 100);
+            }
+          }
+          
+          // Sync to server
+          async function syncChallengeToServer(challenge) {
+            try {
+              await fetch('/api/challenge/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ challenge })
+              });
+            } catch (e) {
+              console.log('Challenge sync failed (offline mode)');
+            }
+          }
+          
+          // Share progress
+          function shareProgress() {
+            const challenge = loadChallenge();
+            const completed = challenge ? challenge.completedDays.length : 0;
+            const text = lang === 'en'
+              ? 'I\\'ve completed ' + completed + '/7 days of the Kintsugi Challenge! 🏆✨ #KintsugiMind #MentalWellness'
+              : '金継ぎチャレンジ ' + completed + '/7日完了！🏆✨ #KintsugiMind #メンタルヘルス';
+            
+            if (navigator.share) {
+              navigator.share({
+                title: 'Kintsugi Challenge',
+                text: text,
+                url: window.location.origin + '/challenge'
+              }).catch(() => {});
+            } else {
+              // Fallback: copy to clipboard
+              navigator.clipboard.writeText(text + ' ' + window.location.origin + '/challenge');
+              alert(lang === 'en' ? 'Copied to clipboard!' : 'クリップボードにコピーしました！');
+            }
+          }
+          
+          // Initialize
+          document.addEventListener('DOMContentLoaded', () => {
+            const challenge = loadChallenge();
+            updateUI(challenge);
+            
+            // Add click handlers
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const day = parseInt(btn.dataset.day);
+                completeDay(day);
+              });
+            });
+            
+            document.getElementById('share-btn').addEventListener('click', shareProgress);
+          });
+          
+          // Add falling animation style
+          const style = document.createElement('style');
+          style.textContent = '@keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }';
+          document.head.appendChild(style);
+        })();
+      `}} />
+    </div>,
+    { title: lang === 'en' ? '7-Day Kintsugi Challenge — KINTSUGI MIND' : '7日間金継ぎチャレンジ — KINTSUGI MIND' }
+  )
+})
+
+// ========================================
 // API Routes
 // ========================================
 
@@ -3482,6 +3934,103 @@ app.get('/api/vessels', async (c) => {
   } catch (e) {
     console.error('Get vessels error:', e)
     return c.json({ vessels: basicVessels, plan: 'free' })
+  }
+})
+
+// ========================================
+// Challenge API
+// ========================================
+
+// Sync challenge progress
+app.post('/api/challenge/sync', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ success: true, message: 'Offline mode - saved locally' })
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ success: true, message: 'No database - saved locally' })
+  }
+  
+  try {
+    const { challenge } = await c.req.json()
+    
+    if (!challenge) {
+      return c.json({ error: 'No challenge data' }, 400)
+    }
+    
+    // Store challenge in user metadata or a challenges table
+    // For now, we'll update a JSON field in the users table
+    await db.prepare(`
+      UPDATE users SET 
+        challenge_data = ?,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(JSON.stringify(challenge), user.id).run()
+    
+    // If all 7 days completed, unlock golden vessel
+    if (challenge.completedDays && challenge.completedDays.length >= 7) {
+      // Add golden vessel to user's unlocked vessels
+      await db.prepare(`
+        INSERT OR IGNORE INTO user_unlocks (user_id, unlock_type, unlock_id, unlocked_at)
+        VALUES (?, 'vessel', 'kintsugiBowl', datetime('now'))
+      `).bind(user.id).run()
+    }
+    
+    return c.json({ success: true, synced: true })
+  } catch (e) {
+    console.error('Challenge sync error:', e)
+    return c.json({ success: true, message: 'Sync failed but saved locally' })
+  }
+})
+
+// Get challenge status
+app.get('/api/challenge/status', async (c) => {
+  const user = await getCurrentUser(c)
+  if (!user) {
+    return c.json({ 
+      active: false, 
+      completedDays: [], 
+      source: 'local' 
+    })
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ 
+      active: false, 
+      completedDays: [], 
+      source: 'local' 
+    })
+  }
+  
+  try {
+    const userData = await db.prepare(`
+      SELECT challenge_data FROM users WHERE id = ?
+    `).bind(user.id).first() as { challenge_data: string } | null
+    
+    if (userData?.challenge_data) {
+      const challenge = JSON.parse(userData.challenge_data)
+      return c.json({
+        active: true,
+        ...challenge,
+        source: 'server'
+      })
+    }
+    
+    return c.json({ 
+      active: false, 
+      completedDays: [], 
+      source: 'server' 
+    })
+  } catch (e) {
+    console.error('Get challenge error:', e)
+    return c.json({ 
+      active: false, 
+      completedDays: [], 
+      source: 'local' 
+    })
   }
 })
 
