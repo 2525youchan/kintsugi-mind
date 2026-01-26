@@ -12,6 +12,7 @@ type Bindings = {
   GOOGLE_CLIENT_SECRET: string
   SESSION_SECRET: string
   DB: D1Database
+  KV?: KVNamespace  // Optional for rate limiting
 }
 type Variables = {
   user?: {
@@ -23,6 +24,107 @@ type Variables = {
 }
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
+
+// ========================================
+// Security Middleware
+// ========================================
+
+// Security headers middleware
+app.use('*', async (c, next) => {
+  await next()
+  // Prevent MIME type sniffing
+  c.header('X-Content-Type-Options', 'nosniff')
+  // Prevent clickjacking
+  c.header('X-Frame-Options', 'DENY')
+  // XSS protection
+  c.header('X-XSS-Protection', '1; mode=block')
+  // Referrer policy
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
+  // HTTPS enforcement (HSTS)
+  c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+})
+
+// CORS configuration
+app.use('/api/*', cors({
+  origin: (origin) => {
+    // Allow same-origin and Cloudflare Pages domains
+    const allowedOrigins = [
+      'https://kintsugi-mind.pages.dev',
+      /^https:\/\/[a-z0-9]+\.kintsugi-mind\.pages\.dev$/,
+    ]
+    if (!origin) return origin // Same-origin requests
+    for (const allowed of allowedOrigins) {
+      if (typeof allowed === 'string' && origin === allowed) return origin
+      if (allowed instanceof RegExp && allowed.test(origin)) return origin
+    }
+    // Development: allow localhost
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) return origin
+    if (origin.includes('sandbox.novita.ai')) return origin
+    return null
+  },
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}))
+
+// ========================================
+// Rate Limiting
+// ========================================
+
+// Rate limit helper using KV (or in-memory fallback)
+const rateLimitCache = new Map<string, { count: number; resetAt: number }>()
+
+async function rateLimit(
+  c: any,
+  key: string,
+  limit: number,
+  windowSeconds: number
+): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
+  const now = Math.floor(Date.now() / 1000)
+  const windowKey = `rate:${key}:${Math.floor(now / windowSeconds)}`
+  const resetAt = (Math.floor(now / windowSeconds) + 1) * windowSeconds
+  
+  const kv = c.env.KV
+  
+  if (kv) {
+    // Use KV for persistent rate limiting
+    try {
+      const current = parseInt(await kv.get(windowKey) || '0')
+      if (current >= limit) {
+        return { allowed: false, remaining: 0, resetAt }
+      }
+      await kv.put(windowKey, String(current + 1), { expirationTtl: windowSeconds * 2 })
+      return { allowed: true, remaining: limit - current - 1, resetAt }
+    } catch (e) {
+      console.error('KV rate limit error:', e)
+      // Fall through to in-memory
+    }
+  }
+  
+  // In-memory fallback (for local development)
+  const cached = rateLimitCache.get(windowKey)
+  if (cached && cached.resetAt > now) {
+    if (cached.count >= limit) {
+      return { allowed: false, remaining: 0, resetAt: cached.resetAt }
+    }
+    cached.count++
+    return { allowed: true, remaining: limit - cached.count, resetAt: cached.resetAt }
+  }
+  
+  rateLimitCache.set(windowKey, { count: 1, resetAt })
+  // Clean up old entries
+  for (const [k, v] of rateLimitCache.entries()) {
+    if (v.resetAt < now) rateLimitCache.delete(k)
+  }
+  return { allowed: true, remaining: limit - 1, resetAt }
+}
+
+// Get client IP for rate limiting
+function getClientIP(c: any): string {
+  return c.req.header('CF-Connecting-IP') || 
+         c.req.header('X-Forwarded-For')?.split(',')[0]?.trim() || 
+         'unknown'
+}
 
 // ========================================
 // Auth Helpers
@@ -1986,6 +2088,14 @@ app.get('/install', (c) => {
 
 // API: Get Morita guidance (Gemini AI)
 app.post('/api/morita/guidance', async (c) => {
+  // Rate limit: 20 AI requests per minute per IP
+  const ip = getClientIP(c)
+  const { allowed } = await rateLimit(c, `ai:${ip}`, 20, 60)
+  
+  if (!allowed) {
+    return c.json({ error: 'Too many requests. Please slow down.' }, 429)
+  }
+  
   const { emotion, lang = 'en' } = await c.req.json()
   const apiKey = c.env.GEMINI_API_KEY
   const db = c.env.DB
@@ -2101,6 +2211,14 @@ app.get('/api/naikan/question', (c) => {
 
 // API: Get Zen Koan (Gemini AI)
 app.get('/api/zen/koan', async (c) => {
+  // Rate limit: 20 AI requests per minute per IP
+  const ip = getClientIP(c)
+  const { allowed } = await rateLimit(c, `ai:${ip}`, 20, 60)
+  
+  if (!allowed) {
+    return c.json({ error: 'Too many requests. Please slow down.' }, 429)
+  }
+  
   const lang = (c.req.query('lang') || 'en') as Language
   const apiKey = c.env.GEMINI_API_KEY
   const db = c.env.DB
@@ -2816,7 +2934,15 @@ app.get('/api/auth/status', async (c) => {
 })
 
 // Start Google OAuth flow
-app.get('/api/auth/login/google', (c) => {
+app.get('/api/auth/login/google', async (c) => {
+  // Rate limit: 10 login attempts per minute per IP
+  const ip = getClientIP(c)
+  const { allowed, remaining } = await rateLimit(c, `login:${ip}`, 10, 60)
+  
+  if (!allowed) {
+    return c.json({ error: 'Too many login attempts. Please try again later.' }, 429)
+  }
+  
   const clientId = c.env.GOOGLE_CLIENT_ID
   
   if (!clientId) {
@@ -2981,9 +3107,13 @@ app.post('/api/auth/sync', async (c) => {
   }
   
   try {
-    // Get user's profile
+    // Get user's profile (explicit columns for security)
     const profile = await db.prepare(
-      'SELECT * FROM profiles WHERE user_id = ?'
+      `SELECT id, user_id, total_repairs, last_visit, 
+              stats_total_visits, stats_current_streak, stats_longest_streak,
+              stats_garden_actions, stats_study_sessions, stats_tatami_sessions,
+              created_at, updated_at 
+       FROM profiles WHERE user_id = ?`
     ).bind(user.id).first()
     
     if (!profile) {
@@ -3052,7 +3182,11 @@ app.get('/api/auth/profile', async (c) => {
   
   try {
     const profile = await db.prepare(
-      'SELECT * FROM profiles WHERE user_id = ?'
+      `SELECT id, user_id, total_repairs, last_visit,
+              stats_total_visits, stats_current_streak, stats_longest_streak,
+              stats_garden_actions, stats_study_sessions, stats_tatami_sessions,
+              created_at, updated_at
+       FROM profiles WHERE user_id = ?`
     ).bind(user.id).first()
     
     const userData = await db.prepare(
@@ -3368,9 +3502,13 @@ app.get('/api/sync/profile', async (c) => {
   }
   
   try {
-    // Get profile
+    // Get profile (explicit columns for security)
     const profile = await db.prepare(`
-      SELECT * FROM profiles WHERE user_id = ?
+      SELECT id, user_id, total_repairs, last_visit,
+             stats_total_visits, stats_current_streak, stats_longest_streak,
+             stats_garden_actions, stats_study_sessions, stats_tatami_sessions,
+             created_at, updated_at
+      FROM profiles WHERE user_id = ?
     `).bind(user.id).first()
     
     if (!profile) {
@@ -3447,9 +3585,13 @@ app.post('/api/sync/profile', async (c) => {
     const body = await c.req.json()
     const { profile: clientProfile, checkins: clientCheckins, vessel } = body
     
-    // Get or create profile
+    // Get or create profile (explicit columns for security)
     let profile = await db.prepare(`
-      SELECT * FROM profiles WHERE user_id = ?
+      SELECT id, user_id, total_repairs, last_visit,
+             stats_total_visits, stats_current_streak, stats_longest_streak,
+             stats_garden_actions, stats_study_sessions, stats_tatami_sessions,
+             created_at, updated_at
+      FROM profiles WHERE user_id = ?
     `).bind(user.id).first()
     
     const profileId = profile?.id || `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -3644,6 +3786,50 @@ app.get('/api/sync/status', async (c) => {
       message: 'Sync status unknown'
     })
   }
+})
+
+// ========================================
+// Maintenance APIs
+// ========================================
+
+// Clean up expired sessions (can be called by Cloudflare Cron or manually)
+app.post('/api/maintenance/cleanup-sessions', async (c) => {
+  // This endpoint can be protected by a secret token for automated cleanup
+  const authHeader = c.req.header('Authorization')
+  const expectedToken = c.env.SESSION_SECRET // Reuse session secret as maintenance token
+  
+  if (authHeader !== `Bearer ${expectedToken}`) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  const db = c.env.DB
+  if (!db) {
+    return c.json({ error: 'Database not available' }, 500)
+  }
+  
+  try {
+    const result = await db.prepare(`
+      DELETE FROM sessions WHERE expires_at < datetime('now')
+    `).run()
+    
+    return c.json({ 
+      success: true, 
+      deleted: result.meta.changes,
+      message: `Cleaned up ${result.meta.changes} expired sessions`
+    })
+  } catch (e) {
+    console.error('Session cleanup error:', e)
+    return c.json({ error: 'Cleanup failed' }, 500)
+  }
+})
+
+// Health check endpoint
+app.get('/api/health', (c) => {
+  return c.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  })
 })
 
 export default app
