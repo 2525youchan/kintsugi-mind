@@ -674,7 +674,10 @@ app.get('/', (c) => {
             <div class="bg-gradient-to-br from-indigo-800/10 to-gold/10 dark:from-[#1e3a5f]/30 dark:to-gold/20 backdrop-blur-sm rounded-2xl p-6 shadow-wabi border border-indigo-800/10 dark:border-gold/20">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
-                  <span class="text-2xl">🪷</span>
+                  <svg class="w-6 h-6 text-gold" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C13.5 4 15 6.5 15 9c0 1.5-.5 3-1.5 4 1.5.5 3 1.5 4 3 .5 1 .5 2 0 3-.5 1-1.5 2-3 2.5 0 0-1-.5-2.5-.5s-2.5.5-2.5.5c-1.5-.5-2.5-1.5-3-2.5-.5-1-.5-2 0-3 1-1.5 2.5-2.5 4-3-1-1-1.5-2.5-1.5-4 0-2.5 1.5-5 3-7z"/>
+                    <circle cx="12" cy="9" r="2"/>
+                  </svg>
                   <span class="text-sm font-medium text-indigo-700 dark:text-[#d4af37]">
                     {lang === 'en' ? "Today's Zen" : '今日の禅語'}
                   </span>
@@ -2378,7 +2381,10 @@ app.get('/zen-archive', (c) => {
           {/* Today's Quote Highlight */}
           <div class="mb-12 p-8 bg-gradient-to-br from-gold/10 to-indigo-800/10 dark:from-gold/20 dark:to-[#1e3a5f]/30 rounded-2xl border border-gold/30">
             <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">🪷</span>
+              <svg class="w-6 h-6 text-gold" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C13.5 4 15 6.5 15 9c0 1.5-.5 3-1.5 4 1.5.5 3 1.5 4 3 .5 1 .5 2 0 3-.5 1-1.5 2-3 2.5 0 0-1-.5-2.5-.5s-2.5.5-2.5.5c-1.5-.5-2.5-1.5-3-2.5-.5-1-.5-2 0-3 1-1.5 2.5-2.5 4-3-1-1-1.5-2.5-1.5-4 0-2.5 1.5-5 3-7z"/>
+                <circle cx="12" cy="9" r="2"/>
+              </svg>
               <span class="text-sm font-medium text-gold">{t.todayQuote[lang]}</span>
             </div>
             <blockquote id="today-quote-text" class="text-xl md:text-2xl text-indigo-800 dark:text-[#e8e4dc] italic leading-relaxed mb-4">

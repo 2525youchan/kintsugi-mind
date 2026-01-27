@@ -12,11 +12,5 @@
       "database_name": "kintsugi-mind-db",
       "database_id": "ad8f97ca-a75f-4613-a106-1a32013d8444"
     }
-  ],
-  "kv_namespaces": [
-    {
-      "binding": "KV",
-      "id": "placeholder-for-production"
-    }
   ]
 }
