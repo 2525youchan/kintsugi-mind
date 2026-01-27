@@ -1075,14 +1075,40 @@ function calculateVesselVisual(profile) {
 }
 
 // Generate crack SVG paths based on vessel type
+// Photo-based crack patterns adjusted for 200x200 viewBox
 function generateCrackPaths(cracks, vesselType = 'chawan') {
   // Different crack patterns for each vessel type
+  // Photo茶碗用: 器は画像の中央に位置、縦長で上部が開いている形状
   const pathVariationsByType = {
+    // 茶碗 Photo版: 自然な金継ぎ風のヒビパターン
     chawan: [
-      (h) => `M${60 + (h % 40)} 40 L${55 + (h % 30)} 80 L${65 + (h % 20)} 120 L${50 + (h % 40)} 160`,
-      (h) => `M${100 + (h % 30)} 50 L${110 + (h % 20)} 90 L${95 + (h % 25)} 130`,
-      (h) => `M${70 + (h % 30)} 100 L${85 + (h % 20)} 140 L${75 + (h % 25)} 180`,
-      (h) => `M${110 + (h % 25)} 70 L${120 + (h % 20)} 110 L${105 + (h % 30)} 150`,
+      // 左側の大きなヒビ（上から下へ）
+      (h) => `M${55 + (h % 15)} ${60 + (h % 10)} 
+               Q${50 + (h % 10)} ${80 + (h % 8)} ${52 + (h % 12)} ${100 + (h % 10)}
+               Q${48 + (h % 8)} ${120 + (h % 10)} ${55 + (h % 10)} ${140 + (h % 8)}
+               L${50 + (h % 12)} ${160 + (h % 10)}`,
+      // 右側の斜めヒビ
+      (h) => `M${145 + (h % 10)} ${65 + (h % 12)}
+               Q${140 + (h % 8)} ${85 + (h % 10)} ${148 + (h % 10)} ${105 + (h % 8)}
+               L${142 + (h % 12)} ${130 + (h % 10)}`,
+      // 中央やや左のヒビ
+      (h) => `M${80 + (h % 15)} ${70 + (h % 10)}
+               L${75 + (h % 10)} ${95 + (h % 12)}
+               Q${78 + (h % 8)} ${115 + (h % 10)} ${72 + (h % 12)} ${135 + (h % 8)}`,
+      // 中央右側のヒビ
+      (h) => `M${120 + (h % 12)} ${75 + (h % 10)}
+               Q${125 + (h % 8)} ${95 + (h % 12)} ${118 + (h % 10)} ${115 + (h % 8)}
+               L${122 + (h % 10)} ${140 + (h % 10)}`,
+      // 下部の横ヒビ
+      (h) => `M${60 + (h % 20)} ${150 + (h % 8)}
+               Q${85 + (h % 15)} ${155 + (h % 6)} ${110 + (h % 12)} ${148 + (h % 10)}
+               L${130 + (h % 15)} ${152 + (h % 8)}`,
+      // 小さな枝分かれヒビ（左）
+      (h) => `M${52 + (h % 8)} ${100 + (h % 10)}
+               L${40 + (h % 10)} ${110 + (h % 8)}`,
+      // 小さな枝分かれヒビ（右）
+      (h) => `M${148 + (h % 8)} ${105 + (h % 10)}
+               L${158 + (h % 10)} ${115 + (h % 8)}`,
     ],
     tsubo: [
       (h) => `M${80 + (h % 20)} 50 L${75 + (h % 25)} 90 L${85 + (h % 20)} 130 L${70 + (h % 30)} 170`,
@@ -1908,9 +1934,39 @@ function updateProfileUI(profile, lang) {
   const vesselType = profile.vesselType || getSelectedVessel() || 'chawan';
   const vesselData = VESSEL_PATHS[vesselType] || VESSEL_PATHS.chawan;
   
-  // Update SVG path
+  // Photo-based vessel images (currently only chawan has photo)
+  const VESSEL_PHOTOS = {
+    chawan: '/static/images/chawan-base.png'
+    // Other vessels will use legacy SVG until photos are added
+  };
+  
+  // Update vessel photo or fallback to SVG
+  const vesselPhoto = document.getElementById('vessel-photo');
+  const vesselLegacy = document.getElementById('kintsugi-vessel-legacy');
+  const vesselSvg = document.getElementById('kintsugi-vessel');
+  
+  if (VESSEL_PHOTOS[vesselType] && vesselPhoto) {
+    // Use photo-based vessel
+    vesselPhoto.src = VESSEL_PHOTOS[vesselType];
+    vesselPhoto.classList.remove('hidden');
+    if (vesselSvg) vesselSvg.classList.remove('hidden');
+    if (vesselLegacy) vesselLegacy.classList.add('hidden');
+  } else if (vesselPhoto) {
+    // Fallback to legacy SVG vessel
+    vesselPhoto.classList.add('hidden');
+    if (vesselSvg) vesselSvg.classList.add('hidden');
+    if (vesselLegacy) {
+      vesselLegacy.classList.remove('hidden');
+      const vesselShape = vesselLegacy.querySelector('#vessel-shape');
+      if (vesselShape) {
+        vesselShape.setAttribute('d', vesselData.path);
+      }
+    }
+  }
+  
+  // Update SVG path for legacy vessel (if visible)
   const vesselShape = document.getElementById('vessel-shape');
-  if (vesselShape) {
+  if (vesselShape && !VESSEL_PHOTOS[vesselType]) {
     vesselShape.setAttribute('d', vesselData.path);
   }
   
@@ -1929,6 +1985,7 @@ function updateProfileUI(profile, lang) {
   document.getElementById('gold-bar').style.width = `${visual.goldIntensity}%`;
   
   // Render cracks on vessel (adjusted for vessel type)
+  // Photo-based vessel: SVG overlay with adjusted crack paths
   const cracksGroup = document.getElementById('cracks-group');
   if (cracksGroup) {
     cracksGroup.innerHTML = '';
@@ -1938,11 +1995,22 @@ function updateProfileUI(profile, lang) {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', crack.path);
       path.setAttribute('fill', 'none');
-      path.setAttribute('stroke-width', crack.repaired ? '3' : '2');
-      path.setAttribute('stroke', crack.repaired ? '#c9a227' : '#1a1a1a');
+      // 金継ぎ風のスタイリング
       if (crack.repaired) {
+        // 金継ぎ（修復済み）: 金色で太めの線、輝きエフェクト
+        path.setAttribute('stroke', '#d4af37');
+        path.setAttribute('stroke-width', '2.5');
         path.setAttribute('filter', 'url(#goldGlow)');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
         path.classList.add('gold-glow');
+      } else {
+        // 未修復のヒビ: 暗い色で細めの線
+        path.setAttribute('stroke', '#3d3d3d');
+        path.setAttribute('stroke-width', '1.5');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        path.setAttribute('opacity', '0.7');
       }
       cracksGroup.appendChild(path);
     });

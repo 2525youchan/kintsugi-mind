@@ -1467,23 +1467,48 @@ app.get('/profile', (c) => {
             <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi text-center">
               {/* Vessel type indicator - will be read by JS */}
               <div id="vessel-type-display" class="text-xs text-ink-400 dark:text-[#78716c] mb-2"></div>
-              <div id="vessel-container" class="mb-6">
-                {/* Dynamic vessel will be rendered here by JS based on selected vessel type */}
-                <svg id="kintsugi-vessel" width="200" height="240" viewBox="0 0 200 240" class="mx-auto drop-shadow-lg">
-                  {/* Base vessel - shape will be updated by JS */}
+              <div id="vessel-container" class="mb-6 relative">
+                {/* Photo-based vessel with SVG overlay for cracks */}
+                <div class="relative inline-block">
+                  {/* Base vessel photo */}
+                  <img 
+                    id="vessel-photo"
+                    src="/static/images/chawan-base.png" 
+                    alt="Your Kintsugi Vessel"
+                    class="w-48 h-48 md:w-56 md:h-56 object-contain mx-auto drop-shadow-xl transition-all duration-500"
+                  />
+                  {/* SVG Overlay for cracks - positioned absolutely over the image */}
+                  <svg 
+                    id="kintsugi-vessel" 
+                    class="absolute inset-0 w-48 h-48 md:w-56 md:h-56 mx-auto pointer-events-none"
+                    viewBox="0 0 200 200"
+                    style="left: 50%; transform: translateX(-50%);"
+                  >
+                    <defs>
+                      <filter id="goldGlow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                          <feMergeNode in="coloredBlur"/>
+                          <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                      </filter>
+                      <filter id="crackShadow">
+                        <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
+                      </filter>
+                    </defs>
+                    {/* Cracks will be added dynamically by JS */}
+                    <g id="cracks-group"></g>
+                  </svg>
+                </div>
+                
+                {/* Legacy SVG vessel (hidden, for fallback) */}
+                <svg id="kintsugi-vessel-legacy" width="200" height="240" viewBox="0 0 200 240" class="hidden mx-auto drop-shadow-lg">
                   <defs>
                     <linearGradient id="vesselGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" style="stop-color:#d4c4b0"/>
                       <stop offset="50%" style="stop-color:#c9b99c"/>
                       <stop offset="100%" style="stop-color:#a89880"/>
                     </linearGradient>
-                    <filter id="goldGlow">
-                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
                   </defs>
                   <path 
                     id="vessel-shape"
@@ -1492,8 +1517,7 @@ app.get('/profile', (c) => {
                     stroke="#8f7d5e"
                     stroke-width="1"
                   />
-                  {/* Cracks will be added dynamically */}
-                  <g id="cracks-group"></g>
+                  <g id="cracks-group-legacy"></g>
                 </svg>
               </div>
               
