@@ -118,6 +118,280 @@ const SEASONS = {
   }
 };
 
+// ========================================
+// Daily Zen Quotes - 禅語 (Zengo)
+// ========================================
+
+const ZEN_QUOTES = [
+  // Classic Koans
+  { en: "Two hands clap and there is a sound. What is the sound of one hand?", ja: "両手を打てば音がする。では、片手の音は？", source: "Hakuin Ekaku" },
+  { en: "Before you were born, what was your original face?", ja: "父母未生以前、本来の面目は何か。", source: "Zen Koan" },
+  { en: "Does a dog have Buddha nature?", ja: "狗子に仏性ありや。", source: "Mumonkan" },
+  { en: "What is the color of wind?", ja: "風に色はあるか。", source: "Zen Koan" },
+  { en: "Where does the flame go when the candle is blown out?", ja: "ろうそくを吹き消したとき、炎はどこへ行くのか。", source: "Zen Koan" },
+  
+  // Zen Wisdom
+  { en: "The obstacle is the path.", ja: "障害こそが道である。", source: "Zen Proverb" },
+  { en: "Fall seven times, stand up eight.", ja: "七転び八起き。", source: "Japanese Proverb" },
+  { en: "In the beginner's mind there are many possibilities, but in the expert's mind there are few.", ja: "初心者の心には多くの可能性がある。達人の心には少ない。", source: "Shunryu Suzuki" },
+  { en: "When you reach the top of the mountain, keep climbing.", ja: "山頂に達しても、なお登り続けよ。", source: "Zen Proverb" },
+  { en: "The quieter you become, the more you can hear.", ja: "静かになればなるほど、より多くが聞こえる。", source: "Ram Dass" },
+  
+  // Morita Therapy Wisdom
+  { en: "Accept your feelings as they are. Then do what needs to be done.", ja: "感情をあるがままに受け入れ、なすべきことをなせ。", source: "Shoma Morita" },
+  { en: "Your anxiety is not your enemy. It is simply part of being human.", ja: "不安は敵ではない。人間であることの一部に過ぎない。", source: "Morita Therapy" },
+  { en: "Action brings courage, not the other way around.", ja: "行動が勇気をもたらす。その逆ではない。", source: "Morita Therapy" },
+  { en: "Feelings are like weather. Actions are like gardening.", ja: "感情は天気のよう。行動は園芸のよう。", source: "Morita Therapy" },
+  { en: "Purpose-driven action frees us from the tyranny of mood.", ja: "目的のある行動は、気分の支配から我々を解放する。", source: "Morita Therapy" },
+  
+  // Naikan Wisdom
+  { en: "What have I received? What have I given? What troubles have I caused?", ja: "何をもらったか。何を返したか。どんな迷惑をかけたか。", source: "Naikan" },
+  { en: "Gratitude is not just a feeling, it is a way of seeing.", ja: "感謝は単なる感情ではない。ものの見方である。", source: "Naikan" },
+  { en: "When we truly examine our lives, we find we have received far more than we have given.", ja: "人生を真に見つめると、与えた以上に受け取ってきたことに気づく。", source: "Naikan" },
+  
+  // Wabi-Sabi & Kintsugi
+  { en: "Nothing lasts, nothing is finished, and nothing is perfect.", ja: "永遠のものはなく、完成されたものはなく、完璧なものはない。", source: "Wabi-sabi" },
+  { en: "Your cracks are where the light enters.", ja: "ひび割れは、光が入る場所である。", source: "Kintsugi Philosophy" },
+  { en: "Beauty is found in imperfection.", ja: "美は不完全さの中にある。", source: "Wabi-sabi" },
+  { en: "The broken vessel, repaired with gold, becomes more beautiful than before.", ja: "金で修復された器は、以前より美しくなる。", source: "Kintsugi" },
+  
+  // Japanese Proverbs
+  { en: "Even dust, when accumulated, becomes a mountain.", ja: "塵も積もれば山となる。", source: "Japanese Proverb" },
+  { en: "The nail that sticks out gets hammered down, but the bamboo that bends survives the storm.", ja: "出る杭は打たれるが、しなる竹は嵐を生き延びる。", source: "Japanese Wisdom" },
+  { en: "If you chase two rabbits, you will catch neither.", ja: "二兎を追う者は一兎をも得ず。", source: "Japanese Proverb" },
+  { en: "One who climbs Mount Fuji once is wise; one who climbs twice is a fool.", ja: "富士山に一度登る者は賢者、二度登る者は愚者。", source: "Japanese Proverb" },
+  { en: "A frog in a well knows nothing of the great ocean.", ja: "井の中の蛙大海を知らず。", source: "Japanese Proverb" },
+  
+  // Buddhist Wisdom
+  { en: "Peace comes from within. Do not seek it without.", ja: "平和は内から来る。外に求めるな。", source: "Buddha" },
+  { en: "The mind is everything. What you think, you become.", ja: "心がすべてである。思うことが、あなた自身になる。", source: "Buddha" },
+  { en: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", ja: "過去にとらわれず、未来を夢見ず、今この瞬間に心を集中せよ。", source: "Buddha" },
+  { en: "You yourself must strive. The Buddhas only point the way.", ja: "自ら努めよ。仏は道を示すのみ。", source: "Dhammapada" },
+  
+  // Daily Mindfulness
+  { en: "When walking, just walk. When eating, just eat.", ja: "歩くときは、ただ歩く。食べるときは、ただ食べる。", source: "Zen Teaching" },
+  { en: "Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.", ja: "悟りの前、薪を割り水を汲む。悟りの後、薪を割り水を汲む。", source: "Zen Proverb" },
+  { en: "Drink your tea slowly and reverently, as if it is the axis on which the whole earth revolves.", ja: "お茶をゆっくりと敬虔に飲め。それが地球が回る軸であるかのように。", source: "Thich Nhat Hanh" },
+  { en: "Wherever you are, be there totally.", ja: "どこにいても、完全にそこにいなさい。", source: "Eckhart Tolle" },
+  
+  // Acceptance & Flow
+  { en: "Let go, or be dragged.", ja: "手放すか、引きずられるか。", source: "Zen Proverb" },
+  { en: "Be like water: flexible, soft, yet capable of wearing away stone.", ja: "水のようであれ。柔軟で、柔らかく、それでいて石をも削る。", source: "Tao Te Ching" },
+  { en: "The river does not push; it just flows.", ja: "川は押さない。ただ流れる。", source: "Zen Wisdom" },
+  { en: "What the caterpillar calls the end, the rest of the world calls a butterfly.", ja: "毛虫が終わりと呼ぶものを、世界の残りは蝶と呼ぶ。", source: "Lao Tzu" },
+  
+  // Self-Compassion
+  { en: "You are not your thoughts. You are the awareness behind them.", ja: "あなたは思考ではない。その背後にある気づきである。", source: "Eckhart Tolle" },
+  { en: "Be kind, for everyone you meet is fighting a hard battle.", ja: "親切であれ。出会うすべての人が、困難な戦いをしているのだから。", source: "Attributed to Plato" },
+  { en: "The wound is the place where the light enters you.", ja: "傷は、光があなたに入る場所である。", source: "Rumi" },
+  
+  // Impermanence
+  { en: "This too shall pass.", ja: "これもまた過ぎ去る。", source: "Persian Adage" },
+  { en: "The only constant is change.", ja: "唯一の不変は変化である。", source: "Heraclitus" },
+  { en: "Every moment is a fresh beginning.", ja: "すべての瞬間が新しい始まりである。", source: "T.S. Eliot" },
+  { en: "Like the moon, come out from behind the clouds and shine.", ja: "月のように、雲の後ろから出て輝け。", source: "Buddha" },
+  
+  // Simplicity
+  { en: "Simplicity is the ultimate sophistication.", ja: "シンプルさは究極の洗練である。", source: "Leonardo da Vinci" },
+  { en: "Less is more.", ja: "少ないことは、より多いこと。", source: "Mies van der Rohe" },
+  { en: "The greatest wealth is a poverty of desires.", ja: "最大の富は、欲望の貧しさである。", source: "Seneca" },
+  { en: "Have nothing in your house that you do not know to be useful or believe to be beautiful.", ja: "役立つと知らないもの、美しいと信じないものは家に置くな。", source: "William Morris" }
+];
+
+// Get today's zen quote (same quote for everyone on the same day)
+function getDailyZenQuote() {
+  const today = new Date();
+  const startOfYear = new Date(today.getFullYear(), 0, 0);
+  const diff = today - startOfYear;
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const quoteIndex = dayOfYear % ZEN_QUOTES.length;
+  return ZEN_QUOTES[quoteIndex];
+}
+
+// Update daily zen quote display
+function updateDailyZenQuote(lang = 'en') {
+  const quoteEl = document.getElementById('daily-zen-quote');
+  const sourceEl = document.getElementById('daily-zen-source');
+  
+  if (!quoteEl) return;
+  
+  const quote = getDailyZenQuote();
+  quoteEl.textContent = `"${quote[lang]}"`;
+  if (sourceEl) {
+    sourceEl.textContent = `— ${quote.source}`;
+  }
+}
+
+// Share zen quote
+function shareZenQuote(lang = 'en') {
+  const quote = getDailyZenQuote();
+  const text = lang === 'en'
+    ? `"${quote.en}" — ${quote.source}\n\n#KintsugiMind #Zen #DailyWisdom`
+    : `「${quote.ja}」— ${quote.source}\n\n#KintsugiMind #禅語 #毎日の知恵`;
+  
+  const url = window.location.origin + '/?lang=' + lang;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: lang === 'en' ? "Today's Zen" : '今日の禅語',
+      text: text,
+      url: url
+    }).catch(() => {});
+  } else {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(text + '\n' + url).then(() => {
+      alert(lang === 'en' ? 'Copied to clipboard!' : 'クリップボードにコピーしました！');
+    });
+  }
+}
+
+// ========================================
+// Zen Quote Archive System
+// ========================================
+
+// Add category metadata to quotes
+const QUOTE_CATEGORIES = {
+  'Zen Koan': 'zen',
+  'Mumonkan': 'zen',
+  'Hakuin Ekaku': 'zen',
+  'Zen Proverb': 'zen',
+  'Zen Teaching': 'mindfulness',
+  'Zen Wisdom': 'zen',
+  'Shoma Morita': 'morita',
+  'Morita Therapy': 'morita',
+  'Naikan': 'naikan',
+  'Wabi-sabi': 'kintsugi',
+  'Kintsugi': 'kintsugi',
+  'Kintsugi Philosophy': 'kintsugi',
+  'Japanese Proverb': 'proverbs',
+  'Japanese Wisdom': 'proverbs',
+  'Buddha': 'buddhism',
+  'Dhammapada': 'buddhism',
+  'Thich Nhat Hanh': 'mindfulness',
+  'Eckhart Tolle': 'mindfulness',
+  'Ram Dass': 'mindfulness',
+  'Lao Tzu': 'mindfulness',
+  'Tao Te Ching': 'mindfulness',
+  'Rumi': 'mindfulness',
+  'Shunryu Suzuki': 'zen'
+};
+
+function getQuoteCategory(source) {
+  return QUOTE_CATEGORIES[source] || 'zen';
+}
+
+// Initialize zen archive page
+function initZenArchive(lang = 'en') {
+  const quotesGrid = document.getElementById('quotes-grid');
+  const todayQuoteText = document.getElementById('today-quote-text');
+  const todayQuoteSource = document.getElementById('today-quote-source');
+  const shareTodayBtn = document.getElementById('share-today-quote-btn');
+  
+  if (!quotesGrid) return;
+  
+  // Display today's quote
+  const todayQuote = getDailyZenQuote();
+  if (todayQuoteText) {
+    todayQuoteText.textContent = `"${todayQuote[lang]}"`;
+  }
+  if (todayQuoteSource) {
+    todayQuoteSource.textContent = `— ${todayQuote.source}`;
+  }
+  
+  // Share today's quote
+  if (shareTodayBtn) {
+    shareTodayBtn.addEventListener('click', () => shareZenQuote(lang));
+  }
+  
+  // Build quotes grid with categories
+  const enrichedQuotes = ZEN_QUOTES.map((quote, index) => ({
+    ...quote,
+    category: getQuoteCategory(quote.source),
+    index
+  }));
+  
+  function renderQuotes(category = 'all') {
+    const filtered = category === 'all' 
+      ? enrichedQuotes 
+      : enrichedQuotes.filter(q => q.category === category);
+    
+    quotesGrid.innerHTML = filtered.map(quote => `
+      <div class="quote-card bg-white/60 dark:bg-[#1e1e1e]/80 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow" data-category="${quote.category}">
+        <blockquote class="text-lg text-indigo-800 dark:text-[#e8e4dc] italic leading-relaxed mb-3">
+          "${quote[lang]}"
+        </blockquote>
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-ink-400 dark:text-[#78716c]">— ${quote.source}</p>
+          <button 
+            class="share-quote-btn p-2 rounded-full hover:bg-indigo-800/10 dark:hover:bg-gold/10 transition-colors"
+            data-index="${quote.index}"
+            title="${lang === 'en' ? 'Share' : 'シェア'}"
+          >
+            <svg class="w-4 h-4 text-indigo-700 dark:text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+    // Add share event listeners
+    quotesGrid.querySelectorAll('.share-quote-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const index = parseInt(btn.dataset.index);
+        shareSpecificQuote(index, lang);
+      });
+    });
+  }
+  
+  // Initial render
+  renderQuotes('all');
+  
+  // Category filter buttons
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Update active state
+      document.querySelectorAll('.category-btn').forEach(b => {
+        b.classList.remove('active', 'bg-indigo-800', 'text-white', 'dark:bg-gold', 'dark:text-black');
+        b.classList.add('bg-ink-200/50', 'dark:bg-[#2d2d2d]', 'text-ink-500', 'dark:text-[#a8a29e]');
+      });
+      btn.classList.add('active', 'bg-indigo-800', 'text-white', 'dark:bg-gold', 'dark:text-black');
+      btn.classList.remove('bg-ink-200/50', 'dark:bg-[#2d2d2d]', 'text-ink-500', 'dark:text-[#a8a29e]');
+      
+      // Filter quotes
+      renderQuotes(btn.dataset.category);
+    });
+  });
+}
+
+// Share a specific quote
+function shareSpecificQuote(index, lang = 'en') {
+  const quote = ZEN_QUOTES[index];
+  if (!quote) return;
+  
+  const text = lang === 'en'
+    ? `"${quote.en}" — ${quote.source}\n\n#KintsugiMind #Zen #DailyWisdom`
+    : `「${quote.ja}」— ${quote.source}\n\n#KintsugiMind #禅語 #毎日の知恵`;
+  
+  const url = window.location.origin + '/zen-archive?lang=' + lang;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: lang === 'en' ? 'Zen Wisdom' : '禅の知恵',
+      text: text,
+      url: url
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text + '\n' + url).then(() => {
+      alert(lang === 'en' ? 'Copied to clipboard!' : 'クリップボードにコピーしました！');
+    });
+  }
+}
+
+// ========================================
+// Seasonal System
+// ========================================
+
 // Get current season based on date
 function getCurrentSeason() {
   const month = new Date().getMonth() + 1; // 1-12
@@ -994,8 +1268,11 @@ function initProfile() {
   // Initialize notification settings
   initNotificationSettings(lang);
   
-  // Initialize check-in calendar
+  // Initialize check-in calendar (heatmap)
   initCheckinCalendar(lang);
+  
+  // Initialize emotion trend analysis
+  initEmotionTrend(lang);
   
   // Check sync status if logged in
   if (currentUser) {
@@ -1152,7 +1429,178 @@ function getCheckinsForMonth(year, month) {
   });
 }
 
-// Initialize check-in calendar
+// ========================================
+// Emotion Trend Analysis
+// ========================================
+
+// Get check-ins for last N days
+function getCheckinsForDays(days = 30) {
+  const history = loadCheckinHistory();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+  
+  return history.filter(h => new Date(h.date) >= startDate);
+}
+
+// Calculate emotion statistics
+function calculateEmotionStats(checkins) {
+  const stats = {
+    sunny: 0,
+    cloudy: 0,
+    rainy: 0,
+    stormy: 0,
+    total: 0
+  };
+  
+  checkins.forEach(c => {
+    if (c.weather && stats.hasOwnProperty(c.weather)) {
+      stats[c.weather]++;
+      stats.total++;
+    }
+  });
+  
+  return stats;
+}
+
+// Generate emotion insight message
+function generateEmotionInsight(stats, lang = 'en') {
+  if (stats.total === 0) {
+    return lang === 'en' 
+      ? 'Start tracking your emotions to see insights here.' 
+      : '感情を記録して、ここで気づきを得ましょう。';
+  }
+  
+  const positiveRatio = stats.sunny / stats.total;
+  const negativeRatio = (stats.rainy + stats.stormy) / stats.total;
+  
+  if (positiveRatio >= 0.6) {
+    const insights = {
+      en: [
+        "✨ You've been experiencing a lot of sunny days! Keep nurturing this positive energy.",
+        "🌟 Your emotional weather has been bright lately. What's been bringing you joy?",
+        "🎋 Like bamboo swaying in gentle breeze, you're finding balance and peace."
+      ],
+      ja: [
+        "✨ 晴れの日が多いですね！このポジティブなエネルギーを大切にしてください。",
+        "🌟 最近、心の天気が明るいです。何があなたに喜びをもたらしていますか？",
+        "🎋 そよ風に揺れる竹のように、バランスと平和を見つけています。"
+      ]
+    };
+    return insights[lang][Math.floor(Math.random() * insights[lang].length)];
+  } else if (negativeRatio >= 0.5) {
+    const insights = {
+      en: [
+        "🌿 Storms bring rain, and rain brings growth. You're building resilience.",
+        "🍵 Remember: even cloudy days have their beauty. Be gentle with yourself.",
+        "🪷 Like kintsugi, difficult times can lead to golden transformations."
+      ],
+      ja: [
+        "🌿 嵐は雨をもたらし、雨は成長をもたらす。あなたは回復力を築いています。",
+        "🍵 曇りの日にも美しさがあることを忘れないで。自分に優しくしてください。",
+        "🪷 金継ぎのように、困難な時期は黄金の変容につながることがあります。"
+      ]
+    };
+    return insights[lang][Math.floor(Math.random() * insights[lang].length)];
+  } else {
+    const insights = {
+      en: [
+        "🌈 Your emotional landscape shows beautiful variety, like the changing seasons.",
+        "🎐 Life flows through all weathers. You're embracing the full spectrum.",
+        "🌸 Like nature, your emotions cycle through different phases naturally."
+      ],
+      ja: [
+        "🌈 移り変わる季節のように、感情の風景に美しい多様性があります。",
+        "🎐 人生はすべての天気を通って流れます。全ての感情を受け入れています。",
+        "🌸 自然のように、感情は異なる段階を自然に循環しています。"
+      ]
+    };
+    return insights[lang][Math.floor(Math.random() * insights[lang].length)];
+  }
+}
+
+// Initialize emotion trend display
+function initEmotionTrend(lang = 'en') {
+  const distributionBar = document.getElementById('emotion-distribution');
+  const insightEl = document.getElementById('emotion-insight');
+  const shareBtn = document.getElementById('share-emotion-trend-btn');
+  
+  if (!distributionBar) return;
+  
+  // Get last 30 days of check-ins
+  const checkins = getCheckinsForDays(30);
+  const stats = calculateEmotionStats(checkins);
+  
+  // Update counts
+  ['sunny', 'cloudy', 'rainy', 'stormy'].forEach(weather => {
+    const el = document.getElementById(`emotion-${weather}-count`);
+    if (el) el.textContent = stats[weather];
+  });
+  
+  // Update distribution bar
+  if (stats.total > 0) {
+    const colors = {
+      sunny: 'bg-amber-400',
+      cloudy: 'bg-sky-400',
+      rainy: 'bg-blue-500',
+      stormy: 'bg-purple-500'
+    };
+    
+    distributionBar.innerHTML = ['sunny', 'cloudy', 'rainy', 'stormy']
+      .filter(w => stats[w] > 0)
+      .map(w => {
+        const percent = (stats[w] / stats.total) * 100;
+        return `<div class="${colors[w]} transition-all duration-500" style="width: ${percent}%" title="${w}: ${stats[w]}"></div>`;
+      })
+      .join('');
+  }
+  
+  // Update insight
+  if (insightEl) {
+    const insight = generateEmotionInsight(stats, lang);
+    insightEl.innerHTML = `<p class="text-sm text-indigo-800 dark:text-[#e8e4dc] italic">${insight}</p>`;
+  }
+  
+  // Share functionality
+  if (shareBtn) {
+    shareBtn.addEventListener('click', () => shareEmotionTrend(stats, lang));
+  }
+}
+
+// Share emotion trend
+function shareEmotionTrend(stats, lang = 'en') {
+  const total = stats.total;
+  if (total === 0) {
+    alert(lang === 'en' ? 'Start tracking emotions to share your journey!' : '感情を記録してからシェアしましょう！');
+    return;
+  }
+  
+  const percentages = {
+    sunny: Math.round((stats.sunny / total) * 100),
+    cloudy: Math.round((stats.cloudy / total) * 100),
+    rainy: Math.round((stats.rainy / total) * 100),
+    stormy: Math.round((stats.stormy / total) * 100)
+  };
+  
+  const text = lang === 'en'
+    ? `My emotion journey this month 🪷\n\n☀️ Sunny: ${percentages.sunny}%\n⛅ Cloudy: ${percentages.cloudy}%\n🌧️ Rainy: ${percentages.rainy}%\n⛈️ Stormy: ${percentages.stormy}%\n\nTracking my mental wellness with #KintsugiMind ✨`
+    : `今月の心の天気 🪷\n\n☀️ 晴れ: ${percentages.sunny}%\n⛅ 曇り: ${percentages.cloudy}%\n🌧️ 雨: ${percentages.rainy}%\n⛈️ 嵐: ${percentages.stormy}%\n\n#KintsugiMind で心の健康を記録中 ✨`;
+  
+  const url = window.location.origin + '/profile?lang=' + lang;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: lang === 'en' ? 'My Emotion Journey' : '心の天気レポート',
+      text: text,
+      url: url
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text + '\n' + url).then(() => {
+      alert(lang === 'en' ? 'Copied to clipboard!' : 'クリップボードにコピーしました！');
+    });
+  }
+}
+
+// Initialize check-in calendar with heatmap
 function initCheckinCalendar(lang) {
   const calendarGrid = document.getElementById('calendar-grid');
   const monthLabel = document.getElementById('calendar-month');
@@ -1229,6 +1677,14 @@ function initCheckinCalendar(lang) {
       calendarGrid.appendChild(emptyCell);
     }
     
+    // Heatmap colors for different weather types
+    const heatmapColors = {
+      sunny: 'bg-amber-300 dark:bg-amber-500/80',
+      cloudy: 'bg-sky-300 dark:bg-sky-500/80',
+      rainy: 'bg-blue-400 dark:bg-blue-500/80',
+      stormy: 'bg-purple-400 dark:bg-purple-500/80'
+    };
+    
     // Add day cells
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -1237,31 +1693,43 @@ function initCheckinCalendar(lang) {
       const isFuture = new Date(dateStr) > new Date();
       
       const cell = document.createElement('div');
+      
+      // Determine background color based on weather
+      let bgColor = 'bg-ecru-100/50 dark:bg-[#252525]';
+      if (checkin && checkin.weather && heatmapColors[checkin.weather]) {
+        bgColor = heatmapColors[checkin.weather];
+      } else if (checkin) {
+        bgColor = 'bg-gold/30 dark:bg-gold/40'; // Default for unknown weather
+      }
+      
       cell.className = `
         aspect-square flex flex-col items-center justify-center rounded-lg text-xs
-        ${isToday ? 'ring-2 ring-gold ring-offset-1' : ''}
-        ${isFuture ? 'text-ink-300 dark:text-[#4a4a4a]' : 'text-ink-600 dark:text-[#a8a29e]'}
-        ${checkin ? 'bg-ecru-100 dark:bg-[#2d2d2d]' : 'hover:bg-ecru-50 dark:hover:bg-[#252525]'}
-        transition-colors cursor-default
+        ${isToday ? 'ring-2 ring-gold ring-offset-1 dark:ring-offset-[#1e1e1e]' : ''}
+        ${isFuture ? 'opacity-40' : ''}
+        ${bgColor}
+        ${!checkin && !isFuture ? 'hover:bg-ecru-200/70 dark:hover:bg-[#353535]' : ''}
+        transition-all duration-200 cursor-default
+        ${checkin ? 'shadow-sm hover:shadow-md hover:scale-105' : ''}
       `;
       
       // Day number
       const daySpan = document.createElement('span');
-      daySpan.className = `text-[10px] ${isToday ? 'font-bold text-gold' : ''}`;
+      daySpan.className = `text-[10px] font-medium ${isToday ? 'text-gold' : checkin ? 'text-white dark:text-white drop-shadow-sm' : 'text-ink-500 dark:text-[#78716c]'}`;
       daySpan.textContent = day;
       cell.appendChild(daySpan);
       
       // Weather emoji if checked in
       if (checkin) {
         const weatherSpan = document.createElement('span');
-        weatherSpan.className = 'text-sm leading-none mt-0.5';
+        weatherSpan.className = 'text-base leading-none mt-0.5 drop-shadow-sm';
         weatherSpan.textContent = WEATHER_EMOJIS[checkin.weather] || '✓';
         cell.appendChild(weatherSpan);
         
         // Tooltip with note if available
-        if (checkin.note) {
-          cell.title = checkin.note;
-        }
+        const weatherNames = { sunny: '晴れ', cloudy: '曇り', rainy: '雨', stormy: '嵐' };
+        const weatherNameEn = { sunny: 'Sunny', cloudy: 'Cloudy', rainy: 'Rainy', stormy: 'Stormy' };
+        const weatherLabel = lang === 'ja' ? weatherNames[checkin.weather] : weatherNameEn[checkin.weather];
+        cell.title = checkin.note ? `${weatherLabel}: ${checkin.note}` : weatherLabel || '';
       }
       
       calendarGrid.appendChild(cell);
@@ -3292,6 +3760,13 @@ function goToStep(step) {
         }
       }, 500);
     }
+    
+    // Initialize vessel quiz on step 4
+    if (step === 4) {
+      setTimeout(() => {
+        initVesselQuiz(getLang());
+      }, 400);
+    }
   }
 }
 
@@ -3332,6 +3807,325 @@ function selectVessel(vesselId) {
   if (navigator.vibrate) {
     navigator.vibrate(10);
   }
+}
+
+// ========================================
+// Vessel Diagnosis Quiz System
+// ========================================
+
+const VESSEL_QUIZ = {
+  questions: [
+    {
+      en: "When facing a challenge, you prefer to...",
+      ja: "困難に直面したとき、あなたは...",
+      answers: [
+        { en: "Take immediate action and solve it", ja: "すぐに行動して解決する", vessels: ['hachi', 'tsubo'] },
+        { en: "Reflect deeply before responding", ja: "深く考えてから対応する", vessels: ['chawan', 'sara'] },
+        { en: "Stay calm and wait for the right moment", ja: "静かに待ち、適切な時を待つ", vessels: ['tokkuri', 'chawan'] },
+        { en: "Seek guidance from others", ja: "他者の助言を求める", vessels: ['sara', 'hachi'] }
+      ]
+    },
+    {
+      en: "What resonates most with your heart?",
+      ja: "あなたの心に最も響くものは？",
+      answers: [
+        { en: "The warmth of everyday moments", ja: "日常の何気ない温もり", vessels: ['chawan', 'chawan'] },
+        { en: "The depth of silent contemplation", ja: "静かな瞑想の深み", vessels: ['tsubo', 'tokkuri'] },
+        { en: "The openness of sharing with others", ja: "他者と分かち合う開放感", vessels: ['sara', 'sara'] },
+        { en: "The quiet strength of endurance", ja: "耐え忍ぶ静かな強さ", vessels: ['tokkuri', 'tsubo'] },
+        { en: "The joy of nurturing growth", ja: "成長を育む喜び", vessels: ['hachi', 'hachi'] }
+      ]
+    },
+    {
+      en: "In relationships, you value most...",
+      ja: "人間関係で最も大切にしていること...",
+      answers: [
+        { en: "Creating comfortable, welcoming spaces", ja: "心地よく迎え入れる空間を作る", vessels: ['chawan', 'sara'] },
+        { en: "Holding space for others' emotions", ja: "他者の感情を受け止める", vessels: ['tsubo', 'hachi'] },
+        { en: "Being a steady, reliable presence", ja: "安定した頼れる存在である", vessels: ['tokkuri', 'tsubo'] },
+        { en: "Encouraging and supporting growth", ja: "成長を励まし支える", vessels: ['hachi', 'chawan'] }
+      ]
+    },
+    {
+      en: "When you feel broken, you...",
+      ja: "心が折れそうなとき、あなたは...",
+      answers: [
+        { en: "Find comfort in simple daily rituals", ja: "シンプルな日課に癒しを見出す", vessels: ['chawan', 'chawan'] },
+        { en: "Go inward and process silently", ja: "内面に向き合い静かに処理する", vessels: ['tsubo', 'tokkuri'] },
+        { en: "Reach out and connect with others", ja: "他者とつながりを求める", vessels: ['sara', 'hachi'] },
+        { en: "Transform pain into purpose", ja: "痛みを目的に変える", vessels: ['tokkuri', 'hachi'] }
+      ]
+    },
+    {
+      en: "Your ideal form of self-care is...",
+      ja: "理想的なセルフケアの形は...",
+      answers: [
+        { en: "A quiet cup of tea", ja: "静かなお茶の時間", vessels: ['chawan', 'chawan', 'tokkuri'] },
+        { en: "Journaling or meditation", ja: "日記や瞑想", vessels: ['tsubo', 'tsubo', 'tokkuri'] },
+        { en: "Sharing a meal with loved ones", ja: "大切な人との食事", vessels: ['sara', 'sara', 'hachi'] },
+        { en: "Tending to plants or creating", ja: "植物の世話や創作活動", vessels: ['hachi', 'hachi', 'chawan'] }
+      ]
+    }
+  ],
+  
+  vesselData: {
+    chawan: {
+      emoji: '🍵',
+      name: { en: 'Tea Bowl', ja: '茶碗' },
+      tagline: { en: 'Everyday Warmth', ja: '日常の温もり' },
+      description: {
+        en: 'Like the tea bowl, you find beauty in simplicity and everyday moments. Your warmth creates a safe space for others, and you understand that the most profound healing happens in small, gentle moments. Your quiet presence is a gift.',
+        ja: '茶碗のように、あなたはシンプルさと日常の瞬間に美しさを見出します。あなたの温かさは他者にとって安全な場所を作り、最も深い癒しは小さく優しい瞬間に起こることを理解しています。あなたの静かな存在は贈り物です。'
+      },
+      traits: [
+        { icon: '🌿', en: 'Grounded', ja: '落ち着き' },
+        { icon: '💫', en: 'Warm', ja: '温かさ' },
+        { icon: '🍃', en: 'Mindful', ja: '気づき' }
+      ]
+    },
+    tsubo: {
+      emoji: '🏺',
+      name: { en: 'Jar', ja: '壺' },
+      tagline: { en: 'Deep Capacity', ja: '深い包容力' },
+      description: {
+        en: 'Like the ancient jar, you have depth and capacity that others may not see at first. You hold experiences, emotions, and wisdom within you, slowly fermenting them into something valuable. Your patience and depth are rare treasures.',
+        ja: '古い壺のように、あなたには最初は見えないかもしれない深さと包容力があります。経験、感情、知恵を内に秘め、ゆっくりと価値あるものへと醸成させます。あなたの忍耐と深さは稀有な宝物です。'
+      },
+      traits: [
+        { icon: '🌊', en: 'Deep', ja: '深遠' },
+        { icon: '⏳', en: 'Patient', ja: '忍耐' },
+        { icon: '🔮', en: 'Wise', ja: '知恵' }
+      ]
+    },
+    sara: {
+      emoji: '🍽️',
+      name: { en: 'Plate', ja: '皿' },
+      tagline: { en: 'Open Acceptance', ja: '開かれた受容' },
+      description: {
+        en: 'Like the plate, you are open and generous with your space. You naturally bring people together and create opportunities for sharing. Your openness invites connection, and you find joy in offering what you have to others.',
+        ja: '皿のように、あなたは自分の空間に対してオープンで寛大です。自然と人々を集め、分かち合いの機会を作ります。あなたの開放性はつながりを招き、自分の持っているものを他者に提供する喜びを見出します。'
+      },
+      traits: [
+        { icon: '🤝', en: 'Generous', ja: '寛大' },
+        { icon: '🌸', en: 'Open', ja: '開放的' },
+        { icon: '🎁', en: 'Giving', ja: '与える' }
+      ]
+    },
+    tokkuri: {
+      emoji: '🍶',
+      name: { en: 'Sake Bottle', ja: '徳利' },
+      tagline: { en: 'Quiet Strength', ja: '静かな強さ' },
+      description: {
+        en: 'Like the sake bottle, you possess quiet strength and refined elegance. You pour yourself carefully and meaningfully, knowing the value of what you offer. Your measured presence brings quality over quantity to every interaction.',
+        ja: '徳利のように、あなたは静かな強さと洗練されたエレガンスを持っています。自分が提供するものの価値を知り、慎重に意味を込めて注ぎます。あらゆる交流に量より質をもたらす、節度ある存在感です。'
+      },
+      traits: [
+        { icon: '🎯', en: 'Focused', ja: '集中' },
+        { icon: '✨', en: 'Refined', ja: '洗練' },
+        { icon: '💎', en: 'Purposeful', ja: '目的' }
+      ]
+    },
+    hachi: {
+      emoji: '🥣',
+      name: { en: 'Bowl', ja: '鉢' },
+      tagline: { en: 'Nurturing Spirit', ja: '育む心' },
+      description: {
+        en: 'Like the nurturing bowl, you are naturally caring and supportive. You hold space for growth and nourishment, whether for yourself or others. Your practical warmth and steady support help things flourish around you.',
+        ja: '育みの鉢のように、あなたは自然と思いやりがあり支えとなります。自分自身や他者のために、成長と栄養のための空間を保ちます。あなたの実際的な温かさと安定したサポートが、周囲のものを育てます。'
+      },
+      traits: [
+        { icon: '🌱', en: 'Nurturing', ja: '育成' },
+        { icon: '💚', en: 'Caring', ja: '思いやり' },
+        { icon: '🏠', en: 'Supportive', ja: 'サポート' }
+      ]
+    }
+  }
+};
+
+let quizCurrentQuestion = 0;
+let quizAnswers = [];
+
+// Initialize vessel diagnosis quiz
+function initVesselQuiz(lang = 'en') {
+  quizCurrentQuestion = 0;
+  quizAnswers = [];
+  
+  // Reset UI
+  document.getElementById('vessel-quiz-view')?.classList.remove('hidden');
+  document.getElementById('vessel-result-view')?.classList.add('hidden');
+  
+  renderQuizQuestion(lang);
+}
+
+// Render current quiz question
+function renderQuizQuestion(lang = 'en') {
+  const question = VESSEL_QUIZ.questions[quizCurrentQuestion];
+  if (!question) return;
+  
+  const questionEl = document.getElementById('quiz-question');
+  const answersEl = document.getElementById('quiz-answers');
+  const progressText = document.getElementById('quiz-progress-text');
+  const progressPercent = document.getElementById('quiz-progress-percent');
+  const progressBar = document.getElementById('quiz-progress-bar');
+  
+  if (!questionEl || !answersEl) return;
+  
+  // Update progress
+  const progress = (quizCurrentQuestion / VESSEL_QUIZ.questions.length) * 100;
+  if (progressText) {
+    progressText.textContent = lang === 'ja' 
+      ? `質問 ${quizCurrentQuestion + 1}/${VESSEL_QUIZ.questions.length}`
+      : `Question ${quizCurrentQuestion + 1} of ${VESSEL_QUIZ.questions.length}`;
+  }
+  if (progressPercent) progressPercent.textContent = `${Math.round(progress)}%`;
+  if (progressBar) progressBar.style.width = `${progress}%`;
+  
+  // Update question
+  questionEl.textContent = question[lang];
+  
+  // Render answers
+  answersEl.innerHTML = question.answers.map((answer, index) => `
+    <button 
+      onclick="selectQuizAnswer(${index})"
+      class="w-full p-4 text-left bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md hover:border-gold/50 border-2 border-transparent transition-all duration-300"
+    >
+      <span class="text-indigo-800 dark:text-[#e8e4dc]">${answer[lang]}</span>
+    </button>
+  `).join('');
+}
+
+// Handle quiz answer selection
+function selectQuizAnswer(answerIndex) {
+  const question = VESSEL_QUIZ.questions[quizCurrentQuestion];
+  if (!question) return;
+  
+  // Store the vessels associated with this answer
+  quizAnswers.push(...question.answers[answerIndex].vessels);
+  
+  // Haptic feedback
+  if (navigator.vibrate) navigator.vibrate(10);
+  
+  quizCurrentQuestion++;
+  
+  if (quizCurrentQuestion >= VESSEL_QUIZ.questions.length) {
+    // Show results
+    showQuizResults();
+  } else {
+    // Next question
+    renderQuizQuestion(getLang());
+  }
+}
+
+// Calculate and show quiz results
+function showQuizResults() {
+  const lang = getLang();
+  
+  // Count vessel mentions
+  const vesselCounts = {};
+  quizAnswers.forEach(v => {
+    vesselCounts[v] = (vesselCounts[v] || 0) + 1;
+  });
+  
+  // Find the most mentioned vessel
+  let maxCount = 0;
+  let resultVessel = 'chawan';
+  Object.entries(vesselCounts).forEach(([vessel, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      resultVessel = vessel;
+    }
+  });
+  
+  // Save result
+  selectedVessel = resultVessel;
+  
+  // Get vessel data
+  const vesselData = VESSEL_QUIZ.vesselData[resultVessel];
+  
+  // Update result UI
+  document.getElementById('result-vessel-emoji').textContent = vesselData.emoji;
+  document.getElementById('result-vessel-name').textContent = vesselData.name[lang];
+  document.getElementById('result-vessel-tagline').textContent = vesselData.tagline[lang];
+  document.getElementById('result-description').textContent = vesselData.description[lang];
+  
+  // Update traits
+  vesselData.traits.forEach((trait, i) => {
+    document.getElementById(`trait-${i + 1}-icon`).textContent = trait.icon;
+    document.getElementById(`trait-${i + 1}-text`).textContent = trait[lang];
+  });
+  
+  // Show result view
+  document.getElementById('vessel-quiz-view')?.classList.add('hidden');
+  document.getElementById('vessel-result-view')?.classList.remove('hidden');
+  
+  // Update progress to 100%
+  const progressBar = document.getElementById('quiz-progress-bar');
+  if (progressBar) progressBar.style.width = '100%';
+  
+  // Setup share button
+  const shareBtn = document.getElementById('share-result-btn');
+  if (shareBtn) {
+    shareBtn.onclick = () => shareVesselResult(resultVessel, lang);
+  }
+  
+  // Setup retake button
+  const retakeBtn = document.getElementById('retake-quiz-btn');
+  if (retakeBtn) {
+    retakeBtn.onclick = () => initVesselQuiz(lang);
+  }
+}
+
+// Share vessel diagnosis result
+function shareVesselResult(vesselId, lang = 'en') {
+  const vesselData = VESSEL_QUIZ.vesselData[vesselId];
+  if (!vesselData) return;
+  
+  const text = lang === 'en'
+    ? `My vessel is ${vesselData.emoji} ${vesselData.name.en} — ${vesselData.tagline.en}\n\n${vesselData.traits.map(t => `${t.icon} ${t.en}`).join(' | ')}\n\nDiscover your vessel at #KintsugiMind ✨`
+    : `私の器は ${vesselData.emoji} ${vesselData.name.ja} — ${vesselData.tagline.ja}\n\n${vesselData.traits.map(t => `${t.icon} ${t.ja}`).join(' | ')}\n\n#KintsugiMind で自分の器を見つけよう ✨`;
+  
+  const url = window.location.origin + '/welcome?lang=' + lang;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: lang === 'en' ? 'My Kintsugi Vessel' : '私の金継ぎの器',
+      text: text,
+      url: url
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text + '\n' + url).then(() => {
+      alert(lang === 'en' ? 'Copied to clipboard!' : 'クリップボードにコピーしました！');
+    });
+  }
+}
+
+// Direct vessel selection (skip quiz)
+function selectVesselDirect(vesselId) {
+  selectedVessel = vesselId;
+  const lang = getLang();
+  
+  // Show result for directly selected vessel
+  const vesselData = VESSEL_QUIZ.vesselData[vesselId];
+  
+  document.getElementById('result-vessel-emoji').textContent = vesselData.emoji;
+  document.getElementById('result-vessel-name').textContent = vesselData.name[lang];
+  document.getElementById('result-vessel-tagline').textContent = vesselData.tagline[lang];
+  document.getElementById('result-description').textContent = vesselData.description[lang];
+  
+  vesselData.traits.forEach((trait, i) => {
+    document.getElementById(`trait-${i + 1}-icon`).textContent = trait.icon;
+    document.getElementById(`trait-${i + 1}-text`).textContent = trait[lang];
+  });
+  
+  document.getElementById('vessel-quiz-view')?.classList.add('hidden');
+  document.getElementById('vessel-result-view')?.classList.remove('hidden');
+  
+  const shareBtn = document.getElementById('share-result-btn');
+  if (shareBtn) {
+    shareBtn.onclick = () => shareVesselResult(vesselId, lang);
+  }
+  
+  if (navigator.vibrate) navigator.vibrate(10);
 }
 
 // Complete onboarding
@@ -3476,6 +4270,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update seasonal greetings and messages
     const lang = getLang();
     updateSeasonalElements(lang);
+    
+    // Update daily zen quote
+    updateDailyZenQuote(lang);
+    
+    // Initialize zen quote share button
+    const shareZenBtn = document.getElementById('share-zen-btn');
+    if (shareZenBtn) {
+      shareZenBtn.addEventListener('click', () => shareZenQuote(lang));
+    }
     
     // Update challenge progress mini display
     updateChallengeMini();

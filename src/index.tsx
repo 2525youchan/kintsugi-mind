@@ -476,48 +476,132 @@ app.get('/welcome', (c) => {
           </div>
         </div>
 
-        {/* Step 4: Choose Your Vessel */}
+        {/* Step 4: Vessel Diagnosis Quiz */}
         <div id="onboarding-step-4" class="onboarding-step absolute inset-0 flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-700 overflow-y-auto">
           <div class="max-w-2xl text-center py-8">
-            <h2 class="text-3xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-4">
-              {lang === 'en' ? 'Choose Your Vessel' : 'あなたの器を選んでください'}
-            </h2>
-            <p class="text-ink-600 dark:text-[#a8a29e] mb-8">
-              {lang === 'en'
-                ? 'This vessel represents you. It will grow more beautiful with each crack repaired.'
-                : 'この器はあなた自身を表します。修復されるたびに、より美しくなります。'}
-            </p>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
-              {vessels.map(v => (
-                <button 
-                  data-vessel={v.id}
-                  onclick={`selectVessel('${v.id}')`}
-                  class="vessel-option bg-white/60 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-xl p-4 shadow-wabi hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-gold/50 focus:border-gold"
-                >
-                  <div class="text-4xl mb-2">{v.emoji}</div>
-                  <h3 class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{v.name}</h3>
-                  <p class="text-xs text-ink-500 dark:text-[#78716c]">{v.description}</p>
-                </button>
-              ))}
-            </div>
-            <div id="vessel-confirm" class="hidden">
-              <p class="text-gold mb-4" id="selected-vessel-text">
-                {lang === 'en' ? 'You have chosen: ' : '選択した器：'}
-                <span id="selected-vessel-name" class="font-medium"></span>
+            {/* Quiz View */}
+            <div id="vessel-quiz-view">
+              <h2 class="text-3xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-2">
+                {lang === 'en' ? 'Discover Your Vessel' : 'あなたの器を診断'}
+              </h2>
+              <p class="text-ink-600 dark:text-[#a8a29e] mb-6">
+                {lang === 'en'
+                  ? 'Answer 5 questions to find the vessel that resonates with your spirit.'
+                  : '5つの質問に答えて、あなたの心に響く器を見つけましょう。'}
               </p>
-              <div class="flex justify-center gap-4">
+              
+              {/* Progress Bar */}
+              <div class="mb-6">
+                <div class="flex justify-between text-xs text-ink-400 dark:text-[#78716c] mb-1">
+                  <span id="quiz-progress-text">{lang === 'en' ? 'Question 1 of 5' : '質問 1/5'}</span>
+                  <span id="quiz-progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-ecru-200 dark:bg-[#2d2d2d] rounded-full h-2 overflow-hidden">
+                  <div id="quiz-progress-bar" class="h-full bg-gold rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+              
+              {/* Question Container */}
+              <div id="quiz-question-container" class="min-h-[300px]">
+                <p id="quiz-question" class="text-xl text-indigo-800 dark:text-[#e8e4dc] mb-6 leading-relaxed">
+                  {/* Question will be populated by JS */}
+                </p>
+                <div id="quiz-answers" class="space-y-3">
+                  {/* Answers will be populated by JS */}
+                </div>
+              </div>
+              
+              {/* Back button for quiz */}
+              <div class="mt-6 flex justify-center gap-4">
                 <button 
                   onclick="goToStep(3)"
                   class="px-6 py-3 border border-indigo-300 dark:border-[#4a4a4a] text-indigo-800 dark:text-[#a8a29e] rounded-full hover:bg-indigo-50 dark:hover:bg-[#1e1e1e] transition-colors"
                 >
                   {lang === 'en' ? 'Back' : '戻る'}
                 </button>
+              </div>
+            </div>
+            
+            {/* Result View (hidden initially) */}
+            <div id="vessel-result-view" class="hidden">
+              <div class="mb-6">
+                <p class="text-gold text-sm mb-2">{lang === 'en' ? 'Your Vessel Is...' : 'あなたの器は...'}</p>
+                <div id="result-vessel-emoji" class="text-8xl mb-4 animate-float">🍵</div>
+                <h2 id="result-vessel-name" class="text-4xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-2">茶碗</h2>
+                <p id="result-vessel-tagline" class="text-gold text-lg">{lang === 'en' ? 'Everyday Warmth' : '日常の温もり'}</p>
+              </div>
+              
+              {/* Result Card (shareable) */}
+              <div id="result-card" class="bg-gradient-to-br from-indigo-800/10 to-gold/20 dark:from-[#1e3a5f]/50 dark:to-gold/30 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gold/30 mb-6">
+                <p id="result-description" class="text-ink-600 dark:text-[#a8a29e] text-sm leading-relaxed mb-4">
+                  {/* Description will be populated by JS */}
+                </p>
+                
+                {/* Personality Traits */}
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                  <div class="text-center p-2 bg-white/50 dark:bg-[#1e1e1e]/50 rounded-lg">
+                    <span id="trait-1-icon" class="text-xl">🌿</span>
+                    <p id="trait-1-text" class="text-xs text-ink-500 dark:text-[#78716c] mt-1">{lang === 'en' ? 'Grounded' : '落ち着き'}</p>
+                  </div>
+                  <div class="text-center p-2 bg-white/50 dark:bg-[#1e1e1e]/50 rounded-lg">
+                    <span id="trait-2-icon" class="text-xl">💫</span>
+                    <p id="trait-2-text" class="text-xs text-ink-500 dark:text-[#78716c] mt-1">{lang === 'en' ? 'Warm' : '温かさ'}</p>
+                  </div>
+                  <div class="text-center p-2 bg-white/50 dark:bg-[#1e1e1e]/50 rounded-lg">
+                    <span id="trait-3-icon" class="text-xl">🍃</span>
+                    <p id="trait-3-text" class="text-xs text-ink-500 dark:text-[#78716c] mt-1">{lang === 'en' ? 'Mindful' : '気づき'}</p>
+                  </div>
+                </div>
+                
+                <p class="text-xs text-ink-400 dark:text-[#78716c] text-center">
+                  {lang === 'en' ? 'KINTSUGI MIND — Vessel Diagnosis' : 'KINTSUGI MIND — 器診断'}
+                </p>
+              </div>
+              
+              {/* Action Buttons */}
+              <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <button 
+                  id="share-result-btn"
+                  class="px-6 py-3 border border-gold text-gold rounded-full hover:bg-gold/10 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                  </svg>
+                  {lang === 'en' ? 'Share Result' : '結果をシェア'}
+                </button>
                 <button 
                   onclick="completeOnboarding()"
-                  class="px-8 py-4 bg-gold text-ink rounded-full hover:bg-gold-400 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  class="px-8 py-3 bg-gold text-ink rounded-full hover:bg-gold-400 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
                   {lang === 'en' ? 'Enter the Tea House' : '茶室へ入る'}
                 </button>
+              </div>
+              
+              {/* Retake Quiz */}
+              <button 
+                id="retake-quiz-btn"
+                class="mt-4 text-sm text-ink-400 dark:text-[#78716c] hover:text-indigo-600 dark:hover:text-gold transition-colors"
+              >
+                {lang === 'en' ? '↻ Take quiz again' : '↻ もう一度診断する'}
+              </button>
+            </div>
+            
+            {/* Direct Selection Option (hidden initially) */}
+            <div id="vessel-direct-select" class="hidden">
+              <p class="text-ink-500 dark:text-[#78716c] text-sm mb-4">
+                {lang === 'en' ? 'Or choose directly:' : 'または直接選ぶ:'}
+              </p>
+              <div class="grid grid-cols-5 gap-2 mb-6">
+                {vessels.map(v => (
+                  <button 
+                    data-vessel={v.id}
+                    onclick={`selectVesselDirect('${v.id}')`}
+                    class="vessel-option-mini bg-white/60 dark:bg-[#1e1e1e]/80 rounded-xl p-3 hover:border-gold border-2 border-transparent transition-all"
+                    title={v.name}
+                  >
+                    <div class="text-2xl">{v.emoji}</div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -582,6 +666,44 @@ app.get('/', (c) => {
               <WeatherIcon type="cloudy" currentLang={lang} />
               <WeatherIcon type="rainy" currentLang={lang} />
               <WeatherIcon type="stormy" currentLang={lang} />
+            </div>
+          </div>
+          
+          {/* Daily Zen Quote Section */}
+          <div class="mt-12 max-w-lg mx-auto animate-slide-up" style="animation-delay: 0.6s">
+            <div class="bg-gradient-to-br from-indigo-800/10 to-gold/10 dark:from-[#1e3a5f]/30 dark:to-gold/20 backdrop-blur-sm rounded-2xl p-6 shadow-wabi border border-indigo-800/10 dark:border-gold/20">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-2xl">🪷</span>
+                  <span class="text-sm font-medium text-indigo-700 dark:text-[#d4af37]">
+                    {lang === 'en' ? "Today's Zen" : '今日の禅語'}
+                  </span>
+                </div>
+                <button 
+                  id="share-zen-btn"
+                  class="p-2 rounded-full hover:bg-indigo-800/10 dark:hover:bg-gold/10 transition-colors group"
+                  title={lang === 'en' ? 'Share' : 'シェア'}
+                >
+                  <svg class="w-5 h-5 text-indigo-700 dark:text-[#d4af37] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                  </svg>
+                </button>
+              </div>
+              <blockquote id="daily-zen-quote" class="text-lg md:text-xl text-indigo-800 dark:text-[#e8e4dc] italic leading-relaxed mb-3 min-h-[3rem]">
+                {/* Will be populated by JS */}
+              </blockquote>
+              <p id="daily-zen-source" class="text-xs text-ink-400 dark:text-[#78716c] text-right">
+                {/* Source will be populated by JS */}
+              </p>
+              <a 
+                href={`/zen-archive?lang=${lang}`}
+                class="inline-flex items-center gap-1 mt-4 text-sm text-indigo-600 dark:text-[#d4af37] hover:underline"
+              >
+                {lang === 'en' ? 'View all quotes' : '過去の禅語を見る'}
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -1436,11 +1558,74 @@ app.get('/profile', (c) => {
                 </div>
               </div>
               
-              {/* Check-in Calendar */}
+              {/* Emotion Trend Summary */}
               <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
                 <div class="flex items-center justify-between mb-4">
                   <h3 class="text-lg text-indigo-800 dark:text-[#e8e4dc]">
-                    {lang === 'en' ? '📅 Check-in History' : '📅 チェックイン履歴'}
+                    {lang === 'en' ? '📊 Emotion Trend' : '📊 感情のトレンド'}
+                  </h3>
+                  <span id="trend-period" class="text-xs text-ink-500 dark:text-[#78716c]">
+                    {lang === 'en' ? 'Last 30 days' : '過去30日'}
+                  </span>
+                </div>
+                
+                {/* Emotion Distribution Bar */}
+                <div class="mb-4">
+                  <div id="emotion-distribution" class="h-6 rounded-full overflow-hidden flex bg-ecru-200 dark:bg-[#2d2d2d]">
+                    {/* Will be populated by JS */}
+                  </div>
+                </div>
+                
+                {/* Emotion Stats */}
+                <div class="grid grid-cols-4 gap-2 mb-4">
+                  <div class="text-center">
+                    <span class="text-2xl">☀️</span>
+                    <p id="emotion-sunny-count" class="text-lg font-medium text-amber-500">0</p>
+                    <p class="text-[10px] text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Sunny' : '晴れ'}</p>
+                  </div>
+                  <div class="text-center">
+                    <span class="text-2xl">⛅</span>
+                    <p id="emotion-cloudy-count" class="text-lg font-medium text-sky-500">0</p>
+                    <p class="text-[10px] text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Cloudy' : '曇り'}</p>
+                  </div>
+                  <div class="text-center">
+                    <span class="text-2xl">🌧️</span>
+                    <p id="emotion-rainy-count" class="text-lg font-medium text-blue-500">0</p>
+                    <p class="text-[10px] text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Rainy' : '雨'}</p>
+                  </div>
+                  <div class="text-center">
+                    <span class="text-2xl">⛈️</span>
+                    <p id="emotion-stormy-count" class="text-lg font-medium text-purple-500">0</p>
+                    <p class="text-[10px] text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Stormy' : '嵐'}</p>
+                  </div>
+                </div>
+                
+                {/* Insight Message */}
+                <div id="emotion-insight" class="p-3 bg-gradient-to-r from-gold/10 to-indigo-800/10 dark:from-gold/20 dark:to-[#1e3a5f]/30 rounded-xl">
+                  <p class="text-sm text-indigo-800 dark:text-[#e8e4dc] italic">
+                    {lang === 'en' 
+                      ? 'Start tracking your emotions to see insights here.' 
+                      : '感情を記録して、ここで気づきを得ましょう。'}
+                  </p>
+                </div>
+                
+                {/* Share Button */}
+                <button 
+                  id="share-emotion-trend-btn"
+                  class="mt-4 w-full py-2 text-sm text-center text-indigo-600 dark:text-gold border border-indigo-600/30 dark:border-gold/30 rounded-xl hover:bg-indigo-600/5 dark:hover:bg-gold/10 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                  </svg>
+                  {lang === 'en' ? 'Share My Emotion Journey' : '感情の旅をシェア'}
+                </button>
+              </div>
+              
+              {/* Check-in Calendar Heatmap */}
+              <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-lg text-indigo-800 dark:text-[#e8e4dc]">
+                    {lang === 'en' ? '📅 Emotion Heatmap' : '📅 感情ヒートマップ'}
                   </h3>
                   <div class="flex items-center gap-2">
                     <button id="calendar-prev" class="p-1 hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] rounded transition-colors">
@@ -1458,8 +1643,8 @@ app.get('/profile', (c) => {
                 </div>
                 
                 {/* Calendar Grid */}
-                <div class="mb-2">
-                  <div class="grid grid-cols-7 gap-1 text-center text-xs text-ink-400 dark:text-[#78716c] mb-1">
+                <div class="mb-4">
+                  <div class="grid grid-cols-7 gap-1 text-center text-xs text-ink-400 dark:text-[#78716c] mb-2">
                     <span>{lang === 'en' ? 'Sun' : '日'}</span>
                     <span>{lang === 'en' ? 'Mon' : '月'}</span>
                     <span>{lang === 'en' ? 'Tue' : '火'}</span>
@@ -1468,28 +1653,28 @@ app.get('/profile', (c) => {
                     <span>{lang === 'en' ? 'Fri' : '金'}</span>
                     <span>{lang === 'en' ? 'Sat' : '土'}</span>
                   </div>
-                  <div id="calendar-grid" class="grid grid-cols-7 gap-1">
-                    {/* Calendar days will be generated by JS */}
+                  <div id="calendar-grid" class="grid grid-cols-7 gap-1.5">
+                    {/* Calendar days will be generated by JS with heatmap colors */}
                   </div>
                 </div>
                 
-                {/* Legend */}
-                <div class="flex flex-wrap justify-center gap-3 pt-3 border-t border-ecru-200 dark:border-[#3d3d3d]">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-base">☀️</span>
-                    <span class="text-xs text-ink-500 dark:text-[#78716c]">{lang === 'en' ? 'Sunny' : '晴れ'}</span>
+                {/* Heatmap Legend */}
+                <div class="flex items-center justify-center gap-4 pt-3 border-t border-ecru-200 dark:border-[#3d3d3d]">
+                  <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded bg-amber-300 dark:bg-amber-500"></div>
+                    <span class="text-xs text-ink-500 dark:text-[#78716c]">☀️ {lang === 'en' ? 'Sunny' : '晴れ'}</span>
                   </div>
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-base">⛅</span>
-                    <span class="text-xs text-ink-500 dark:text-[#78716c]">{lang === 'en' ? 'Cloudy' : '曇り'}</span>
+                  <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded bg-sky-300 dark:bg-sky-500"></div>
+                    <span class="text-xs text-ink-500 dark:text-[#78716c]">⛅ {lang === 'en' ? 'Cloudy' : '曇り'}</span>
                   </div>
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-base">🌧️</span>
-                    <span class="text-xs text-ink-500 dark:text-[#78716c]">{lang === 'en' ? 'Rainy' : '雨'}</span>
+                  <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded bg-blue-400 dark:bg-blue-500"></div>
+                    <span class="text-xs text-ink-500 dark:text-[#78716c]">🌧️ {lang === 'en' ? 'Rainy' : '雨'}</span>
                   </div>
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-base">⛈️</span>
-                    <span class="text-xs text-ink-500 dark:text-[#78716c]">{lang === 'en' ? 'Stormy' : '嵐'}</span>
+                  <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded bg-purple-400 dark:bg-purple-500"></div>
+                    <span class="text-xs text-ink-500 dark:text-[#78716c]">⛈️ {lang === 'en' ? 'Stormy' : '嵐'}</span>
                   </div>
                 </div>
               </div>
@@ -2117,6 +2302,160 @@ app.get('/install', (c) => {
       <Footer currentLang={lang} />
     </div>,
     { title: lang === 'en' ? 'Add to Home Screen — KINTSUGI MIND' : 'ホーム画面に追加 — KINTSUGI MIND' }
+  )
+})
+
+// ========================================
+// Zen Quote Archive Page
+// ========================================
+
+app.get('/zen-archive', (c) => {
+  const lang = getLanguage(c)
+  
+  const t = {
+    title: { en: 'Zen Quote Archive', ja: '禅語アーカイブ' },
+    subtitle: { 
+      en: 'Wisdom from Zen, Morita Therapy, Naikan, and Kintsugi', 
+      ja: '禅・森田療法・内観・金継ぎの知恵' 
+    },
+    categories: {
+      all: { en: 'All', ja: 'すべて' },
+      zen: { en: 'Zen Koans', ja: '禅・公案' },
+      morita: { en: 'Morita Therapy', ja: '森田療法' },
+      naikan: { en: 'Naikan', ja: '内観' },
+      kintsugi: { en: 'Kintsugi & Wabi-sabi', ja: '金継ぎ・侘び寂び' },
+      proverbs: { en: 'Japanese Proverbs', ja: '日本のことわざ' },
+      buddhism: { en: 'Buddhist Wisdom', ja: '仏教の知恵' },
+      mindfulness: { en: 'Mindfulness', ja: 'マインドフルネス' }
+    },
+    todayQuote: { en: "Today's Quote", ja: '今日の禅語' },
+    share: { en: 'Share', ja: 'シェア' },
+    backToHome: { en: 'Back to Home', ja: 'ホームに戻る' }
+  }
+  
+  return c.render(
+    <html lang={lang}>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>{t.title[lang]} — KINTSUGI MIND</title>
+      <link rel="manifest" href="/manifest.json" />
+      <meta name="theme-color" content="#1a365d" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script dangerouslySetInnerHTML={{ __html: `
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                gold: { DEFAULT: '#d4af37', 600: '#b8960c' },
+                ecru: { DEFAULT: '#FAF9F6', 300: '#F5F2EB' },
+                ink: { DEFAULT: '#1a365d', 200: '#e2e8f0', 400: '#718096', 500: '#4a5568' },
+                indigo: { 600: '#4f46e5', 700: '#4338ca', 800: '#1a365d' }
+              }
+            }
+          }
+        }
+      `}} />
+      <link href="/static/styles.css" rel="stylesheet" />
+    </head>
+    <body class="min-h-screen bg-ecru dark:bg-[#0d0d0d] transition-colors">
+      <Header currentLang={lang} />
+      
+      <main class="pt-20 pb-12 px-4">
+        <div class="max-w-4xl mx-auto">
+          {/* Page Header */}
+          <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl text-indigo-800 dark:text-[#e8e4dc] mb-3">
+              {t.title[lang]}
+            </h1>
+            <p class="text-ink-500 dark:text-[#78716c]">
+              {t.subtitle[lang]}
+            </p>
+          </div>
+          
+          {/* Today's Quote Highlight */}
+          <div class="mb-12 p-8 bg-gradient-to-br from-gold/10 to-indigo-800/10 dark:from-gold/20 dark:to-[#1e3a5f]/30 rounded-2xl border border-gold/30">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">🪷</span>
+              <span class="text-sm font-medium text-gold">{t.todayQuote[lang]}</span>
+            </div>
+            <blockquote id="today-quote-text" class="text-xl md:text-2xl text-indigo-800 dark:text-[#e8e4dc] italic leading-relaxed mb-4">
+              {/* JS will populate */}
+            </blockquote>
+            <div class="flex items-center justify-between">
+              <p id="today-quote-source" class="text-sm text-ink-400 dark:text-[#78716c]">
+                {/* JS will populate */}
+              </p>
+              <button 
+                id="share-today-quote-btn"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-gold/20 hover:bg-gold/30 text-gold rounded-full transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+                {t.share[lang]}
+              </button>
+            </div>
+          </div>
+          
+          {/* Category Filter */}
+          <div class="flex flex-wrap justify-center gap-2 mb-8">
+            <button class="category-btn active px-4 py-2 text-sm rounded-full transition-colors bg-indigo-800 text-white dark:bg-gold dark:text-black" data-category="all">
+              {t.categories.all[lang]}
+            </button>
+            <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="zen">
+              {t.categories.zen[lang]}
+            </button>
+            <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="morita">
+              {t.categories.morita[lang]}
+            </button>
+            <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="naikan">
+              {t.categories.naikan[lang]}
+            </button>
+            <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="kintsugi">
+              {t.categories.kintsugi[lang]}
+            </button>
+            <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="proverbs">
+              {t.categories.proverbs[lang]}
+            </button>
+            <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="buddhism">
+              {t.categories.buddhism[lang]}
+            </button>
+          </div>
+          
+          {/* Quotes Grid */}
+          <div id="quotes-grid" class="grid gap-4">
+            {/* JS will populate */}
+          </div>
+          
+          {/* Back to Home */}
+          <div class="mt-12 text-center">
+            <a 
+              href={`/?lang=${lang}`}
+              class="inline-flex items-center gap-2 text-indigo-700 dark:text-[#d4af37] hover:underline"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              {t.backToHome[lang]}
+            </a>
+          </div>
+        </div>
+      </main>
+      
+      <Footer currentLang={lang} />
+      
+      <script src="/static/app.js"></script>
+      <script dangerouslySetInnerHTML={{ __html: `
+        document.addEventListener('DOMContentLoaded', function() {
+          const lang = '${lang}';
+          initZenArchive(lang);
+        });
+      `}} />
+    </body>
+    </html>
   )
 })
 
