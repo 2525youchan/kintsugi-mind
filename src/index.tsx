@@ -765,6 +765,35 @@ app.get('/', (c) => {
               </div>
             </a>
           </div>
+          
+          {/* Vessel Diagnosis Banner */}
+          <div class="mt-6 max-w-2xl mx-auto">
+            <a 
+              href={`/diagnosis?lang=${lang}`}
+              class="block bg-gradient-to-r from-indigo-800/10 via-indigo-700/15 to-indigo-800/10 dark:from-indigo-600/20 dark:via-indigo-500/25 dark:to-indigo-600/20 border-2 border-indigo-600/30 dark:border-indigo-400/30 rounded-2xl p-6 hover:border-indigo-600 dark:hover:border-indigo-400 hover:shadow-lg transition-all duration-300 group"
+            >
+              <div class="flex items-center gap-4">
+                <div class="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-indigo-700 to-indigo-900 dark:from-indigo-500 dark:to-indigo-700 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <span class="text-3xl">🏺</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-medium text-indigo-800 dark:text-[#e8e4dc] mb-1">
+                    {lang === 'en' ? 'Discover Your Vessel' : 'あなたの器を診断'}
+                  </h3>
+                  <p class="text-sm text-ink-500 dark:text-[#a8a29e]">
+                    {lang === 'en' 
+                      ? '5 questions to reveal your inner vessel type' 
+                      : '5つの質問であなたの器タイプを発見'}
+                  </p>
+                </div>
+                <div class="flex-shrink-0">
+                  <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -1505,6 +1534,19 @@ app.get('/profile', (c) => {
                   {t.whatIsKintsugi[lang]}
                 </span>
               </a>
+              
+              {/* Vessel Diagnosis Link */}
+              <div class="mt-4">
+                <a 
+                  href={`/diagnosis?lang=${lang}`}
+                  class="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors group"
+                >
+                  <span class="text-lg">🏺</span>
+                  <span class="border-b border-indigo-400/30 group-hover:border-indigo-600 dark:group-hover:border-indigo-300 transition-colors">
+                    {lang === 'en' ? 'Retake Vessel Diagnosis' : '器診断をやり直す'}
+                  </span>
+                </a>
+              </div>
             </div>
             
             {/* Statistics */}
@@ -2305,6 +2347,203 @@ app.get('/install', (c) => {
       <Footer currentLang={lang} />
     </div>,
     { title: lang === 'en' ? 'Add to Home Screen — KINTSUGI MIND' : 'ホーム画面に追加 — KINTSUGI MIND' }
+  )
+})
+
+// ========================================
+// Vessel Diagnosis Page (独立ページ)
+// ========================================
+
+app.get('/diagnosis', (c) => {
+  const lang = getLanguage(c)
+  
+  const t = {
+    title: { en: 'Discover Your Vessel', ja: 'あなたの器を診断' },
+    subtitle: { 
+      en: 'Answer 5 questions to find the vessel that resonates with your spirit', 
+      ja: '5つの質問に答えて、あなたの心に響く器を見つけましょう' 
+    },
+    description: {
+      en: 'In kintsugi philosophy, each person is like a vessel — unique, beautiful, and capable of becoming even more beautiful through the golden repair of life\'s experiences.',
+      ja: '金継ぎの哲学では、人はそれぞれ器のような存在です。唯一無二で、美しく、人生経験という金継ぎを通じてさらに美しくなれる可能性を秘めています。'
+    },
+    startQuiz: { en: 'Start Diagnosis', ja: '診断を始める' },
+    retake: { en: 'Take again', ja: 'もう一度診断' },
+    backToHome: { en: 'Back to Home', ja: 'ホームに戻る' },
+    question: { en: 'Question', ja: '質問' },
+    of: { en: 'of', ja: '/' },
+    yourVessel: { en: 'Your Vessel Is...', ja: 'あなたの器は...' },
+    share: { en: 'Share Result', ja: '結果をシェア' },
+    viewProfile: { en: 'View Your Profile', ja: 'プロフィールを見る' }
+  }
+  
+  return c.render(
+    <html lang={lang}>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>{t.title[lang]} — KINTSUGI MIND</title>
+      <meta name="description" content={t.subtitle[lang]} />
+      <meta property="og:title" content={`${t.title[lang]} — KINTSUGI MIND`} />
+      <meta property="og:description" content={t.subtitle[lang]} />
+      <link rel="manifest" href="/manifest.json" />
+      <meta name="theme-color" content="#1a365d" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script dangerouslySetInnerHTML={{ __html: `
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                gold: { DEFAULT: '#d4af37', 600: '#b8960c' },
+                ecru: { DEFAULT: '#FAF9F6', 300: '#F5F2EB' },
+                ink: { DEFAULT: '#1a365d', 200: '#e2e8f0', 400: '#718096', 500: '#4a5568' },
+                indigo: { 600: '#4f46e5', 700: '#4338ca', 800: '#1a365d' }
+              }
+            }
+          }
+        }
+      `}} />
+      <link href="/static/styles.css" rel="stylesheet" />
+    </head>
+    <body class="min-h-screen bg-ecru dark:bg-[#0d0d0d] transition-colors">
+      <Header currentLang={lang} />
+      
+      <main class="pt-24 pb-12 px-4">
+        <div class="max-w-2xl mx-auto">
+          {/* Intro View */}
+          <div id="diagnosis-intro" class="text-center">
+            <div class="text-6xl mb-6 animate-float">🏺</div>
+            <h1 class="text-3xl md:text-4xl text-indigo-800 dark:text-[#e8e4dc] mb-3">
+              {t.title[lang]}
+            </h1>
+            <p class="text-ink-500 dark:text-[#78716c] mb-6">
+              {t.subtitle[lang]}
+            </p>
+            <p class="text-sm text-ink-400 dark:text-[#78716c] mb-8 max-w-md mx-auto leading-relaxed">
+              {t.description[lang]}
+            </p>
+            <button 
+              id="start-diagnosis-btn"
+              class="px-8 py-4 bg-indigo-800 dark:bg-gold text-ecru dark:text-ink rounded-full hover:bg-indigo-700 dark:hover:bg-gold-600 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              {t.startQuiz[lang]}
+            </button>
+          </div>
+          
+          {/* Quiz View */}
+          <div id="diagnosis-quiz" class="hidden">
+            {/* Progress Bar */}
+            <div class="mb-8">
+              <div class="flex justify-between text-xs text-ink-400 dark:text-[#78716c] mb-2">
+                <span id="quiz-progress-text">{t.question[lang]} 1 {t.of[lang]} 5</span>
+                <span id="quiz-progress-percent">0%</span>
+              </div>
+              <div class="w-full bg-ecru-300 dark:bg-[#2d2d2d] rounded-full h-2 overflow-hidden">
+                <div id="quiz-progress-bar" class="h-full bg-gold rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+            
+            {/* Question */}
+            <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi mb-6">
+              <p id="quiz-question" class="text-xl text-indigo-800 dark:text-[#e8e4dc] text-center leading-relaxed mb-8">
+                {/* Question will be populated by JS */}
+              </p>
+              <div id="quiz-answers" class="space-y-3">
+                {/* Answers will be populated by JS */}
+              </div>
+            </div>
+          </div>
+          
+          {/* Result View */}
+          <div id="diagnosis-result" class="hidden text-center">
+            <p class="text-gold text-sm mb-2">{t.yourVessel[lang]}</p>
+            <div id="result-vessel-emoji" class="text-8xl mb-4 animate-float">🍵</div>
+            <h2 id="result-vessel-name" class="text-4xl font-light text-indigo-800 dark:text-[#e8e4dc] mb-2">茶碗</h2>
+            <p id="result-vessel-tagline" class="text-gold text-lg mb-6">日常の温もり</p>
+            
+            {/* Result Card */}
+            <div class="bg-gradient-to-br from-indigo-800/10 to-gold/20 dark:from-[#1e3a5f]/50 dark:to-gold/30 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gold/30 mb-6 text-left">
+              <p id="result-description" class="text-ink-600 dark:text-[#a8a29e] text-sm leading-relaxed mb-4">
+                {/* Description will be populated by JS */}
+              </p>
+              
+              {/* Personality Traits */}
+              <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="text-center p-3 bg-white/50 dark:bg-[#1e1e1e]/50 rounded-xl">
+                  <span id="trait-1-icon" class="text-2xl">🌿</span>
+                  <p id="trait-1-text" class="text-xs text-ink-500 dark:text-[#78716c] mt-1">落ち着き</p>
+                </div>
+                <div class="text-center p-3 bg-white/50 dark:bg-[#1e1e1e]/50 rounded-xl">
+                  <span id="trait-2-icon" class="text-2xl">💫</span>
+                  <p id="trait-2-text" class="text-xs text-ink-500 dark:text-[#78716c] mt-1">温かさ</p>
+                </div>
+                <div class="text-center p-3 bg-white/50 dark:bg-[#1e1e1e]/50 rounded-xl">
+                  <span id="trait-3-icon" class="text-2xl">🍃</span>
+                  <p id="trait-3-text" class="text-xs text-ink-500 dark:text-[#78716c] mt-1">気づき</p>
+                </div>
+              </div>
+              
+              <p class="text-xs text-ink-400 dark:text-[#78716c] text-center">
+                KINTSUGI MIND — {lang === 'en' ? 'Vessel Diagnosis' : '器診断'}
+              </p>
+            </div>
+            
+            {/* Action Buttons */}
+            <div class="flex flex-col sm:flex-row justify-center gap-3 mb-4">
+              <button 
+                id="share-result-btn"
+                class="px-6 py-3 border border-gold text-gold rounded-full hover:bg-gold/10 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+                {t.share[lang]}
+              </button>
+              <a 
+                href={`/profile?lang=${lang}`}
+                class="px-6 py-3 bg-indigo-800 dark:bg-gold text-ecru dark:text-ink rounded-full hover:bg-indigo-700 dark:hover:bg-gold-600 transition-colors"
+              >
+                {t.viewProfile[lang]}
+              </a>
+            </div>
+            
+            {/* Retake */}
+            <button 
+              id="retake-diagnosis-btn"
+              class="text-sm text-ink-400 dark:text-[#78716c] hover:text-indigo-600 dark:hover:text-gold transition-colors"
+            >
+              ↻ {t.retake[lang]}
+            </button>
+          </div>
+          
+          {/* Back to Home */}
+          <div class="mt-8 text-center">
+            <a 
+              href={`/?lang=${lang}`}
+              class="inline-flex items-center gap-2 text-ink-500 dark:text-[#78716c] hover:text-indigo-600 dark:hover:text-gold transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              {t.backToHome[lang]}
+            </a>
+          </div>
+        </div>
+      </main>
+      
+      <Footer currentLang={lang} />
+      
+      <script src="/static/app.js"></script>
+      <script dangerouslySetInnerHTML={{ __html: `
+        document.addEventListener('DOMContentLoaded', function() {
+          const lang = '${lang}';
+          initDiagnosisPage(lang);
+        });
+      `}} />
+    </body>
+    </html>
   )
 })
 

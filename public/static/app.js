@@ -4084,7 +4084,7 @@ function shareVesselResult(vesselId, lang = 'en') {
     ? `My vessel is ${vesselData.emoji} ${vesselData.name.en} — ${vesselData.tagline.en}\n\n${vesselData.traits.map(t => `${t.icon} ${t.en}`).join(' | ')}\n\nDiscover your vessel at #KintsugiMind ✨`
     : `私の器は ${vesselData.emoji} ${vesselData.name.ja} — ${vesselData.tagline.ja}\n\n${vesselData.traits.map(t => `${t.icon} ${t.ja}`).join(' | ')}\n\n#KintsugiMind で自分の器を見つけよう ✨`;
   
-  const url = window.location.origin + '/welcome?lang=' + lang;
+  const url = window.location.origin + '/diagnosis?lang=' + lang;
   
   if (navigator.share) {
     navigator.share({
@@ -4159,6 +4159,135 @@ function skipOnboarding() {
   markOnboardingComplete();
   const lang = getLang();
   window.location.href = `/?lang=${lang}`;
+}
+
+// ========================================
+// Standalone Diagnosis Page
+// ========================================
+
+// Initialize standalone diagnosis page
+function initDiagnosisPage(lang = 'en') {
+  const introView = document.getElementById('diagnosis-intro');
+  const quizView = document.getElementById('diagnosis-quiz');
+  const resultView = document.getElementById('diagnosis-result');
+  const startBtn = document.getElementById('start-diagnosis-btn');
+  const retakeBtn = document.getElementById('retake-diagnosis-btn');
+  
+  if (!introView) return;
+  
+  // Reset state
+  quizCurrentQuestion = 0;
+  quizAnswers = [];
+  
+  // Start button
+  if (startBtn) {
+    startBtn.addEventListener('click', () => {
+      introView.classList.add('hidden');
+      quizView.classList.remove('hidden');
+      resultView.classList.add('hidden');
+      renderQuizQuestion(lang);
+    });
+  }
+  
+  // Retake button
+  if (retakeBtn) {
+    retakeBtn.addEventListener('click', () => {
+      quizCurrentQuestion = 0;
+      quizAnswers = [];
+      introView.classList.add('hidden');
+      quizView.classList.remove('hidden');
+      resultView.classList.add('hidden');
+      renderQuizQuestion(lang);
+    });
+  }
+}
+
+// Override showQuizResults for standalone page
+const originalShowQuizResults = showQuizResults;
+showQuizResults = function() {
+  const lang = getLang();
+  
+  // Count vessel mentions
+  const vesselCounts = {};
+  quizAnswers.forEach(v => {
+    vesselCounts[v] = (vesselCounts[v] || 0) + 1;
+  });
+  
+  // Find the most mentioned vessel
+  let maxCount = 0;
+  let resultVessel = 'chawan';
+  Object.entries(vesselCounts).forEach(([vessel, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      resultVessel = vessel;
+    }
+  });
+  
+  // Save result
+  selectedVessel = resultVessel;
+  
+  // Save to profile
+  let profile = loadProfile();
+  profile.vesselType = resultVessel;
+  saveProfile(profile);
+  
+  // Get vessel data
+  const vesselData = VESSEL_QUIZ.vesselData[resultVessel];
+  
+  // Update result UI
+  const emojiEl = document.getElementById('result-vessel-emoji');
+  const nameEl = document.getElementById('result-vessel-name');
+  const taglineEl = document.getElementById('result-vessel-tagline');
+  const descEl = document.getElementById('result-description');
+  
+  if (emojiEl) emojiEl.textContent = vesselData.emoji;
+  if (nameEl) nameEl.textContent = vesselData.name[lang];
+  if (taglineEl) taglineEl.textContent = vesselData.tagline[lang];
+  if (descEl) descEl.textContent = vesselData.description[lang];
+  
+  // Update traits
+  vesselData.traits.forEach((trait, i) => {
+    const iconEl = document.getElementById(`trait-${i + 1}-icon`);
+    const textEl = document.getElementById(`trait-${i + 1}-text`);
+    if (iconEl) iconEl.textContent = trait.icon;
+    if (textEl) textEl.textContent = trait[lang];
+  });
+  
+  // Handle view switching for standalone page
+  const introView = document.getElementById('diagnosis-intro');
+  const quizView = document.getElementById('diagnosis-quiz');
+  const resultView = document.getElementById('diagnosis-result');
+  
+  // For standalone diagnosis page
+  if (introView && quizView && resultView) {
+    introView.classList.add('hidden');
+    quizView.classList.add('hidden');
+    resultView.classList.remove('hidden');
+  }
+  
+  // For onboarding page
+  const vesselQuizView = document.getElementById('vessel-quiz-view');
+  const vesselResultView = document.getElementById('vessel-result-view');
+  if (vesselQuizView && vesselResultView) {
+    vesselQuizView.classList.add('hidden');
+    vesselResultView.classList.remove('hidden');
+  }
+  
+  // Update progress to 100%
+  const progressBar = document.getElementById('quiz-progress-bar');
+  if (progressBar) progressBar.style.width = '100%';
+  
+  // Setup share button
+  const shareBtn = document.getElementById('share-result-btn');
+  if (shareBtn) {
+    shareBtn.onclick = () => shareVesselResult(resultVessel, lang);
+  }
+  
+  // Setup retake buttons
+  const retakeBtn = document.getElementById('retake-quiz-btn');
+  if (retakeBtn) {
+    retakeBtn.onclick = () => initVesselQuiz(lang);
+  }
 }
 
 // Check and redirect to onboarding if needed
