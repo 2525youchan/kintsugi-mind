@@ -1091,8 +1091,55 @@ const VESSEL_STAGE_IMAGES = {
       { file: 'stage-5.png', name: { en: 'Nearly Complete', ja: 'あと少し' } },
       { file: 'stage-6.png', name: { en: 'Complete', ja: '完成' } }
     ]
+  },
+  tsubo: {
+    basePath: '/static/images/tsubo/',
+    stages: [
+      { file: 'stage-0.png', name: { en: 'Pristine', ja: '無傷' } },
+      { file: 'stage-1.png', name: { en: 'Hairline Cracks', ja: '小さなヒビ' } },
+      { file: 'stage-2.png', name: { en: 'Spreading Cracks', ja: 'ヒビ増加' } },
+      { file: 'stage-3.png', name: { en: 'Kintsugi Begins', ja: '金継ぎ開始' } },
+      { file: 'stage-4.png', name: { en: 'Half Repaired', ja: '半分修復' } },
+      { file: 'stage-5.png', name: { en: 'Nearly Complete', ja: 'あと少し' } },
+      { file: 'stage-6.png', name: { en: 'Complete', ja: '完成' } }
+    ]
+  },
+  tokkuri: {
+    basePath: '/static/images/tokkuri/',
+    stages: [
+      { file: 'stage-0.png', name: { en: 'Pristine', ja: '無傷' } },
+      { file: 'stage-1.png', name: { en: 'Hairline Cracks', ja: '小さなヒビ' } },
+      { file: 'stage-2.png', name: { en: 'Spreading Cracks', ja: 'ヒビ増加' } },
+      { file: 'stage-3.png', name: { en: 'Kintsugi Begins', ja: '金継ぎ開始' } },
+      { file: 'stage-4.png', name: { en: 'Half Repaired', ja: '半分修復' } },
+      { file: 'stage-5.png', name: { en: 'Nearly Complete', ja: 'あと少し' } },
+      { file: 'stage-6.png', name: { en: 'Complete', ja: '完成' } }
+    ]
+  },
+  sara: {
+    basePath: '/static/images/sara/',
+    stages: [
+      { file: 'stage-0.png', name: { en: 'Pristine', ja: '無傷' } },
+      { file: 'stage-1.png', name: { en: 'Shattered', ja: '破片' } },
+      { file: 'stage-2.png', name: { en: 'Joining Begins', ja: '繋がり始め' } },
+      { file: 'stage-3.png', name: { en: 'Forming Chunks', ja: '塊に' } },
+      { file: 'stage-4.png', name: { en: 'Two Halves', ja: '2つの半分' } },
+      { file: 'stage-5.png', name: { en: 'Nearly Complete', ja: 'あと少し' } },
+      { file: 'stage-6.png', name: { en: 'Complete', ja: '完成' } }
+    ]
+  },
+  hachi: {
+    basePath: '/static/images/hachi/',
+    stages: [
+      { file: 'stage-0.png', name: { en: 'Pristine', ja: '無傷' } },
+      { file: 'stage-1.png', name: { en: 'Shattered', ja: '破片' } },
+      { file: 'stage-2.png', name: { en: 'Joining Begins', ja: '繋がり始め' } },
+      { file: 'stage-3.png', name: { en: 'Forming Chunks', ja: '塊に' } },
+      { file: 'stage-4.png', name: { en: 'Two Halves', ja: '2つの半分' } },
+      { file: 'stage-5.png', name: { en: 'Nearly Complete', ja: 'あと少し' } },
+      { file: 'stage-6.png', name: { en: 'Complete', ja: '完成' } }
+    ]
   }
-  // Other vessel types can be added here
 };
 
 // Determine which stage image to show based on goldIntensity
