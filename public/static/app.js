@@ -1074,6 +1074,69 @@ function calculateVesselVisual(profile) {
   return { depth, goldIntensity, repairedCount };
 }
 
+// ========================================
+// Photo-based Vessel Stage System
+// ========================================
+
+// Vessel stage images configuration
+const VESSEL_STAGE_IMAGES = {
+  chawan: {
+    basePath: '/static/images/chawan/',
+    stages: [
+      { file: 'stage-0.png', name: { en: 'Pristine', ja: '無傷' } },
+      { file: 'stage-1.png', name: { en: 'Shattered', ja: '破片' } },
+      { file: 'stage-2.png', name: { en: 'Fragments', ja: '断片' } },
+      { file: 'stage-3.png', name: { en: 'Assembling', ja: '組立中' } },
+      { file: 'stage-4.png', name: { en: 'Forming', ja: '形成中' } },
+      { file: 'stage-5.png', name: { en: 'Nearly Complete', ja: 'あと少し' } },
+      { file: 'stage-6.png', name: { en: 'Complete', ja: '完成' } }
+    ]
+  }
+  // Other vessel types can be added here
+};
+
+// Determine which stage image to show based on goldIntensity
+function getVesselStage(profile) {
+  const { goldIntensity } = calculateVesselVisual(profile);
+  const hasCracks = profile.cracks && profile.cracks.length > 0;
+  
+  // If no cracks yet, show pristine vessel (stage 0)
+  if (!hasCracks) {
+    return 0;
+  }
+  
+  // Map goldIntensity (0-100) to stages (1-6)
+  // Stage 1: 0%
+  // Stage 2: 1-16%
+  // Stage 3: 17-33%
+  // Stage 4: 34-50%
+  // Stage 5: 51-83%
+  // Stage 6: 84-100%
+  if (goldIntensity === 0) return 1;
+  if (goldIntensity <= 16) return 2;
+  if (goldIntensity <= 33) return 3;
+  if (goldIntensity <= 50) return 4;
+  if (goldIntensity <= 83) return 5;
+  return 6;
+}
+
+// Get the image path for current vessel stage
+function getVesselStageImage(vesselType, stage) {
+  const vesselConfig = VESSEL_STAGE_IMAGES[vesselType];
+  if (!vesselConfig) {
+    // Fallback: return null to use legacy SVG
+    return null;
+  }
+  return vesselConfig.basePath + vesselConfig.stages[stage].file;
+}
+
+// Get the stage name for display
+function getVesselStageName(vesselType, stage, lang) {
+  const vesselConfig = VESSEL_STAGE_IMAGES[vesselType];
+  if (!vesselConfig) return '';
+  return vesselConfig.stages[stage].name[lang] || vesselConfig.stages[stage].name.en;
+}
+
 // Generate crack SVG paths based on vessel type
 // Photo-based crack patterns adjusted for 200x200 viewBox
 function generateCrackPaths(cracks, vesselType = 'chawan') {
@@ -1934,22 +1997,22 @@ function updateProfileUI(profile, lang) {
   const vesselType = profile.vesselType || getSelectedVessel() || 'chawan';
   const vesselData = VESSEL_PATHS[vesselType] || VESSEL_PATHS.chawan;
   
-  // Photo-based vessel images (currently only chawan has photo)
-  const VESSEL_PHOTOS = {
-    chawan: '/static/images/chawan-base.png'
-    // Other vessels will use legacy SVG until photos are added
-  };
+  // Get current stage based on goldIntensity
+  const currentStage = getVesselStage(profile);
+  const stageImagePath = getVesselStageImage(vesselType, currentStage);
+  const stageName = getVesselStageName(vesselType, currentStage, lang);
   
   // Update vessel photo or fallback to SVG
   const vesselPhoto = document.getElementById('vessel-photo');
   const vesselLegacy = document.getElementById('kintsugi-vessel-legacy');
   const vesselSvg = document.getElementById('kintsugi-vessel');
   
-  if (VESSEL_PHOTOS[vesselType] && vesselPhoto) {
-    // Use photo-based vessel
-    vesselPhoto.src = VESSEL_PHOTOS[vesselType];
+  if (stageImagePath && vesselPhoto) {
+    // Use stage-based photo vessel
+    vesselPhoto.src = stageImagePath;
     vesselPhoto.classList.remove('hidden');
-    if (vesselSvg) vesselSvg.classList.remove('hidden');
+    // Hide SVG overlay since we're using photos now
+    if (vesselSvg) vesselSvg.classList.add('hidden');
     if (vesselLegacy) vesselLegacy.classList.add('hidden');
   } else if (vesselPhoto) {
     // Fallback to legacy SVG vessel
@@ -1966,14 +2029,14 @@ function updateProfileUI(profile, lang) {
   
   // Update SVG path for legacy vessel (if visible)
   const vesselShape = document.getElementById('vessel-shape');
-  if (vesselShape && !VESSEL_PHOTOS[vesselType]) {
+  if (vesselShape && !stageImagePath) {
     vesselShape.setAttribute('d', vesselData.path);
   }
   
-  // Update vessel type display
+  // Update vessel type display with stage info
   const vesselTypeDisplay = document.getElementById('vessel-type-display');
   if (vesselTypeDisplay) {
-    vesselTypeDisplay.innerHTML = `${vesselData.emoji} ${vesselData.name[lang]}`;
+    vesselTypeDisplay.innerHTML = `${vesselData.emoji} ${vesselData.name[lang]} — ${stageName}`;
   }
   
   // Vessel visual
@@ -1984,10 +2047,10 @@ function updateProfileUI(profile, lang) {
   document.getElementById('gold-value').textContent = `${Math.round(visual.goldIntensity)}%`;
   document.getElementById('gold-bar').style.width = `${visual.goldIntensity}%`;
   
-  // Render cracks on vessel (adjusted for vessel type)
-  // Photo-based vessel: SVG overlay with adjusted crack paths
+  // Skip SVG crack rendering for photo-based vessels (cracks are in the photos)
   const cracksGroup = document.getElementById('cracks-group');
-  if (cracksGroup) {
+  if (cracksGroup && !stageImagePath) {
+    // Only render SVG cracks for legacy vessels
     cracksGroup.innerHTML = '';
     const crackPaths = generateCrackPaths(profile.cracks, vesselType);
     
@@ -2016,22 +2079,42 @@ function updateProfileUI(profile, lang) {
     });
   }
   
-  // Update message based on state
+  // Update message based on stage
   const messageEl = document.getElementById('vessel-message');
   if (messageEl) {
-    if (profile.cracks.length === 0) {
-      messageEl.textContent = lang === 'en' 
-        ? 'Your vessel is new and unblemished. Through your journey, it will gain character.'
-        : 'あなたの器はまだ新しく、傷ひとつありません。歩みの中で、個性が刻まれていきます。';
-    } else if (repairedCount > 0) {
-      messageEl.textContent = lang === 'en'
-        ? `${repairedCount} crack${repairedCount > 1 ? 's' : ''} repaired with gold. Your vessel tells a beautiful story.`
-        : `${repairedCount}箇所のヒビが金で修復されました。あなたの器は美しい物語を語っています。`;
-    } else {
-      messageEl.textContent = lang === 'en'
-        ? 'Your vessel has cracks waiting to be repaired. Continue your journey to heal them with gold.'
-        : 'ヒビが修復を待っています。歩みを続けて、金で繋いでいきましょう。';
-    }
+    const stageMessages = {
+      0: {
+        en: 'Your vessel is pristine and whole. You were born complete.',
+        ja: 'あなたの器は無傷で完全です。あなたは完璧な存在として生まれました。'
+      },
+      1: {
+        en: 'Your vessel has shattered. But every piece holds value.',
+        ja: '器は砕けてしまいました。でも、すべての破片に価値があります。'
+      },
+      2: {
+        en: 'The fragments are gathering. Healing has begun.',
+        ja: '破片が集まり始めています。癒しが始まりました。'
+      },
+      3: {
+        en: 'Pieces are joining together. The golden repair progresses.',
+        ja: '破片が繋がり始めています。金継ぎが進んでいます。'
+      },
+      4: {
+        en: 'Your vessel is taking shape. The gold binds your story.',
+        ja: '器の形が見えてきました。金があなたの物語を紡いでいます。'
+      },
+      5: {
+        en: 'Almost complete. A few more repairs to go.',
+        ja: 'もう少しで完成です。あと少しの修復を。'
+      },
+      6: {
+        en: 'Your vessel is complete. More beautiful for having been broken.',
+        ja: '器は完成しました。壊れたからこそ、より美しく。'
+      }
+    };
+    
+    const message = stageMessages[currentStage] || stageMessages[0];
+    messageEl.textContent = message[lang] || message.en;
   }
 }
 
