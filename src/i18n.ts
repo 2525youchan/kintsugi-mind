@@ -24,7 +24,7 @@ export const translations = {
     },
     about: {
       en: 'About',
-      ja: 'About'
+      ja: '概要'
     },
     philosophy: {
       en: 'Philosophy',
@@ -38,11 +38,11 @@ export const translations = {
   home: {
     heroTitle: {
       en: 'Your Scars',
-      ja: 'Your Scars'
+      ja: 'あなたの傷は'
     },
     heroTitleAccent: {
       en: 'Make You Beautiful',
-      ja: 'Make You Beautiful'
+      ja: 'あなたを美しくする'
     },
     heroDescription: {
       en: 'Ancient Japanese wisdom — Morita Therapy, Naikan, and Zen — delivered through AI for a new form of wellbeing.',
@@ -67,7 +67,7 @@ export const translations = {
     // GARDEN Room
     gardenTitle: {
       en: 'GARDEN',
-      ja: 'GARDEN'
+      ja: '庭 GARDEN'
     },
     gardenSubtitle: {
       en: 'The Garden — Morita Therapy',
@@ -80,7 +80,7 @@ export const translations = {
     // STUDY Room
     studyTitle: {
       en: 'STUDY',
-      ja: 'STUDY'
+      ja: '書斎 STUDY'
     },
     studySubtitle: {
       en: 'The Study — Naikan',
@@ -93,7 +93,7 @@ export const translations = {
     // TATAMI Room
     tatamiTitle: {
       en: 'TATAMI',
-      ja: 'TATAMI'
+      ja: '座敷 TATAMI'
     },
     tatamiSubtitle: {
       en: 'The Tatami Room — Zen',
@@ -106,7 +106,7 @@ export const translations = {
     // About Section
     aboutTitle: {
       en: 'No Fixing Needed',
-      ja: 'No Fixing Needed'
+      ja: '「直す」必要はない'
     },
     aboutP1: {
       en: 'Tired of Western approaches that focus on "fixing" and "controlling" your mind?',
@@ -122,12 +122,12 @@ export const translations = {
     },
     vesselQuote: {
       en: '"Your scars make you beautiful"',
-      ja: '"Your scars make you beautiful"'
+      ja: '「あなたの傷が、あなたを美しくする」'
     },
     // CTA Section
     ctaTitle: {
       en: 'Begin Your Journey',
-      ja: 'Begin Your Journey'
+      ja: 'あなたの旅を始めよう'
     },
     ctaDescription: {
       en: 'You can live beautifully and strongly, even with anxiety.<br/>Start your kintsugi journey today.',
@@ -233,7 +233,7 @@ export const translations = {
     },
     microActionTitle: {
       en: 'Suggested Micro-Actions:',
-      ja: 'おすすめのMicro-Action:'
+      ja: 'おすすめの小さな行動:'
     },
     actionCup: {
       en: 'Wash a single cup',

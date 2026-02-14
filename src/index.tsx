@@ -808,7 +808,7 @@ app.get('/', (c) => {
               <p class="text-ink-600 dark:text-[#a8a29e]">{tx('home', 'aboutP3', lang)}</p>
             </div>
             <div class="flex justify-center">
-              <KintsugiVessel />
+              <KintsugiVessel currentLang={lang} />
             </div>
           </div>
         </div>
@@ -827,7 +827,7 @@ app.get('/', (c) => {
 
       <Footer currentLang={lang} />
     </div>,
-    { title: 'KINTSUGI MIND — The Japanese Art of Resilience' }
+    { title: lang === 'en' ? 'KINTSUGI MIND — The Japanese Art of Resilience' : 'KINTSUGI MIND — 日本発：回復と調和のメンタルヘルス' }
   )
 })
 
@@ -931,7 +931,7 @@ app.get('/check-in', (c) => {
         </div>
       </main>
     </div>,
-    { title: 'Check-in — KINTSUGI MIND' }
+    { title: lang === 'en' ? 'Check-in — KINTSUGI MIND' : 'チェックイン — KINTSUGI MIND' }
   )
 })
 
@@ -1091,7 +1091,7 @@ app.get('/garden', (c) => {
         </section>
       </main>
     </div>,
-    { title: 'GARDEN — KINTSUGI MIND' }
+    { title: lang === 'en' ? 'GARDEN — KINTSUGI MIND' : '庭 GARDEN — KINTSUGI MIND' }
   )
 })
 
@@ -1229,7 +1229,7 @@ app.get('/study', (c) => {
         </div>
       </main>
     </div>,
-    { title: 'STUDY — KINTSUGI MIND' }
+    { title: lang === 'en' ? 'STUDY — KINTSUGI MIND' : '書斎 STUDY — KINTSUGI MIND' }
   )
 })
 
@@ -1339,7 +1339,7 @@ app.get('/tatami', (c) => {
         </div>
       </main>
     </div>,
-    { title: 'TATAMI — KINTSUGI MIND' }
+    { title: lang === 'en' ? 'TATAMI — KINTSUGI MIND' : '座敷 TATAMI — KINTSUGI MIND' }
   )
 })
 
@@ -2014,7 +2014,7 @@ The goal is not a perfect, crack-free vessel. The goal is a vessel that tells YO
           <div class="text-center mb-16">
             <div class="w-20 h-24 mx-auto mb-8 flex items-center justify-center">
               <div class="transform scale-50 origin-center">
-                <KintsugiVessel />
+                <KintsugiVessel currentLang={lang} />
               </div>
             </div>
             <h1 class="text-4xl md:text-5xl text-indigo-800 mb-4">{t.title[lang]}</h1>

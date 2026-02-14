@@ -236,7 +236,7 @@ export const Footer = ({ currentLang }: { currentLang: Language }) => {
     <footer class="py-8 px-6 bg-ink-900 dark:bg-[#0a0a0a] text-ecru-400">
       <div class="max-w-6xl mx-auto">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-          <p class="text-sm">© 2024 KINTSUGI MIND — The Japanese Art of Resilience</p>
+          <p class="text-sm">{currentLang === 'en' ? '© 2024 KINTSUGI MIND — The Japanese Art of Resilience' : '© 2024 KINTSUGI MIND — 日本発：回復と調和のメンタルヘルス'}</p>
           <a 
             href={`/install?lang=${currentLang}`}
             class="flex items-center gap-2 text-sm text-ecru-400 hover:text-gold transition-colors"
@@ -314,35 +314,35 @@ export const RoomCard = ({
     garden: {
       icon: '🌱',
       gradient: 'from-green-200 to-green-400',
-      title: 'GARDEN',
+      title: { en: 'GARDEN', ja: '庭 GARDEN' },
       subtitle: { en: 'The Garden — Morita Therapy', ja: '庭 ― 森田療法' },
       description: {
         en: "Don't eliminate anxiety — act alongside it. Separate emotions from actions and live purpose-driven.",
         ja: '不安を消すのではなく、不安とともに行動する。感情と行動を分離し、「目的本位」の生き方へ。'
       },
-      tags: ['Arugamama', 'Action']
+      tags: { en: ['Arugamama', 'Action'], ja: ['あるがまま', '行動'] }
     },
     study: {
       icon: '📚',
       gradient: 'from-amber-200 to-amber-400',
-      title: 'STUDY',
+      title: { en: 'STUDY', ja: '書斎 STUDY' },
       subtitle: { en: 'The Study — Naikan', ja: '書斎 ― 内観法' },
       description: {
         en: 'Rediscover your connection to the world through three questions. Visualize that you are not alone.',
         ja: '3つの問いで自分と世界の繋がりを再発見。孤独ではないことを、縁の図として可視化します。'
       },
-      tags: ['Kansha', 'Connection']
+      tags: { en: ['Kansha', 'Connection'], ja: ['感謝', '繋がり'] }
     },
     tatami: {
       icon: '🧘',
       gradient: 'from-indigo-200 to-indigo-400',
-      title: 'TATAMI',
+      title: { en: 'TATAMI', ja: '座敷 TATAMI' },
       subtitle: { en: 'The Tatami Room — Zen', ja: '座敷 ― 禅' },
       description: {
         en: 'Stop thinking and return to bodily sensations. Breathe with haptic feedback and contemplate koans.',
         ja: '思考を止め、身体感覚に戻る。デバイスの振動に合わせた呼吸と、答えのない公案が気づきを促します。'
       },
-      tags: ['Mu', 'Stillness']
+      tags: { en: ['Mu', 'Stillness'], ja: ['無', '静寂'] }
     }
   }
 
@@ -353,11 +353,11 @@ export const RoomCard = ({
       <div class={`w-16 h-16 rounded-full bg-gradient-to-br ${c.gradient} flex items-center justify-center text-3xl mb-6`}>
         {c.icon}
       </div>
-      <h3 class="text-2xl text-indigo-800 dark:text-[#e8e4dc] mb-2">{c.title}</h3>
+      <h3 class="text-2xl text-indigo-800 dark:text-[#e8e4dc] mb-2">{c.title[currentLang]}</h3>
       <p class="text-gold text-sm mb-4 font-jp">{c.subtitle[currentLang]}</p>
       <p class="text-ink-600 dark:text-[#a8a29e] text-sm mb-4">{c.description[currentLang]}</p>
       <div class="flex flex-wrap gap-2">
-        {c.tags.map(tag => (
+        {c.tags[currentLang].map(tag => (
           <span class="px-3 py-1 bg-ecru-200 dark:bg-[#2d2d2d] rounded-full text-xs text-ink-600 dark:text-[#a8a29e]">{tag}</span>
         ))}
       </div>
@@ -366,7 +366,7 @@ export const RoomCard = ({
 }
 
 // Kintsugi Vessel SVG
-export const KintsugiVessel = () => {
+export const KintsugiVessel = ({ currentLang = 'en' }: { currentLang?: Language }) => {
   return (
     <div class="relative">
       <svg width="200" height="240" viewBox="0 0 200 240" class="drop-shadow-lg">
@@ -391,7 +391,7 @@ export const KintsugiVessel = () => {
         </defs>
       </svg>
       <p class="text-center text-sm text-ink-500 mt-4 italic">
-        "Your scars make you beautiful"
+        {currentLang === 'en' ? '"Your scars make you beautiful"' : '「あなたの傷が、あなたを美しくする」'}
       </p>
     </div>
   )
