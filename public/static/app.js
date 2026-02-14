@@ -124,78 +124,128 @@ const SEASONS = {
 
 const ZEN_QUOTES = [
   // Classic Koans
-  { en: "Two hands clap and there is a sound. What is the sound of one hand?", ja: "両手を打てば音がする。では、片手の音は？", source: { en: "Hakuin Ekaku", ja: "白隠慧鶴" } },
-  { en: "Before you were born, what was your original face?", ja: "父母未生以前、本来の面目は何か。", source: { en: "Zen Koan", ja: "禅の公案" } },
-  { en: "Does a dog have Buddha nature?", ja: "狗子に仏性ありや。", source: { en: "Mumonkan", ja: "無門関" } },
-  { en: "What is the color of wind?", ja: "風に色はあるか。", source: { en: "Zen Koan", ja: "禅の公案" } },
-  { en: "Where does the flame go when the candle is blown out?", ja: "ろうそくを吹き消したとき、炎はどこへ行くのか。", source: { en: "Zen Koan", ja: "禅の公案" } },
+  { en: "Two hands clap and there is a sound. What is the sound of one hand?", ja: "両手を打てば音がする。では、片手の音は？", source: { en: "Hakuin Ekaku", ja: "白隠慧鶴" },
+    explanation: { en: "A famous koan that breaks logical thinking. There is no 'correct' answer — the point is to go beyond reason.", ja: "論理的思考を打ち破る有名な公案。「正解」はなく、理屈を超えることが目的です。" } },
+  { en: "Before you were born, what was your original face?", ja: "父母未生以前、本来の面目は何か。", source: { en: "Zen Koan", ja: "禅の公案" },
+    explanation: { en: "A question about your true self before social roles and conditioning. Who are you at the deepest level?", ja: "社会的な役割や条件づけの前の「本当の自分」を問う公案。最も深いレベルで、あなたは誰ですか？" } },
+  { en: "Does a dog have Buddha nature?", ja: "狗子に仏性ありや。", source: { en: "Mumonkan", ja: "無門関" },
+    explanation: { en: "The master answered 'Mu' (nothing). This koan asks us to see beyond yes/no dualities.", ja: "趙州和尚は「無」と答えました。この公案は「ある・ない」の二元論を超えることを求めています。" } },
+  { en: "What is the color of wind?", ja: "風に色はあるか。", source: { en: "Zen Koan", ja: "禅の公案" },
+    explanation: { en: "Invites you to perceive beyond the five senses. Not everything real can be measured.", ja: "五感を超えた知覚を促す問い。実在するすべてが測れるわけではありません。" } },
+  { en: "Where does the flame go when the candle is blown out?", ja: "ろうそくを吹き消したとき、炎はどこへ行くのか。", source: { en: "Zen Koan", ja: "禅の公案" },
+    explanation: { en: "A meditation on impermanence and the nature of existence. Things don't 'go' anywhere — they simply change form.", ja: "無常と存在の本質についての瞑想。ものはどこかへ「行く」のではなく、ただ形を変えるだけです。" } },
   
   // Zen Wisdom
-  { en: "The obstacle is the path.", ja: "障害こそが道である。", source: { en: "Zen Proverb", ja: "禅のことわざ" } },
-  { en: "Fall seven times, stand up eight.", ja: "七転び八起き。", source: { en: "Japanese Proverb", ja: "日本のことわざ" } },
-  { en: "In the beginner's mind there are many possibilities, but in the expert's mind there are few.", ja: "初心者の心には多くの可能性がある。達人の心には少ない。", source: { en: "Shunryu Suzuki", ja: "鈴木俊隆" } },
-  { en: "When you reach the top of the mountain, keep climbing.", ja: "山頂に達しても、なお登り続けよ。", source: { en: "Zen Proverb", ja: "禅のことわざ" } },
-  { en: "The quieter you become, the more you can hear.", ja: "静かになればなるほど、より多くが聞こえる。", source: { en: "Ram Dass", ja: "ラム・ダス" } },
+  { en: "The obstacle is the path.", ja: "障害こそが道である。", source: { en: "Zen Proverb", ja: "禅のことわざ" },
+    explanation: { en: "Difficulties are not detours — they are the journey itself. Growth comes through facing challenges.", ja: "困難は回り道ではなく、旅そのものです。成長は課題に向き合うことから生まれます。" } },
+  { en: "Fall seven times, stand up eight.", ja: "七転び八起き。", source: { en: "Japanese Proverb", ja: "日本のことわざ" },
+    explanation: { en: "Resilience is not about never falling — it's about always getting back up one more time.", ja: "回復力とは転ばないことではなく、何度でもまた立ち上がること。" } },
+  { en: "In the beginner's mind there are many possibilities, but in the expert's mind there are few.", ja: "初心者の心には多くの可能性がある。達人の心には少ない。", source: { en: "Shunryu Suzuki", ja: "鈴木俊隆" },
+    explanation: { en: "Expertise can narrow our vision. Approaching things with fresh, open eyes reveals new possibilities.", ja: "専門知識は視野を狭めることも。初心に返り、新鮮な目で物事を見ることで新たな可能性が開けます。" } },
+  { en: "When you reach the top of the mountain, keep climbing.", ja: "山頂に達しても、なお登り続けよ。", source: { en: "Zen Proverb", ja: "禅のことわざ" },
+    explanation: { en: "There is no final destination in self-improvement. The journey of growth never truly ends.", ja: "自己成長にゴールはありません。成長の旅は決して終わらないのです。" } },
+  { en: "The quieter you become, the more you can hear.", ja: "静かになればなるほど、より多くが聞こえる。", source: { en: "Ram Dass", ja: "ラム・ダス" },
+    explanation: { en: "Inner noise drowns out wisdom. Stillness creates space for deeper understanding.", ja: "心の雑音が知恵をかき消します。静けさが深い理解のための空間を生み出します。" } },
   
   // Morita Therapy Wisdom
-  { en: "Accept your feelings as they are. Then do what needs to be done.", ja: "感情をあるがままに受け入れ、なすべきことをなせ。", source: { en: "Shoma Morita", ja: "森田正馬" } },
-  { en: "Your anxiety is not your enemy. It is simply part of being human.", ja: "不安は敵ではない。人間であることの一部に過ぎない。", source: { en: "Morita Therapy", ja: "森田療法" } },
-  { en: "Action brings courage, not the other way around.", ja: "行動が勇気をもたらす。その逆ではない。", source: { en: "Morita Therapy", ja: "森田療法" } },
-  { en: "Feelings are like weather. Actions are like gardening.", ja: "感情は天気のよう。行動は園芸のよう。", source: { en: "Morita Therapy", ja: "森田療法" } },
-  { en: "Purpose-driven action frees us from the tyranny of mood.", ja: "目的のある行動は、気分の支配から我々を解放する。", source: { en: "Morita Therapy", ja: "森田療法" } },
+  { en: "Accept your feelings as they are. Then do what needs to be done.", ja: "感情をあるがままに受け入れ、なすべきことをなせ。", source: { en: "Shoma Morita", ja: "森田正馬" },
+    explanation: { en: "The core of Morita Therapy: don't fight feelings, but don't let them control your actions either.", ja: "森田療法の核心。感情と闘わず、しかし感情に行動を支配させない。" } },
+  { en: "Your anxiety is not your enemy. It is simply part of being human.", ja: "不安は敵ではない。人間であることの一部に過ぎない。", source: { en: "Morita Therapy", ja: "森田療法" },
+    explanation: { en: "Anxiety is natural, not a flaw. The problem arises when we fight against it instead of accepting it.", ja: "不安は欠陥ではなく自然なもの。問題は、不安を受け入れず闘おうとするときに生じます。" } },
+  { en: "Action brings courage, not the other way around.", ja: "行動が勇気をもたらす。その逆ではない。", source: { en: "Morita Therapy", ja: "森田療法" },
+    explanation: { en: "Don't wait to feel brave before acting. Courage emerges from taking action despite fear.", ja: "勇気が湧くのを待たないで。恐れがあっても行動することで、勇気が生まれます。" } },
+  { en: "Feelings are like weather. Actions are like gardening.", ja: "感情は天気のよう。行動は園芸のよう。", source: { en: "Morita Therapy", ja: "森田療法" },
+    explanation: { en: "You can't control the weather (feelings), but you can still tend your garden (take action).", ja: "天気（感情）はコントロールできませんが、庭の手入れ（行動）はできます。" } },
+  { en: "Purpose-driven action frees us from the tyranny of mood.", ja: "目的のある行動は、気分の支配から我々を解放する。", source: { en: "Morita Therapy", ja: "森田療法" },
+    explanation: { en: "When guided by purpose rather than mood, we reclaim control of our lives.", ja: "気分ではなく目的に導かれるとき、私たちは人生の主導権を取り戻します。" } },
   
   // Naikan Wisdom
-  { en: "What have I received? What have I given? What troubles have I caused?", ja: "何をもらったか。何を返したか。どんな迷惑をかけたか。", source: { en: "Naikan", ja: "内観" } },
-  { en: "Gratitude is not just a feeling, it is a way of seeing.", ja: "感謝は単なる感情ではない。ものの見方である。", source: { en: "Naikan", ja: "内観" } },
-  { en: "When we truly examine our lives, we find we have received far more than we have given.", ja: "人生を真に見つめると、与えた以上に受け取ってきたことに気づく。", source: { en: "Naikan", ja: "内観" } },
+  { en: "What have I received? What have I given? What troubles have I caused?", ja: "何をもらったか。何を返したか。どんな迷惑をかけたか。", source: { en: "Naikan", ja: "内観" },
+    explanation: { en: "The three questions of Naikan practice. They shift focus from self-pity to gratitude and self-awareness.", ja: "内観の三つの問い。自己憐憫から感謝と自己認識へと視点を転換します。" } },
+  { en: "Gratitude is not just a feeling, it is a way of seeing.", ja: "感謝は単なる感情ではない。ものの見方である。", source: { en: "Naikan", ja: "内観" },
+    explanation: { en: "Gratitude as a lens changes everything. When we look for what we've received, the world transforms.", ja: "感謝というレンズはすべてを変えます。受け取ったものに目を向けると、世界が変わります。" } },
+  { en: "When we truly examine our lives, we find we have received far more than we have given.", ja: "人生を真に見つめると、与えた以上に受け取ってきたことに気づく。", source: { en: "Naikan", ja: "内観" },
+    explanation: { en: "A humbling realization through Naikan: we are supported by countless people and things.", ja: "内観を通じた気づき。私たちは数え切れない人やものに支えられています。" } },
   
   // Wabi-Sabi & Kintsugi
-  { en: "Nothing lasts, nothing is finished, and nothing is perfect.", ja: "永遠のものはなく、完成されたものはなく、完璧なものはない。", source: { en: "Wabi-sabi", ja: "侘び寂び" } },
-  { en: "Your cracks are where the light enters.", ja: "ひび割れは、光が入る場所である。", source: { en: "Kintsugi Philosophy", ja: "金継ぎの哲学" } },
-  { en: "Beauty is found in imperfection.", ja: "美は不完全さの中にある。", source: { en: "Wabi-sabi", ja: "侘び寂び" } },
-  { en: "The broken vessel, repaired with gold, becomes more beautiful than before.", ja: "金で修復された器は、以前より美しくなる。", source: { en: "Kintsugi", ja: "金継ぎ" } },
+  { en: "Nothing lasts, nothing is finished, and nothing is perfect.", ja: "永遠のものはなく、完成されたものはなく、完璧なものはない。", source: { en: "Wabi-sabi", ja: "侘び寂び" },
+    explanation: { en: "The three pillars of wabi-sabi: impermanence, incompleteness, and imperfection — and the beauty within them.", ja: "侘び寂びの三つの柱：無常、不完全、不完璧 ― そしてその中にある美しさ。" } },
+  { en: "Your cracks are where the light enters.", ja: "ひび割れは、光が入る場所である。", source: { en: "Kintsugi Philosophy", ja: "金継ぎの哲学" },
+    explanation: { en: "Our wounds and struggles become openings for growth, wisdom, and compassion.", ja: "傷や苦難は、成長・知恵・思いやりへの入り口になります。" } },
+  { en: "Beauty is found in imperfection.", ja: "美は不完全さの中にある。", source: { en: "Wabi-sabi", ja: "侘び寂び" },
+    explanation: { en: "Perfection is an illusion. True beauty lies in the natural, the worn, and the imperfect.", ja: "完璧は幻想。本当の美しさは、自然なもの、使い込まれたもの、不完全なものの中にあります。" } },
+  { en: "The broken vessel, repaired with gold, becomes more beautiful than before.", ja: "金で修復された器は、以前より美しくなる。", source: { en: "Kintsugi", ja: "金継ぎ" },
+    explanation: { en: "Kintsugi teaches that our history of breakage and repair adds value and beauty to who we are.", ja: "金継ぎは、壊れて修復された歴史が、私たちの価値と美しさを高めることを教えています。" } },
   
   // Japanese Proverbs
-  { en: "Even dust, when accumulated, becomes a mountain.", ja: "塵も積もれば山となる。", source: { en: "Japanese Proverb", ja: "日本のことわざ" } },
-  { en: "The nail that sticks out gets hammered down, but the bamboo that bends survives the storm.", ja: "出る杭は打たれるが、しなる竹は嵐を生き延びる。", source: { en: "Japanese Wisdom", ja: "日本の知恵" } },
-  { en: "If you chase two rabbits, you will catch neither.", ja: "二兎を追う者は一兎をも得ず。", source: { en: "Japanese Proverb", ja: "日本のことわざ" } },
-  { en: "One who climbs Mount Fuji once is wise; one who climbs twice is a fool.", ja: "富士山に一度登る者は賢者、二度登る者は愚者。", source: { en: "Japanese Proverb", ja: "日本のことわざ" } },
-  { en: "A frog in a well knows nothing of the great ocean.", ja: "井の中の蛙大海を知らず。", source: { en: "Japanese Proverb", ja: "日本のことわざ" } },
+  { en: "Even dust, when accumulated, becomes a mountain.", ja: "塵も積もれば山となる。", source: { en: "Japanese Proverb", ja: "日本のことわざ" },
+    explanation: { en: "Small efforts compound over time. Consistency matters more than intensity.", ja: "小さな努力は時間とともに積み重なります。激しさより継続が大切です。" } },
+  { en: "The nail that sticks out gets hammered down, but the bamboo that bends survives the storm.", ja: "出る杭は打たれるが、しなる竹は嵐を生き延びる。", source: { en: "Japanese Wisdom", ja: "日本の知恵" },
+    explanation: { en: "Flexibility and adaptability can be greater strengths than rigid resistance.", ja: "柔軟さと適応力は、頑固な抵抗よりも大きな強さになりえます。" } },
+  { en: "If you chase two rabbits, you will catch neither.", ja: "二兎を追う者は一兎をも得ず。", source: { en: "Japanese Proverb", ja: "日本のことわざ" },
+    explanation: { en: "Focus on one thing at a time. Dividing attention leads to achieving nothing.", ja: "一度にひとつのことに集中しよう。注意を分散させると何も成し遂げられません。" } },
+  { en: "One who climbs Mount Fuji once is wise; one who climbs twice is a fool.", ja: "富士山に一度登る者は賢者、二度登る者は愚者。", source: { en: "Japanese Proverb", ja: "日本のことわざ" },
+    explanation: { en: "Some experiences are precious because they happen once. Know when enough is enough.", ja: "一度きりだからこそ尊い体験がある。「足るを知る」ことの大切さ。" } },
+  { en: "A frog in a well knows nothing of the great ocean.", ja: "井の中の蛙大海を知らず。", source: { en: "Japanese Proverb", ja: "日本のことわざ" },
+    explanation: { en: "Limited experience leads to a narrow worldview. Step outside your comfort zone to gain perspective.", ja: "狭い経験は狭い世界観につながる。視野を広げるためにコンフォートゾーンの外へ出よう。" } },
   
   // Buddhist Wisdom
-  { en: "Peace comes from within. Do not seek it without.", ja: "平和は内から来る。外に求めるな。", source: { en: "Buddha", ja: "釈迦" } },
-  { en: "The mind is everything. What you think, you become.", ja: "心がすべてである。思うことが、あなた自身になる。", source: { en: "Buddha", ja: "釈迦" } },
-  { en: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", ja: "過去にとらわれず、未来を夢見ず、今この瞬間に心を集中せよ。", source: { en: "Buddha", ja: "釈迦" } },
-  { en: "You yourself must strive. The Buddhas only point the way.", ja: "自ら努めよ。仏は道を示すのみ。", source: { en: "Dhammapada", ja: "法句経" } },
+  { en: "Peace comes from within. Do not seek it without.", ja: "平和は内から来る。外に求めるな。", source: { en: "Buddha", ja: "釈迦" },
+    explanation: { en: "External circumstances can't give lasting peace. True peace is cultivated within the mind.", ja: "外の環境は永続的な安らぎを与えられません。本当の平和は心の中で育まれます。" } },
+  { en: "The mind is everything. What you think, you become.", ja: "心がすべてである。思うことが、あなた自身になる。", source: { en: "Buddha", ja: "釈迦" },
+    explanation: { en: "Our thoughts shape our reality. By changing how we think, we change who we are.", ja: "思考が現実をつくります。考え方を変えれば、自分自身も変わります。" } },
+  { en: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", ja: "過去にとらわれず、未来を夢見ず、今この瞬間に心を集中せよ。", source: { en: "Buddha", ja: "釈迦" },
+    explanation: { en: "The only moment we truly have is now. Ruminating or worrying steals our present.", ja: "本当にあるのは「今」だけ。過去の後悔や未来の心配は、今を奪います。" } },
+  { en: "You yourself must strive. The Buddhas only point the way.", ja: "自ら努めよ。仏は道を示すのみ。", source: { en: "Dhammapada", ja: "法句経" },
+    explanation: { en: "No one can walk the path for you. Teachers guide, but the work of growth is yours alone.", ja: "誰もあなたの代わりに道を歩めません。師は導くだけで、成長の努力は自分自身のものです。" } },
   
   // Daily Mindfulness
-  { en: "When walking, just walk. When eating, just eat.", ja: "歩くときは、ただ歩く。食べるときは、ただ食べる。", source: { en: "Zen Teaching", ja: "禅の教え" } },
-  { en: "Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.", ja: "悟りの前、薪を割り水を汲む。悟りの後、薪を割り水を汲む。", source: { en: "Zen Proverb", ja: "禅のことわざ" } },
-  { en: "Drink your tea slowly and reverently, as if it is the axis on which the whole earth revolves.", ja: "お茶をゆっくりと敬虔に飲め。それが地球が回る軸であるかのように。", source: { en: "Thich Nhat Hanh", ja: "ティク・ナット・ハン" } },
-  { en: "Wherever you are, be there totally.", ja: "どこにいても、完全にそこにいなさい。", source: { en: "Eckhart Tolle", ja: "エックハルト・トール" } },
+  { en: "When walking, just walk. When eating, just eat.", ja: "歩くときは、ただ歩く。食べるときは、ただ食べる。", source: { en: "Zen Teaching", ja: "禅の教え" },
+    explanation: { en: "Full presence in each activity is the essence of Zen. Multitasking divides the mind.", ja: "今していることに完全に集中する ― それが禅の本質。マルチタスクは心を分断します。" } },
+  { en: "Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.", ja: "悟りの前、薪を割り水を汲む。悟りの後、薪を割り水を汲む。", source: { en: "Zen Proverb", ja: "禅のことわざ" },
+    explanation: { en: "Spiritual awakening doesn't change daily life — it changes how you experience it.", ja: "悟りは日常を変えません ― 日常の「体験の仕方」が変わるのです。" } },
+  { en: "Drink your tea slowly and reverently, as if it is the axis on which the whole earth revolves.", ja: "お茶をゆっくりと敬虔に飲め。それが地球が回る軸であるかのように。", source: { en: "Thich Nhat Hanh", ja: "ティク・ナット・ハン" },
+    explanation: { en: "Every mundane moment can be sacred if we bring full attention to it.", ja: "全身全霊で向き合えば、どんな日常の瞬間も神聖なものになりえます。" } },
+  { en: "Wherever you are, be there totally.", ja: "どこにいても、完全にそこにいなさい。", source: { en: "Eckhart Tolle", ja: "エックハルト・トール" },
+    explanation: { en: "Half-presence is half-living. Give your complete attention to wherever you find yourself.", ja: "半分の存在は半分の人生。今いる場所に完全な注意を向けましょう。" } },
   
   // Acceptance & Flow
-  { en: "Let go, or be dragged.", ja: "手放すか、引きずられるか。", source: { en: "Zen Proverb", ja: "禅のことわざ" } },
-  { en: "Be like water: flexible, soft, yet capable of wearing away stone.", ja: "水のようであれ。柔軟で、柔らかく、それでいて石をも削る。", source: { en: "Tao Te Ching", ja: "老子 道徳経" } },
-  { en: "The river does not push; it just flows.", ja: "川は押さない。ただ流れる。", source: { en: "Zen Wisdom", ja: "禅の知恵" } },
-  { en: "What the caterpillar calls the end, the rest of the world calls a butterfly.", ja: "毛虫が終わりと呼ぶものを、世界の残りは蝶と呼ぶ。", source: { en: "Lao Tzu", ja: "老子" } },
+  { en: "Let go, or be dragged.", ja: "手放すか、引きずられるか。", source: { en: "Zen Proverb", ja: "禅のことわざ" },
+    explanation: { en: "Clinging to what we can't control only causes suffering. Letting go is an act of strength.", ja: "コントロールできないものにしがみつくと苦しむだけ。手放すことは強さの表れです。" } },
+  { en: "Be like water: flexible, soft, yet capable of wearing away stone.", ja: "水のようであれ。柔軟で、柔らかく、それでいて石をも削る。", source: { en: "Tao Te Ching", ja: "老子 道徳経" },
+    explanation: { en: "True power is not force, but adaptability. Water wins by flowing, not by fighting.", ja: "本当の力は力ずくではなく適応力。水は闘わず流れることで勝ちます。" } },
+  { en: "The river does not push; it just flows.", ja: "川は押さない。ただ流れる。", source: { en: "Zen Wisdom", ja: "禅の知恵" },
+    explanation: { en: "Don't force outcomes. Like a river, find your natural path and trust the flow.", ja: "結果を無理に求めないで。川のように自然な道を見つけ、流れを信じましょう。" } },
+  { en: "What the caterpillar calls the end, the rest of the world calls a butterfly.", ja: "毛虫が終わりと呼ぶものを、世界の残りは蝶と呼ぶ。", source: { en: "Lao Tzu", ja: "老子" },
+    explanation: { en: "What feels like an ending is often a transformation. Pain can be the prelude to something beautiful.", ja: "終わりに感じることは、しばしば変容です。痛みは美しい何かへの序曲かもしれません。" } },
   
   // Self-Compassion
-  { en: "You are not your thoughts. You are the awareness behind them.", ja: "あなたは思考ではない。その背後にある気づきである。", source: { en: "Eckhart Tolle", ja: "エックハルト・トール" } },
-  { en: "Be kind, for everyone you meet is fighting a hard battle.", ja: "親切であれ。出会うすべての人が、困難な戦いをしているのだから。", source: { en: "Attributed to Plato", ja: "プラトン（伝）" } },
-  { en: "The wound is the place where the light enters you.", ja: "傷は、光があなたに入る場所である。", source: { en: "Rumi", ja: "ルーミー" } },
+  { en: "You are not your thoughts. You are the awareness behind them.", ja: "あなたは思考ではない。その背後にある気づきである。", source: { en: "Eckhart Tolle", ja: "エックハルト・トール" },
+    explanation: { en: "Thoughts come and go, but the 'you' that observes them remains. You are bigger than any thought.", ja: "思考は来ては去りますが、それを観察する「あなた」は変わりません。あなたはどんな思考よりも大きい存在です。" } },
+  { en: "Be kind, for everyone you meet is fighting a hard battle.", ja: "親切であれ。出会うすべての人が、困難な戦いをしているのだから。", source: { en: "Attributed to Plato", ja: "プラトン（伝）" },
+    explanation: { en: "Everyone carries invisible burdens. Kindness is never wasted.", ja: "誰もが見えない重荷を背負っています。親切は決して無駄にはなりません。" } },
+  { en: "The wound is the place where the light enters you.", ja: "傷は、光があなたに入る場所である。", source: { en: "Rumi", ja: "ルーミー" },
+    explanation: { en: "Our deepest wounds can become our greatest sources of wisdom and empathy.", ja: "最も深い傷が、最も大きな知恵と共感の源になりえます。" } },
   
   // Impermanence
-  { en: "This too shall pass.", ja: "これもまた過ぎ去る。", source: { en: "Persian Adage", ja: "ペルシアの格言" } },
-  { en: "The only constant is change.", ja: "唯一の不変は変化である。", source: { en: "Heraclitus", ja: "ヘラクレイトス" } },
-  { en: "Every moment is a fresh beginning.", ja: "すべての瞬間が新しい始まりである。", source: { en: "T.S. Eliot", ja: "T.S. エリオット" } },
-  { en: "Like the moon, come out from behind the clouds and shine.", ja: "月のように、雲の後ろから出て輝け。", source: { en: "Buddha", ja: "釈迦" } },
+  { en: "This too shall pass.", ja: "これもまた過ぎ去る。", source: { en: "Persian Adage", ja: "ペルシアの格言" },
+    explanation: { en: "Both joy and sorrow are temporary. This truth brings comfort in dark times and humility in good times.", ja: "喜びも悲しみも一時的なもの。この真実は、辛い時に慰めを、良い時に謙虚さをもたらします。" } },
+  { en: "The only constant is change.", ja: "唯一の不変は変化である。", source: { en: "Heraclitus", ja: "ヘラクレイトス" },
+    explanation: { en: "Resisting change causes suffering. Embracing it brings freedom.", ja: "変化に抵抗すると苦しみが生まれます。受け入れれば自由になれます。" } },
+  { en: "Every moment is a fresh beginning.", ja: "すべての瞬間が新しい始まりである。", source: { en: "T.S. Eliot", ja: "T.S. エリオット" },
+    explanation: { en: "You are not trapped by yesterday. Each moment offers a chance to start anew.", ja: "昨日に縛られる必要はありません。すべての瞬間が新たに始めるチャンスです。" } },
+  { en: "Like the moon, come out from behind the clouds and shine.", ja: "月のように、雲の後ろから出て輝け。", source: { en: "Buddha", ja: "釈迦" },
+    explanation: { en: "Your inner light is always there, even when obscured by difficulties. Let it shine through.", ja: "あなたの内なる光は、困難に覆われていても常にそこにあります。輝かせましょう。" } },
   
   // Simplicity
-  { en: "Simplicity is the ultimate sophistication.", ja: "シンプルさは究極の洗練である。", source: { en: "Leonardo da Vinci", ja: "レオナルド・ダ・ヴィンチ" } },
-  { en: "Less is more.", ja: "少ないことは、より多いこと。", source: { en: "Mies van der Rohe", ja: "ミース・ファン・デル・ローエ" } },
-  { en: "The greatest wealth is a poverty of desires.", ja: "最大の富は、欲望の貧しさである。", source: { en: "Seneca", ja: "セネカ" } },
-  { en: "Have nothing in your house that you do not know to be useful or believe to be beautiful.", ja: "役立つと知らないもの、美しいと信じないものは家に置くな。", source: { en: "William Morris", ja: "ウィリアム・モリス" } }
+  { en: "Simplicity is the ultimate sophistication.", ja: "シンプルさは究極の洗練である。", source: { en: "Leonardo da Vinci", ja: "レオナルド・ダ・ヴィンチ" },
+    explanation: { en: "Complexity often hides confusion. True mastery shows itself in simplicity.", ja: "複雑さはしばしば混乱を隠します。本当の熟練はシンプルさに表れます。" } },
+  { en: "Less is more.", ja: "少ないことは、より多いこと。", source: { en: "Mies van der Rohe", ja: "ミース・ファン・デル・ローエ" },
+    explanation: { en: "By removing the unnecessary, we make space for what truly matters.", ja: "不要なものを取り除くことで、本当に大切なもののための余白が生まれます。" } },
+  { en: "The greatest wealth is a poverty of desires.", ja: "最大の富は、欲望の貧しさである。", source: { en: "Seneca", ja: "セネカ" },
+    explanation: { en: "True richness comes not from having more, but from wanting less.", ja: "本当の豊かさは、多くを持つことではなく、多くを求めないことから生まれます。" } },
+  { en: "Have nothing in your house that you do not know to be useful or believe to be beautiful.", ja: "役立つと知らないもの、美しいと信じないものは家に置くな。", source: { en: "William Morris", ja: "ウィリアム・モリス" },
+    explanation: { en: "Surround yourself only with things that serve or inspire you. Decluttering frees the mind.", ja: "役に立つもの、心を豊かにするものだけを身の回りに。整理は心を自由にします。" } }
 ];
 
 // Get today's zen quote (same quote for everyone on the same day)
@@ -219,6 +269,11 @@ function updateDailyZenQuote(lang = 'en') {
   quoteEl.textContent = `"${quote[lang]}"`;
   if (sourceEl) {
     sourceEl.textContent = `— ${quote.source[lang] || quote.source.en}`;
+  }
+  // Display explanation on home page
+  const explanationEl = document.getElementById('daily-zen-explanation');
+  if (explanationEl && quote.explanation) {
+    explanationEl.textContent = quote.explanation[lang] || quote.explanation.en;
   }
 }
 
@@ -306,6 +361,11 @@ function initZenArchive(lang = 'en') {
   if (todayQuoteSource) {
     todayQuoteSource.textContent = `— ${todayQuote.source[lang] || todayQuote.source.en}`;
   }
+  // Display today's quote explanation
+  const todayQuoteExplanation = document.getElementById('today-quote-explanation');
+  if (todayQuoteExplanation && todayQuote.explanation) {
+    todayQuoteExplanation.textContent = todayQuote.explanation[lang] || todayQuote.explanation.en;
+  }
   
   // Share today's quote
   if (shareTodayBtn) {
@@ -326,9 +386,10 @@ function initZenArchive(lang = 'en') {
     
     quotesGrid.innerHTML = filtered.map(quote => `
       <div class="quote-card bg-white/60 dark:bg-[#1e1e1e]/80 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow" data-category="${quote.category}">
-        <blockquote class="text-lg text-indigo-800 dark:text-[#e8e4dc] italic leading-relaxed mb-3">
+        <blockquote class="text-lg text-indigo-800 dark:text-[#e8e4dc] italic leading-relaxed mb-2">
           "${quote[lang]}"
         </blockquote>
+        ${quote.explanation ? `<p class="text-xs leading-relaxed text-ink-400 dark:text-[#a8a29e] mb-3 pl-2 border-l-2 border-gold/30 dark:border-gold/40">${quote.explanation[lang] || quote.explanation.en}</p>` : ''}
         <div class="flex items-center justify-between">
           <p class="text-xs text-ink-400 dark:text-[#78716c]">— ${quote.source[lang] || quote.source.en}</p>
           <button 

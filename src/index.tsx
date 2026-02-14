@@ -698,6 +698,9 @@ app.get('/', (c) => {
               <p id="daily-zen-source" class="text-xs text-ink-400 dark:text-[#78716c] text-right">
                 {/* Source will be populated by JS */}
               </p>
+              <p id="daily-zen-explanation" class="text-xs leading-relaxed text-ink-400 dark:text-[#a8a29e] mt-3 pl-3 border-l-2 border-gold/30 dark:border-gold/40">
+                {/* Explanation will be populated by JS */}
+              </p>
               <a 
                 href={`/zen-archive?lang=${lang}`}
                 class="inline-flex items-center gap-1 mt-4 text-sm text-indigo-600 dark:text-[#d4af37] hover:underline"
@@ -2541,7 +2544,6 @@ app.get('/diagnosis', (c) => {
       
       <Footer currentLang={lang} />
       
-      <script src="/static/app.js"></script>
       <script dangerouslySetInnerHTML={{ __html: `
         document.addEventListener('DOMContentLoaded', function() {
           const lang = '${lang}';
@@ -2649,6 +2651,9 @@ app.get('/zen-archive', (c) => {
                 {t.share[lang]}
               </button>
             </div>
+            <p id="today-quote-explanation" class="text-xs leading-relaxed text-ink-400 dark:text-[#a8a29e] mt-3 pl-3 border-l-2 border-gold/30 dark:border-gold/40">
+              {/* JS will populate */}
+            </p>
           </div>
           
           {/* Category Filter */}
@@ -2701,7 +2706,6 @@ app.get('/zen-archive', (c) => {
       
       <Footer currentLang={lang} />
       
-      <script src="/static/app.js"></script>
       <script dangerouslySetInnerHTML={{ __html: `
         document.addEventListener('DOMContentLoaded', function() {
           const lang = '${lang}';
