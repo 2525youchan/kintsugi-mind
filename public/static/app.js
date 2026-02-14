@@ -296,7 +296,7 @@ function initZenArchive(lang = 'en') {
     todayQuoteText.textContent = `"${todayQuote[lang]}"`;
   }
   if (todayQuoteSource) {
-    todayQuoteSource.textContent = `— ${todayQuote.source}`;
+    todayQuoteSource.textContent = `— ${todayQuote.source[lang] || todayQuote.source.en}`;
   }
   
   // Share today's quote
