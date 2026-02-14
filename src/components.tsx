@@ -174,6 +174,19 @@ export const Header = ({
           
           <LanguageSwitcher currentLang={currentLang} />
           
+          {/* Dark Mode Toggle */}
+          {variant !== 'transparent' && (
+            <button 
+              id="dark-mode-toggle"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-ecru-200 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a] text-sm hover:scale-110 transition-transform"
+              aria-label="Toggle dark mode"
+              title="Toggle dark mode"
+            >
+              <span class="dark:hidden">🌙</span>
+              <span class="hidden dark:inline">☀️</span>
+            </button>
+          )}
+          
           {/* Mobile Menu Button */}
           {variant !== 'transparent' && <MobileMenuButton />}
           

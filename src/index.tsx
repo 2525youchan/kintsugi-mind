@@ -1869,7 +1869,7 @@ app.get('/profile', (c) => {
                     </div>
                   </div>
                   <button 
-                    id="dark-mode-toggle"
+                    id="dark-mode-toggle-profile"
                     class="relative w-12 h-6 bg-ecru-300 dark:bg-gold rounded-full transition-colors"
                     aria-label="Toggle dark mode"
                   >

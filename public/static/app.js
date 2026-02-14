@@ -872,13 +872,13 @@ const DARK_MODE_KEY = 'kintsugi-dark-mode';
 
 // Initialize dark mode toggle after DOM ready
 function initDarkMode() {
-  const toggle = document.getElementById('dark-mode-toggle');
-  if (!toggle) return;
+  const toggles = document.querySelectorAll('#dark-mode-toggle, #dark-mode-toggle-profile');
+  if (toggles.length === 0) return;
   
   const isDark = document.documentElement.classList.contains('dark');
   updateDarkModeUI(isDark);
   
-  toggle.addEventListener('click', () => {
+  function handleToggle() {
     const currentlyDark = document.documentElement.classList.contains('dark');
     const newMode = !currentlyDark;
     
@@ -899,6 +899,10 @@ function initDarkMode() {
     if (navigator.vibrate) {
       navigator.vibrate(10);
     }
+  }
+  
+  toggles.forEach(toggle => {
+    toggle.addEventListener('click', handleToggle);
   });
   
   // Listen for system preference changes
@@ -917,13 +921,11 @@ function initDarkMode() {
 }
 
 function updateDarkModeUI(isDark) {
-  const toggle = document.getElementById('dark-mode-toggle');
-  
-  // Update aria attributes
-  if (toggle) {
+  // Update all dark mode toggles
+  document.querySelectorAll('#dark-mode-toggle, #dark-mode-toggle-profile').forEach(toggle => {
     toggle.setAttribute('aria-pressed', isDark);
     toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-  }
+  });
   
   // Update theme icon on profile page
   const themeIcon = document.getElementById('theme-icon');
