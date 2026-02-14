@@ -2674,6 +2674,9 @@ app.get('/zen-archive', (c) => {
             <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="buddhism">
               {t.categories.buddhism[lang]}
             </button>
+            <button class="category-btn px-4 py-2 text-sm rounded-full transition-colors bg-ink-200/50 dark:bg-[#2d2d2d] text-ink-500 dark:text-[#a8a29e] hover:bg-ink-200 dark:hover:bg-[#3d3d3d]" data-category="mindfulness">
+              {t.categories.mindfulness[lang]}
+            </button>
           </div>
           
           {/* Quotes Grid */}

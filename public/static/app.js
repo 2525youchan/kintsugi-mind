@@ -273,12 +273,20 @@ const QUOTE_CATEGORIES = {
   'Lao Tzu': 'mindfulness',
   'Tao Te Ching': 'mindfulness',
   'Rumi': 'mindfulness',
-  'Shunryu Suzuki': 'zen'
+  'Shunryu Suzuki': 'zen',
+  'Attributed to Plato': 'mindfulness',
+  'Persian Adage': 'mindfulness',
+  'Heraclitus': 'mindfulness',
+  'T.S. Eliot': 'mindfulness',
+  'Leonardo da Vinci': 'mindfulness',
+  'Mies van der Rohe': 'mindfulness',
+  'Seneca': 'mindfulness',
+  'William Morris': 'mindfulness'
 };
 
 function getQuoteCategory(source) {
   const key = typeof source === 'object' ? source.en : source;
-  return QUOTE_CATEGORIES[key] || 'zen';
+  return QUOTE_CATEGORIES[key] || 'mindfulness';
 }
 
 // Initialize zen archive page
