@@ -1466,7 +1466,7 @@ app.get('/profile', (c) => {
             {/* Vessel Visualization */}
             <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi text-center">
               {/* Vessel type indicator - will be read by JS */}
-              <div id="vessel-type-display" class="text-xs text-ink-400 dark:text-[#78716c] mb-2"></div>
+              <div id="vessel-type-display" class="text-xs text-ink-400 dark:text-[#a8a29e] mb-2"></div>
               <div id="vessel-container" class="mb-6">
                 {/* Stage-based vessel photo - image changes based on repair progress */}
                 <img 
@@ -1507,8 +1507,8 @@ app.get('/profile', (c) => {
               <div class="space-y-4 mt-8">
                 <div>
                   <div class="flex justify-between text-sm mb-1">
-                    <span class="text-ink-500 dark:text-[#78716c]">{t.depth[lang]}</span>
-                    <span id="depth-value" class="text-indigo-700 dark:text-indigo-400">0%</span>
+                    <span class="text-ink-500 dark:text-[#c4bdb6]">{t.depth[lang]}</span>
+                    <span id="depth-value" class="text-indigo-700 dark:text-indigo-300">0%</span>
                   </div>
                   <div class="h-2 bg-ecru-300 dark:bg-[#2d2d2d] rounded-full overflow-hidden">
                     <div id="depth-bar" class="h-full bg-indigo-600 rounded-full transition-all duration-1000" style="width: 0%"></div>
@@ -1516,8 +1516,8 @@ app.get('/profile', (c) => {
                 </div>
                 <div>
                   <div class="flex justify-between text-sm mb-1">
-                    <span class="text-ink-500 dark:text-[#78716c]">{t.gold[lang]}</span>
-                    <span id="gold-value" class="text-gold">0%</span>
+                    <span class="text-ink-500 dark:text-[#c4bdb6]">{t.gold[lang]}</span>
+                    <span id="gold-value" class="text-gold dark:text-[#e8c84a]">0%</span>
                   </div>
                   <div class="h-2 bg-ecru-300 dark:bg-[#2d2d2d] rounded-full overflow-hidden">
                     <div id="gold-bar" class="h-full bg-gold rounded-full transition-all duration-1000" style="width: 0%"></div>
@@ -1526,7 +1526,7 @@ app.get('/profile', (c) => {
               </div>
               
               {/* Message */}
-              <p id="vessel-message" class="text-ink-500 dark:text-[#78716c] text-sm mt-6 italic">
+              <p id="vessel-message" class="text-ink-500 dark:text-[#c4bdb6] text-sm mt-6 italic">
                 {t.emptyMessage[lang]}
               </p>
               
