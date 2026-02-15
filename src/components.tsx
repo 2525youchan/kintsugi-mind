@@ -94,7 +94,7 @@ export const Header = ({
     <header class={baseClass}>
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
         <a href={`/?lang=${currentLang}`} class="flex items-center gap-2 sm:gap-3">
-          <div class={`w-7 h-7 sm:w-8 sm:h-8 rounded-full gradient-gold ${variant === 'transparent' ? 'opacity-80' : ''}`}></div>
+          <div class={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 aspect-square rounded-full gradient-gold ${variant === 'transparent' ? 'opacity-80' : ''}`}></div>
           <span class={`text-lg sm:text-xl font-medium ${textClass}`}>KINTSUGI MIND</span>
         </a>
         
