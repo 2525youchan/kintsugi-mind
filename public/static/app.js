@@ -2680,7 +2680,7 @@ function addCloud(text, container) {
   }
   
   const cloud = document.createElement('div');
-  cloud.className = 'cloud absolute px-4 py-2 text-sm text-ink-600 max-w-xs animate-fade-in';
+  cloud.className = 'cloud absolute px-4 py-2 text-sm text-ink-600 dark:text-[#e8e4dc] max-w-xs animate-fade-in';
   cloud.textContent = text;
   
   // Calculate position that doesn't overlap with existing clouds

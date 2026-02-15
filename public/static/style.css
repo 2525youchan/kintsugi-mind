@@ -53,10 +53,11 @@
 
 /* Cloud Styles - Dark Mode */
 .dark .cloud {
-  background: linear-gradient(135deg, rgba(60, 60, 60, 0.9), rgba(40, 40, 40, 0.7));
+  background: linear-gradient(135deg, rgba(70, 70, 70, 0.95), rgba(50, 50, 50, 0.85));
   box-shadow: 
     inset 0 -3px 10px rgba(0, 0, 0, 0.3),
     0 5px 15px rgba(0, 0, 0, 0.3);
+  color: #e8e4dc;
 }
 
 /* Sky Section - Dark Mode */
