@@ -1092,6 +1092,39 @@ app.get('/garden', (c) => {
             </div>
           </div>
         </section>
+        
+        {/* Navigation after completing garden work */}
+        <section class="py-8 px-4">
+          <div class="max-w-md mx-auto">
+            <p class="text-center text-ink-400 dark:text-[#78716c] text-sm mb-4">
+              {lang === 'en' ? 'Continue your journey' : '旅を続ける'}
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <a href={`/study?lang=${lang}`} class="flex items-center gap-2 px-4 py-3 bg-white/60 dark:bg-[#1e1e1e]/80 rounded-xl border border-wabi dark:border-[#4a4a4a] hover:border-gold dark:hover:border-gold transition-colors">
+                <span class="text-xl">📖</span>
+                <div>
+                  <p class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{lang === 'en' ? 'STUDY' : '書斎'}</p>
+                  <p class="text-xs text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Naikan reflection' : '内観の振り返り'}</p>
+                </div>
+              </a>
+              <a href={`/tatami?lang=${lang}`} class="flex items-center gap-2 px-4 py-3 bg-white/60 dark:bg-[#1e1e1e]/80 rounded-xl border border-wabi dark:border-[#4a4a4a] hover:border-gold dark:hover:border-gold transition-colors">
+                <span class="text-xl">🧘</span>
+                <div>
+                  <p class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{lang === 'en' ? 'TATAMI' : '座敷'}</p>
+                  <p class="text-xs text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Zen meditation' : '禅の瞑想'}</p>
+                </div>
+              </a>
+            </div>
+            <div class="mt-3 flex gap-3">
+              <a href={`/?lang=${lang}`} class="flex-1 text-center px-4 py-2.5 text-sm text-ink-500 dark:text-[#a8a29e] hover:text-gold dark:hover:text-gold transition-colors rounded-xl border border-wabi dark:border-[#4a4a4a]">
+                {lang === 'en' ? 'Home' : 'ホーム'}
+              </a>
+              <a href={`/profile?lang=${lang}`} class="flex-1 text-center px-4 py-2.5 text-sm text-ink-500 dark:text-[#a8a29e] hover:text-gold dark:hover:text-gold transition-colors rounded-xl border border-wabi dark:border-[#4a4a4a]">
+                {lang === 'en' ? 'My Vessel' : '器を見る'}
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
     </div>,
     { title: lang === 'en' ? 'GARDEN — KINTSUGI MIND' : '庭 GARDEN — KINTSUGI MIND' }
@@ -1230,9 +1263,40 @@ app.get('/study', (c) => {
             </div>
           </div>
         </div>
+        
+        {/* Navigation after completing study work */}
+        <section class="py-8 px-4">
+          <div class="max-w-md mx-auto">
+            <p class="text-center text-ink-400 dark:text-[#78716c] text-sm mb-4">
+              {lang === 'en' ? 'Continue your journey' : '旅を続ける'}
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <a href={`/garden?lang=${lang}`} class="flex items-center gap-2 px-4 py-3 bg-white/60 dark:bg-[#1e1e1e]/80 rounded-xl border border-wabi dark:border-[#4a4a4a] hover:border-gold dark:hover:border-gold transition-colors">
+                <span class="text-xl">🌱</span>
+                <div>
+                  <p class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{lang === 'en' ? 'GARDEN' : '庭'}</p>
+                  <p class="text-xs text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Morita therapy' : '森田療法'}</p>
+                </div>
+              </a>
+              <a href={`/tatami?lang=${lang}`} class="flex items-center gap-2 px-4 py-3 bg-white/60 dark:bg-[#1e1e1e]/80 rounded-xl border border-wabi dark:border-[#4a4a4a] hover:border-gold dark:hover:border-gold transition-colors">
+                <span class="text-xl">🧘</span>
+                <div>
+                  <p class="text-sm font-medium text-indigo-800 dark:text-[#e8e4dc]">{lang === 'en' ? 'TATAMI' : '座敷'}</p>
+                  <p class="text-xs text-ink-400 dark:text-[#78716c]">{lang === 'en' ? 'Zen meditation' : '禅の瞑想'}</p>
+                </div>
+              </a>
+            </div>
+            <div class="mt-3 flex gap-3">
+              <a href={`/?lang=${lang}`} class="flex-1 text-center px-4 py-2.5 text-sm text-ink-500 dark:text-[#a8a29e] hover:text-gold dark:hover:text-gold transition-colors rounded-xl border border-wabi dark:border-[#4a4a4a]">
+                {lang === 'en' ? 'Home' : 'ホーム'}
+              </a>
+              <a href={`/profile?lang=${lang}`} class="flex-1 text-center px-4 py-2.5 text-sm text-ink-500 dark:text-[#a8a29e] hover:text-gold dark:hover:text-gold transition-colors rounded-xl border border-wabi dark:border-[#4a4a4a]">
+                {lang === 'en' ? 'My Vessel' : '器を見る'}
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
-    </div>,
-    { title: lang === 'en' ? 'STUDY — KINTSUGI MIND' : '書斎 STUDY — KINTSUGI MIND' }
   )
 })
 
@@ -1340,6 +1404,39 @@ app.get('/tatami', (c) => {
           {/* Haptic Instruction */}
           <p class="text-ecru/40 text-xs mt-12" dangerouslySetInnerHTML={{ __html: tx('tatami', 'hapticNote', lang) }}></p>
         </div>
+        
+        {/* Navigation after completing tatami work */}
+        <section class="py-8 px-4">
+          <div class="max-w-md mx-auto">
+            <p class="text-center text-ecru/40 text-sm mb-4">
+              {lang === 'en' ? 'Continue your journey' : '旅を続ける'}
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <a href={`/garden?lang=${lang}`} class="flex items-center gap-2 px-4 py-3 bg-white/10 rounded-xl border border-ecru/10 hover:border-gold/50 transition-colors">
+                <span class="text-xl">🌱</span>
+                <div>
+                  <p class="text-sm font-medium text-ecru/80">{lang === 'en' ? 'GARDEN' : '庭'}</p>
+                  <p class="text-xs text-ecru/40">{lang === 'en' ? 'Morita therapy' : '森田療法'}</p>
+                </div>
+              </a>
+              <a href={`/study?lang=${lang}`} class="flex items-center gap-2 px-4 py-3 bg-white/10 rounded-xl border border-ecru/10 hover:border-gold/50 transition-colors">
+                <span class="text-xl">📖</span>
+                <div>
+                  <p class="text-sm font-medium text-ecru/80">{lang === 'en' ? 'STUDY' : '書斎'}</p>
+                  <p class="text-xs text-ecru/40">{lang === 'en' ? 'Naikan reflection' : '内観の振り返り'}</p>
+                </div>
+              </a>
+            </div>
+            <div class="mt-3 flex gap-3">
+              <a href={`/?lang=${lang}`} class="flex-1 text-center px-4 py-2.5 text-sm text-ecru/40 hover:text-gold transition-colors rounded-xl border border-ecru/10">
+                {lang === 'en' ? 'Home' : 'ホーム'}
+              </a>
+              <a href={`/profile?lang=${lang}`} class="flex-1 text-center px-4 py-2.5 text-sm text-ecru/40 hover:text-gold transition-colors rounded-xl border border-ecru/10">
+                {lang === 'en' ? 'My Vessel' : '器を見る'}
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
     </div>,
     { title: lang === 'en' ? 'TATAMI — KINTSUGI MIND' : '座敷 TATAMI — KINTSUGI MIND' }
