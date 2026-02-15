@@ -26,6 +26,31 @@ type Variables = {
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 // ========================================
+// dev-bible 3-3: JST Timezone Helper
+// ========================================
+function getTodayJST(): string {
+  const now = new Date(Date.now() + 9 * 60 * 60 * 1000)
+  const y = now.getUTCFullYear()
+  const m = String(now.getUTCMonth() + 1).padStart(2, '0')
+  const d = String(now.getUTCDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+// ========================================
+// dev-bible 5-1/5-3: Unified API Error Response Helper
+// ========================================
+function apiError(c: any, status: number, error: string, opts: { code?: string, retryable?: boolean, details?: string, extra?: Record<string, any> } = {}) {
+  return c.json({
+    success: false,
+    error,
+    ...(opts.code && { code: opts.code }),
+    ...(opts.details && { details: opts.details }),
+    retryable: opts.retryable ?? (status >= 500),
+    ...opts.extra
+  }, status)
+}
+
+// ========================================
 // Security Middleware
 // ========================================
 
@@ -239,7 +264,7 @@ async function checkUsageLimit(
     return { allowed: true, remaining: -1, limit: -1 }
   }
   
-  const today = new Date().toISOString().split('T')[0]
+  const today = getTodayJST()
   
   try {
     // Get or create usage record
@@ -273,7 +298,7 @@ async function checkUsageLimit(
 
 // Increment usage count
 async function incrementUsage(db: D1Database, userId: string, feature: string): Promise<void> {
-  const today = new Date().toISOString().split('T')[0]
+  const today = getTodayJST()
   
   try {
     await db.prepare(`
@@ -993,7 +1018,7 @@ app.get('/garden', (c) => {
           {/* Toggle Button */}
           <button 
             id="garden-sound-toggle"
-            class="flex items-center gap-2 px-4 py-2 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border border-ecru-300 dark:border-[#4a4a4a] text-ink-600 dark:text-[#a8a29e] rounded-full hover:bg-ecru-100 dark:hover:bg-[#2d2d2d] transition-colors shadow-lg text-sm"
+            class="flex items-center gap-2 px-4 py-3 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border border-ecru-300 dark:border-[#4a4a4a] text-ink-600 dark:text-[#a8a29e] rounded-full hover:bg-ecru-100 dark:hover:bg-[#2d2d2d] transition-colors shadow-lg text-sm min-h-[44px]"
             data-mode="garden"
           >
             <svg id="garden-sound-icon-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1214,13 +1239,13 @@ app.get('/study', (c) => {
               </div>
             </div>
             
-            {/* Progress */}
+            {/* Progress - dev-bible 7-1: prefixed IDs to avoid duplication with onboarding */}
             <div class="mt-6 text-center">
-              <p id="progress-text" class="text-ink-400 text-sm">{tx('study', 'question', lang)} 1 / 3</p>
+              <p id="study-progress-text" class="text-ink-400 text-sm">{tx('study', 'question', lang)} 1 / 3</p>
               <div class="flex justify-center gap-2 mt-2">
-                <div id="dot-1" class="w-3 h-3 rounded-full bg-gold"></div>
-                <div id="dot-2" class="w-3 h-3 rounded-full bg-ecru-300"></div>
-                <div id="dot-3" class="w-3 h-3 rounded-full bg-ecru-300"></div>
+                <div id="study-dot-1" class="w-3 h-3 rounded-full bg-gold"></div>
+                <div id="study-dot-2" class="w-3 h-3 rounded-full bg-ecru-300"></div>
+                <div id="study-dot-3" class="w-3 h-3 rounded-full bg-ecru-300"></div>
               </div>
             </div>
           </div>
@@ -1349,7 +1374,7 @@ app.get('/tatami', (c) => {
             <div class="flex items-center gap-3">
               <button 
                 id="sound-toggle-btn"
-                class="flex items-center gap-2 px-4 py-2 bg-ecru/10 border border-ecru/20 text-ecru/70 rounded-full hover:bg-ecru/20 transition-colors text-sm"
+                class="flex items-center gap-2 px-4 py-3 bg-ecru/10 border border-ecru/20 text-ecru/70 rounded-full hover:bg-ecru/20 transition-colors text-sm min-h-[44px]"
                 data-mode="tatami"
               >
                 <svg id="sound-icon-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1783,13 +1808,13 @@ app.get('/profile', (c) => {
                     {lang === 'en' ? '📅 Emotion Heatmap' : '📅 感情ヒートマップ'}
                   </h3>
                   <div class="flex items-center gap-2">
-                    <button id="calendar-prev" class="p-1 hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] rounded transition-colors">
+                    <button id="calendar-prev" class="p-2 hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
                       <svg class="w-5 h-5 text-ink-500 dark:text-[#78716c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                       </svg>
                     </button>
                     <span id="calendar-month" class="text-sm text-ink-600 dark:text-[#a8a29e] min-w-[100px] text-center font-medium"></span>
-                    <button id="calendar-next" class="p-1 hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] rounded transition-colors">
+                    <button id="calendar-next" class="p-2 hover:bg-ecru-200 dark:hover:bg-[#2d2d2d] rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
                       <svg class="w-5 h-5 text-ink-500 dark:text-[#78716c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                       </svg>
@@ -3055,7 +3080,7 @@ app.get('/challenge', (c) => {
           // Create new challenge
           function createNewChallenge() {
             return {
-              startDate: new Date().toISOString().split('T')[0],
+              startDate: getTodayJST(),
               completedDays: [],
               currentDay: 1
             };
@@ -3243,7 +3268,7 @@ app.post('/api/morita/guidance', async (c) => {
   const { allowed } = await rateLimit(c, `ai:${ip}`, 20, 60)
   
   if (!allowed) {
-    return c.json({ error: 'Too many requests. Please slow down.' }, 429)
+    return apiError(c, 429, 'リクエストが多すぎます。少し待ってから再度お試しください。', { code: 'RATE_LIMITED', retryable: true })
   }
   
   const { emotion, lang = 'en' } = await c.req.json()
@@ -3366,7 +3391,7 @@ app.get('/api/zen/koan', async (c) => {
   const { allowed } = await rateLimit(c, `ai:${ip}`, 20, 60)
   
   if (!allowed) {
-    return c.json({ error: 'Too many requests. Please slow down.' }, 429)
+    return apiError(c, 429, 'リクエストが多すぎます。少し待ってから再度お試しください。', { code: 'RATE_LIMITED', retryable: true })
   }
   
   const lang = (c.req.query('lang') || 'en') as Language
@@ -4090,13 +4115,13 @@ app.get('/api/auth/login/google', async (c) => {
   const { allowed, remaining } = await rateLimit(c, `login:${ip}`, 10, 60)
   
   if (!allowed) {
-    return c.json({ error: 'Too many login attempts. Please try again later.' }, 429)
+    return apiError(c, 429, 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください。', { code: 'LOGIN_RATE_LIMITED', retryable: true })
   }
   
   const clientId = c.env.GOOGLE_CLIENT_ID
   
   if (!clientId) {
-    return c.json({ error: 'Google OAuth not configured' }, 500)
+    return apiError(c, 500, 'Googleログインが設定されていません。管理者にお問い合わせください。', { code: 'OAUTH_NOT_CONFIGURED', retryable: false })
   }
   
   // Get the base URL for redirect
@@ -4246,14 +4271,14 @@ app.post('/api/auth/logout', async (c) => {
 app.post('/api/auth/sync', async (c) => {
   const user = await getCurrentUser(c)
   if (!user) {
-    return c.json({ error: 'Not authenticated' }, 401)
+    return apiError(c, 401, 'ログインが必要です。再度ログインしてください。', { code: 'AUTH_REQUIRED', retryable: false })
   }
   
   const { profile: localProfile } = await c.req.json()
   const db = c.env.DB
   
   if (!db || !localProfile) {
-    return c.json({ error: 'Invalid request' }, 400)
+    return apiError(c, 400, 'プロフィールデータが見つかりません。ページを再読み込みしてください。', { code: 'INVALID_SYNC_DATA', retryable: false })
   }
   
   try {
@@ -4267,7 +4292,7 @@ app.post('/api/auth/sync', async (c) => {
     ).bind(user.id).first()
     
     if (!profile) {
-      return c.json({ error: 'Profile not found' }, 404)
+      return apiError(c, 404, 'プロフィールが見つかりません。初回ログインの場合は自動作成されます。', { code: 'PROFILE_NOT_FOUND', retryable: false })
     }
     
     // Merge local data with server data (local takes priority for higher values)
@@ -4314,7 +4339,7 @@ app.post('/api/auth/sync', async (c) => {
     return c.json({ success: true, merged: mergedStats })
   } catch (e) {
     console.error('Sync error:', e)
-    return c.json({ error: 'Sync failed' }, 500)
+    return apiError(c, 500, 'データの同期に失敗しました。しばらくしてから再度お試しください。', { code: 'SYNC_FAILED' })
   }
 })
 
@@ -4322,12 +4347,12 @@ app.post('/api/auth/sync', async (c) => {
 app.get('/api/auth/profile', async (c) => {
   const user = await getCurrentUser(c)
   if (!user) {
-    return c.json({ error: 'Not authenticated' }, 401)
+    return apiError(c, 401, 'ログインが必要です。', { code: 'AUTH_REQUIRED', retryable: false })
   }
   
   const db = c.env.DB
   if (!db) {
-    return c.json({ error: 'Database not available' }, 500)
+    return apiError(c, 500, 'データベースに接続できません。しばらくしてから再度お試しください。', { code: 'DB_UNAVAILABLE' })
   }
   
   try {
@@ -4370,7 +4395,7 @@ app.get('/api/auth/profile', async (c) => {
     })
   } catch (e) {
     console.error('Get profile error:', e)
-    return c.json({ error: 'Failed to get profile' }, 500)
+    return apiError(c, 500, 'プロフィールの取得に失敗しました。再読み込みしてください。', { code: 'PROFILE_FETCH_FAILED' })
   }
 })
 
@@ -4411,8 +4436,9 @@ app.post('/api/checkin', async (c) => {
 // Get check-in history for calendar
 app.get('/api/checkins', async (c) => {
   const user = await getCurrentUser(c)
-  const year = parseInt(c.req.query('year') || new Date().getFullYear().toString())
-  const month = parseInt(c.req.query('month') || (new Date().getMonth() + 1).toString())
+  const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000)
+  const year = parseInt(c.req.query('year') || jstNow.getUTCFullYear().toString())
+  const month = parseInt(c.req.query('month') || (jstNow.getUTCMonth() + 1).toString())
   
   // If not logged in, return empty (frontend will use localStorage)
   if (!user) {
@@ -4487,7 +4513,7 @@ app.get('/api/subscription', async (c) => {
     const limits = subscription.plan === 'premium' ? PLAN_LIMITS.premium : PLAN_LIMITS.free
     
     // Get today's usage
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayJST()
     const usageRows = await db.prepare(`
       SELECT feature, count FROM usage 
       WHERE user_id = ? AND reset_date = ?
@@ -4552,12 +4578,12 @@ app.post('/api/subscription/use/:feature', async (c) => {
   const user = await getCurrentUser(c)
   
   if (!user) {
-    return c.json({ success: false, error: 'Not authenticated' }, 401)
+    return apiError(c, 401, 'ログインが必要です。', { code: 'AUTH_REQUIRED', retryable: false })
   }
   
   const db = c.env.DB
   if (!db) {
-    return c.json({ success: false, error: 'Database not available' }, 500)
+    return apiError(c, 500, 'データベースに接続できません。', { code: 'DB_UNAVAILABLE' })
   }
   
   try {
@@ -4583,7 +4609,7 @@ app.post('/api/subscription/use/:feature', async (c) => {
     })
   } catch (e) {
     console.error('Record usage error:', e)
-    return c.json({ success: false, error: 'Failed to record usage' }, 500)
+    return apiError(c, 500, '使用状況の記録に失敗しました。', { code: 'USAGE_RECORD_FAILED' })
   }
 })
 
@@ -4655,7 +4681,7 @@ app.post('/api/challenge/sync', async (c) => {
     const { challenge } = await c.req.json()
     
     if (!challenge) {
-      return c.json({ error: 'No challenge data' }, 400)
+    return apiError(c, 400, 'チャレンジデータが見つかりません。', { code: 'NO_CHALLENGE_DATA', retryable: false })
     }
     
     // Store challenge in user metadata or a challenges table
@@ -4740,12 +4766,12 @@ app.get('/api/challenge/status', async (c) => {
 app.get('/api/sync/profile', async (c) => {
   const user = await getCurrentUser(c)
   if (!user) {
-    return c.json({ error: 'Not authenticated', source: 'local' }, 401)
+    return apiError(c, 401, 'ログインが必要です。', { code: 'AUTH_REQUIRED', retryable: false, extra: { source: 'local' } })
   }
   
   const db = c.env?.DB
   if (!db) {
-    return c.json({ error: 'Database not available', source: 'local' }, 500)
+    return apiError(c, 500, 'データベースに接続できません。', { code: 'DB_UNAVAILABLE', extra: { source: 'local' } })
   }
   
   try {
@@ -4812,7 +4838,7 @@ app.get('/api/sync/profile', async (c) => {
     })
   } catch (e) {
     console.error('Get profile error:', e)
-    return c.json({ error: 'Failed to get profile', source: 'local' }, 500)
+    return apiError(c, 500, 'プロフィールの取得に失敗しました。', { code: 'PROFILE_FETCH_FAILED', extra: { source: 'local' } })
   }
 })
 
@@ -4820,12 +4846,12 @@ app.get('/api/sync/profile', async (c) => {
 app.post('/api/sync/profile', async (c) => {
   const user = await getCurrentUser(c)
   if (!user) {
-    return c.json({ error: 'Not authenticated', synced: false }, 401)
+    return apiError(c, 401, 'ログインが必要です。', { code: 'AUTH_REQUIRED', retryable: false, extra: { synced: false } })
   }
   
   const db = c.env?.DB
   if (!db) {
-    return c.json({ error: 'Database not available', synced: false }, 500)
+    return apiError(c, 500, 'データベースに接続できません。', { code: 'DB_UNAVAILABLE', extra: { synced: false } })
   }
   
   try {
@@ -4940,7 +4966,7 @@ app.post('/api/sync/profile', async (c) => {
     })
   } catch (e) {
     console.error('Sync profile error:', e)
-    return c.json({ error: 'Failed to sync profile', synced: false }, 500)
+    return apiError(c, 500, 'プロフィールの同期に失敗しました。', { code: 'PROFILE_SYNC_FAILED', extra: { synced: false } })
   }
 })
 
@@ -5046,12 +5072,12 @@ app.post('/api/maintenance/cleanup-sessions', async (c) => {
   const expectedToken = c.env.SESSION_SECRET // Reuse session secret as maintenance token
   
   if (authHeader !== `Bearer ${expectedToken}`) {
-    return c.json({ error: 'Unauthorized' }, 401)
+    return apiError(c, 401, '権限がありません。', { code: 'UNAUTHORIZED', retryable: false })
   }
   
   const db = c.env.DB
   if (!db) {
-    return c.json({ error: 'Database not available' }, 500)
+    return apiError(c, 500, 'データベースに接続できません。しばらくしてから再度お試しください。', { code: 'DB_UNAVAILABLE' })
   }
   
   try {
@@ -5066,7 +5092,7 @@ app.post('/api/maintenance/cleanup-sessions', async (c) => {
     })
   } catch (e) {
     console.error('Session cleanup error:', e)
-    return c.json({ error: 'Cleanup failed' }, 500)
+    return apiError(c, 500, 'クリーンアップに失敗しました。', { code: 'CLEANUP_FAILED' })
   }
 })
 

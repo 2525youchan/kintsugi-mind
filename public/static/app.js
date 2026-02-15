@@ -4,6 +4,63 @@
  */
 
 // ========================================
+// dev-bible 7-8: Toast Notification System
+// ========================================
+function showToast(message, type = 'info', duration = 3000) {
+  // Remove existing toast if any
+  const existing = document.getElementById('kintsugi-toast');
+  if (existing) existing.remove();
+  
+  const toast = document.createElement('div');
+  toast.id = 'kintsugi-toast';
+  
+  const colors = {
+    success: 'bg-green-600',
+    error: 'bg-red-600',
+    info: 'bg-indigo-800',
+    warning: 'bg-amber-600'
+  };
+  const icons = {
+    success: '✓',
+    error: '✕',
+    info: 'ℹ',
+    warning: '⚠'
+  };
+  
+  toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-[9999] px-4 py-3 rounded-xl shadow-lg text-white text-sm flex items-center gap-2 ${colors[type] || colors.info} opacity-0 transition-opacity duration-300`;
+  toast.innerHTML = `<span class="font-bold">${icons[type] || icons.info}</span><span>${message}</span>`;
+  document.body.appendChild(toast);
+  
+  // Fade in
+  requestAnimationFrame(() => { toast.style.opacity = '1'; });
+  
+  // Auto dismiss
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// ========================================
+// dev-bible 7-6: Loading State Utility
+// ========================================
+function showLoading(targetEl, originalContent) {
+  if (!targetEl) return null;
+  const saved = originalContent || targetEl.innerHTML;
+  targetEl.disabled = true;
+  targetEl.style.opacity = '0.7';
+  targetEl.innerHTML = '<span class="inline-block animate-spin mr-1">⟳</span> ...';
+  return saved;
+}
+
+function hideLoading(targetEl, savedContent) {
+  if (!targetEl) return;
+  targetEl.disabled = false;
+  targetEl.style.opacity = '1';
+  if (savedContent) targetEl.innerHTML = savedContent;
+}
+
+// ========================================
 // Seasonal System - 四季 (Shiki)
 // ========================================
 
@@ -250,9 +307,10 @@ const ZEN_QUOTES = [
 
 // Get today's zen quote (same quote for everyone on the same day)
 function getDailyZenQuote() {
-  const today = new Date();
-  const startOfYear = new Date(today.getFullYear(), 0, 0);
-  const diff = today - startOfYear;
+  // dev-bible 3-3: JST基準で「今日」を決定
+  const jst = getNowJST();
+  const startOfYear = new Date(Date.UTC(jst.getUTCFullYear(), 0, 0));
+  const diff = jst - startOfYear;
   const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
   const quoteIndex = dayOfYear % ZEN_QUOTES.length;
   return ZEN_QUOTES[quoteIndex];
@@ -464,7 +522,9 @@ function shareSpecificQuote(index, lang = 'en') {
 
 // Get current season based on date
 function getCurrentSeason() {
-  const month = new Date().getMonth() + 1; // 1-12
+  // dev-bible 3-3: JSTで季節判定
+  const jst = getNowJST();
+  const month = jst.getUTCMonth() + 1; // 1-12
   if (month >= 3 && month <= 5) return 'spring';
   if (month >= 6 && month <= 8) return 'summer';
   if (month >= 9 && month <= 11) return 'autumn';
@@ -473,7 +533,9 @@ function getCurrentSeason() {
 
 // Get time of day
 function getTimeOfDay() {
-  const hour = new Date().getHours();
+  // dev-bible 3-3: JSTで時間帯判定
+  const jst = getNowJST();
+  const hour = jst.getUTCHours();
   if (hour >= 5 && hour < 12) return 'morning';
   if (hour >= 12 && hour < 18) return 'afternoon';
   return 'evening';
@@ -971,8 +1033,24 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
+// dev-bible 3-3: タイムゾーン対応 - JST (UTC+9) ヘルパー
+// Cloudflare Workers は UTC で動作するため、日本のユーザー向けには JST 変換が必要
+function getNowJST() {
+  return new Date(Date.now() + 9 * 60 * 60 * 1000);
+}
+
 function toDateString(date) {
-  return date.toISOString().split('T')[0];
+  // dev-bible 3-3: ローカルタイムではなくJST基準で日付文字列を生成
+  // date が既に JST 補正済みの場合はそのまま、未補正ならJST変換
+  const jst = new Date(date.getTime() + (date.getTimezoneOffset() + 540) * 60 * 1000);
+  const y = jst.getFullYear();
+  const m = String(jst.getMonth() + 1).padStart(2, '0');
+  const d = String(jst.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getTodayJST() {
+  return toDateString(new Date());
 }
 
 function daysBetween(date1, date2) {
@@ -1609,7 +1687,7 @@ function loadCheckinHistory() {
 // Save check-in to history
 function saveCheckinToHistory(weather, note = '') {
   const history = loadCheckinHistory();
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const today = getTodayJST(); // dev-bible 3-3: JST基準で「今日」を判定
   
   // Check if already checked in today
   const existingIndex = history.findIndex(h => h.date === today);
@@ -1817,9 +1895,10 @@ function initCheckinCalendar(lang) {
   
   if (!calendarGrid || !monthLabel) return;
   
-  let currentDate = new Date();
-  let currentYear = currentDate.getFullYear();
-  let currentMonth = currentDate.getMonth() + 1;
+  // dev-bible 3-3: JST基準でカレンダー表示
+  let jstNow = getNowJST();
+  let currentYear = jstNow.getUTCFullYear();
+  let currentMonth = jstNow.getUTCMonth() + 1;
   
   const monthNames = {
     en: ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -1876,7 +1955,7 @@ function initCheckinCalendar(lang) {
     // Clear grid
     calendarGrid.innerHTML = '';
     
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayJST(); // dev-bible 3-3: JST基準
     
     // Add empty cells for days before first day of month
     for (let i = 0; i < startDayOfWeek; i++) {
@@ -2588,6 +2667,9 @@ function renderActionList(actions, container, gardenPlants, lang) {
           let profile = loadProfile();
           profile = recordActivityToProfile(profile, 'garden', { actionCount: 1 });
           saveProfile(profile);
+          // dev-bible 7-8: Toast feedback
+          const lang2 = getLang();
+          showToast(lang2 === 'ja' ? '🌱 行動を記録しました' : '🌱 Action recorded', 'success');
           
           recordAction(action.id, true, lang);
         }
@@ -2883,9 +2965,13 @@ function initStudy() {
     inputEl.value = '';
     if (personEl) personEl.value = '';
     
+    // dev-bible 7-6: Loading state on send button
+    const savedBtn = showLoading(sendBtn, sendBtn.innerHTML);
+    
     // Get AI reflection
     const currentStep = naikanStep;
     fetchNaikanReflection(currentStep, currentPerson, response, lang, chatContainer).then(() => {
+      hideLoading(sendBtn, savedBtn);
       naikanStep++;
       if (naikanStep <= 3) {
         setTimeout(() => {
@@ -2904,6 +2990,8 @@ function initStudy() {
             connections: naikanConnections 
           });
           saveProfile(profile);
+          // dev-bible 7-8: Toast feedback
+          showToast(lang === 'ja' ? '📖 内観を完了しました' : '📖 Naikan reflection complete', 'success');
           
           // Show mandala after a brief moment
           setTimeout(() => {
@@ -2911,6 +2999,10 @@ function initStudy() {
           }, 2000);
         }, 500);
       }
+    }).catch((err) => {
+      hideLoading(sendBtn, savedBtn);
+      console.error('[KINTSUGI] Naikan reflection error:', err);
+      showToast(lang === 'ja' ? '通信エラーが発生しました。もう一度お試しください。' : 'Connection error. Please try again.', 'error');
     });
   });
   
@@ -3026,7 +3118,12 @@ function addNaikanQuestion(step, container, lang) {
 }
 
 function updateProgress(step, lang) {
-  const dots = document.querySelectorAll('.flex.justify-center.gap-2 div');
+  // dev-bible 7-1: Use prefixed IDs to avoid collision with onboarding dots
+  const dots = [
+    document.getElementById('study-dot-1'),
+    document.getElementById('study-dot-2'),
+    document.getElementById('study-dot-3')
+  ].filter(Boolean);
   dots.forEach((dot, index) => {
     if (index < step) {
       dot.className = 'w-3 h-3 rounded-full bg-gold';
@@ -3035,7 +3132,7 @@ function updateProgress(step, lang) {
     }
   });
   
-  const progressText = document.querySelector('.text-ink-400.text-sm');
+  const progressText = document.getElementById('study-progress-text');
   if (progressText) {
     const questionLabel = lang === 'ja' ? '問い' : 'Question';
     progressText.textContent = `${questionLabel} ${Math.min(step, 3)} / 3`;
@@ -3411,6 +3508,9 @@ function stopZenSession(lang) {
     let profile = loadProfile();
     profile = recordActivityToProfile(profile, 'tatami', { breathingMinutes: duration });
     saveProfile(profile);
+    // dev-bible 7-8: Toast feedback
+    const lang2 = getLang();
+    showToast(lang2 === 'ja' ? '🧘 瞑想を完了しました' : '🧘 Meditation complete', 'success');
     
     zenStartTime = null;
   }
@@ -3710,17 +3810,18 @@ function initWeeklyReport() {
   const lang = getLang();
   const profile = loadProfile();
   
-  // Calculate week range
-  const today = new Date();
+  // Calculate week range (dev-bible 3-3: JST基準)
+  const jstNow = getNowJST();
+  const today = new Date(Date.UTC(jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate()));
   const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+  startOfWeek.setUTCDate(today.getUTCDate() - today.getUTCDay()); // Sunday
   const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday
+  endOfWeek.setUTCDate(startOfWeek.getUTCDate() + 6); // Saturday
   
   // Format date range
   const formatDate = (date) => {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+    const month = date.getUTCMonth() + 1;
+    const day = date.getUTCDate();
     return lang === 'en' 
       ? `${month}/${day}`
       : `${month}月${day}日`;
@@ -4635,7 +4736,8 @@ function initOnboarding() {
 
 console.log('[KINTSUGI] app.js loaded');
 
-document.addEventListener('DOMContentLoaded', () => {
+// dev-bible 7-2: DOMContentLoaded timing - handle case where event already fired
+function initApp() {
   console.log('[KINTSUGI] DOMContentLoaded fired');
   const path = window.location.pathname;
   console.log('[KINTSUGI] Current path:', path);
@@ -4740,7 +4842,14 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize mobile menu
   initMobileMenu();
-});
+}
+
+// dev-bible 7-2: Safe initialization - if DOM already loaded, run immediately
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // ========================================
 // Challenge Progress Mini Display

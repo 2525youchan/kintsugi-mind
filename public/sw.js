@@ -1,5 +1,6 @@
 // KINTSUGI MIND Service Worker
-const CACHE_NAME = 'kintsugi-mind-v6';
+// dev-bible 4-1: Cache versioning - increment on every deploy
+const CACHE_NAME = 'kintsugi-mind-v7';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache on install (only local assets, no external CDN)
@@ -97,8 +98,14 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .catch(() => {
+          // dev-bible 5-1: Specific error message for offline state
           return new Response(
-            JSON.stringify({ error: 'Offline', message: 'Please connect to the internet' }),
+            JSON.stringify({ 
+              success: false, 
+              error: 'オフラインです。インターネットに接続してください。', 
+              code: 'OFFLINE',
+              retryable: true 
+            }),
             { headers: { 'Content-Type': 'application/json' } }
           );
         })
