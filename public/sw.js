@@ -1,5 +1,5 @@
 // KINTSUGI MIND Service Worker
-const CACHE_NAME = 'kintsugi-mind-v3';
+const CACHE_NAME = 'kintsugi-mind-v4';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache on install (only local assets, no external CDN)
