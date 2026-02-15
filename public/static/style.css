@@ -325,6 +325,7 @@ body {
    ======================================== */
 .cloud {
   position: relative;
+  z-index: 1;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(230, 230, 230, 0.7));
   border-radius: 50px;
   box-shadow: 
@@ -339,6 +340,7 @@ body {
   position: absolute;
   background: inherit;
   border-radius: 50%;
+  z-index: -1;
 }
 
 .cloud::before {
