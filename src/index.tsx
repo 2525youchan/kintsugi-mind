@@ -1264,6 +1264,8 @@ app.get('/study', (c) => {
           </div>
         </div>
         
+      </main>
+
         {/* Navigation after completing study work */}
         <section class="py-8 px-4">
           <div class="max-w-md mx-auto">
@@ -1296,7 +1298,6 @@ app.get('/study', (c) => {
             </div>
           </div>
         </section>
-      </main>
     </div>,
     { title: lang === 'en' ? 'STUDY — KINTSUGI MIND' : '書斎 STUDY — KINTSUGI MIND' }
   )
@@ -1407,6 +1408,8 @@ app.get('/tatami', (c) => {
           <p class="text-ecru/40 text-xs mt-12" dangerouslySetInnerHTML={{ __html: tx('tatami', 'hapticNote', lang) }}></p>
         </div>
         
+      </main>
+
         {/* Navigation after completing tatami work */}
         <section class="py-8 px-4">
           <div class="max-w-md mx-auto">
@@ -1439,7 +1442,6 @@ app.get('/tatami', (c) => {
             </div>
           </div>
         </section>
-      </main>
     </div>,
     { title: lang === 'en' ? 'TATAMI — KINTSUGI MIND' : '座敷 TATAMI — KINTSUGI MIND' }
   )
