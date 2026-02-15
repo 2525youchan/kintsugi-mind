@@ -1297,6 +1297,8 @@ app.get('/study', (c) => {
           </div>
         </section>
       </main>
+    </div>,
+    { title: lang === 'en' ? 'STUDY — KINTSUGI MIND' : '書斎 STUDY — KINTSUGI MIND' }
   )
 })
 

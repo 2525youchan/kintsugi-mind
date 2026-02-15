@@ -11,11 +11,13 @@ export const renderer = jsxRenderer(({ children, title }) => {
         
         {/* PWA Meta Tags */}
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#1e3a5f" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#1e3a5f" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
+        {/* apple-mobile-web-app-capable is deprecated - manifest.json display:standalone handles this */}
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="金継ぎ" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         
         {/* Favicon */}
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
