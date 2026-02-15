@@ -3338,6 +3338,7 @@ addMandalaStyles();
 let zenSession = null;
 let breathPhase = 'inhale';
 let zenStartTime = null;
+let isZenStarting = false; // Double-tap prevention (dev-bible 7-11)
 
 function initTatami() {
   const startBtn = document.getElementById('start-zen-btn');
@@ -3354,13 +3355,28 @@ function initTatami() {
   
   if (!startBtn || !breathingCircle) return;
   
-  startBtn.addEventListener('click', () => {
-    if (zenSession) {
-      stopZenSession(lang);
-      startBtn.textContent = startBtn.dataset.startText;
-    } else {
-      startZenSession(breathingCircle, breathInstruction, breathInstructionSub, koanContainer, lang);
-      startBtn.textContent = startBtn.dataset.stopText;
+  startBtn.addEventListener('click', async () => {
+    // Double-tap prevention (dev-bible 7-11)
+    if (isZenStarting) return;
+    isZenStarting = true;
+    
+    try {
+      // iOS: Pre-unlock AudioContext on user interaction (dev-bible 7-11)
+      // This MUST happen inside a click/tap handler for iOS to allow audio
+      if (window.soundscape) {
+        await window.soundscape.init();
+      }
+      
+      if (zenSession) {
+        stopZenSession(lang);
+        startBtn.textContent = startBtn.dataset.startText;
+      } else {
+        startZenSession(breathingCircle, breathInstruction, breathInstructionSub, koanContainer, lang);
+        startBtn.textContent = startBtn.dataset.stopText;
+      }
+    } finally {
+      // Re-enable after a short delay to prevent rapid double-taps
+      setTimeout(() => { isZenStarting = false; }, 300);
     }
   });
 }
@@ -3470,32 +3486,46 @@ function initTatamiSoundControl(lang) {
   
   let currentPreset = 'tatami';
   let isPlaying = false;
+  let isSoundToggling = false; // Double-tap prevention (dev-bible 7-11)
   
   // Toggle button
   toggleBtn.addEventListener('click', async () => {
-    if (isPlaying) {
-      window.soundscape.stop();
-      isPlaying = false;
-      iconOff.classList.remove('hidden');
-      iconOn.classList.add('hidden');
-      presetsContainer.classList.add('hidden');
-      volumeControl.classList.add('hidden');
-    } else {
-      await window.soundscape.play(currentPreset);
-      isPlaying = true;
-      iconOff.classList.add('hidden');
-      iconOn.classList.remove('hidden');
-      presetsContainer.classList.remove('hidden');
-      presetsContainer.classList.add('flex');
-      volumeControl.classList.remove('hidden');
-      volumeControl.classList.add('flex');
-      updatePresetButtons(currentPreset, presetButtons);
+    // Double-tap prevention
+    if (isSoundToggling) return;
+    isSoundToggling = true;
+    
+    try {
+      // iOS: Must init AudioContext within tap handler (dev-bible 7-11)
+      await window.soundscape.init();
+      
+      if (isPlaying) {
+        window.soundscape.stop();
+        isPlaying = false;
+        iconOff.classList.remove('hidden');
+        iconOn.classList.add('hidden');
+        presetsContainer.classList.add('hidden');
+        volumeControl.classList.add('hidden');
+      } else {
+        await window.soundscape.play(currentPreset);
+        isPlaying = true;
+        iconOff.classList.add('hidden');
+        iconOn.classList.remove('hidden');
+        presetsContainer.classList.remove('hidden');
+        presetsContainer.classList.add('flex');
+        volumeControl.classList.remove('hidden');
+        volumeControl.classList.add('flex');
+        updatePresetButtons(currentPreset, presetButtons);
+      }
+    } finally {
+      setTimeout(() => { isSoundToggling = false; }, 300);
     }
   });
   
   // Preset buttons
   presetButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
+      // iOS: ensure AudioContext is unlocked for preset switch too
+      await window.soundscape.init();
       currentPreset = btn.dataset.preset;
       await window.soundscape.play(currentPreset);
       isPlaying = true;
@@ -3570,6 +3600,8 @@ function initGardenSoundControl(lang) {
       openMenu();
       
       if (!isPlaying) {
+        // iOS: Must init AudioContext within tap handler (dev-bible 7-11)
+        await window.soundscape.init();
         await window.soundscape.play(currentPreset);
         isPlaying = true;
         iconOff.classList.add('hidden');
@@ -3628,6 +3660,8 @@ function initGardenSoundControl(lang) {
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
+      // iOS: ensure AudioContext is unlocked for preset switch too
+      await window.soundscape.init();
       currentPreset = btn.dataset.preset;
       await window.soundscape.play(currentPreset);
       isPlaying = true;

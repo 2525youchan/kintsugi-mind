@@ -12,6 +12,9 @@ class Soundscape {
     this.isPlaying = false;
     this.currentPreset = null;
     this.volume = 0.5;
+    this.isUnlocked = false; // iOS audio unlock state
+    this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     
     // Sound presets for different modes
     this.presets = {
@@ -52,14 +55,43 @@ class Soundscape {
 
   // Initialize Audio Context (must be called after user interaction)
   async init() {
-    if (this.audioContext) return;
+    if (this.audioContext && this.isUnlocked) return;
     
     try {
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      this.masterGain = this.audioContext.createGain();
-      this.masterGain.connect(this.audioContext.destination);
-      this.masterGain.gain.value = this.volume;
-      console.log('[Soundscape] Audio context initialized');
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.audioContext.createGain();
+        this.masterGain.connect(this.audioContext.destination);
+        this.masterGain.gain.value = this.volume;
+        console.log('[Soundscape] Audio context created, state:', this.audioContext.state);
+      }
+      
+      // iOS: AudioContext starts in 'suspended' state and must be resumed
+      // within a user interaction handler (tap/click)
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+        console.log('[Soundscape] AudioContext resumed from suspended, state:', this.audioContext.state);
+      }
+      
+      // iOS unlock: play a silent buffer to fully unlock audio playback
+      // Without this, some iOS versions silently fail on subsequent audio operations
+      if (!this.isUnlocked) {
+        try {
+          const silentBuffer = this.audioContext.createBuffer(1, 1, 22050);
+          const source = this.audioContext.createBufferSource();
+          source.buffer = silentBuffer;
+          source.connect(this.audioContext.destination);
+          source.start(0);
+          this.isUnlocked = true;
+          console.log('[Soundscape] iOS audio unlocked successfully');
+        } catch (unlockErr) {
+          console.warn('[Soundscape] iOS silent buffer unlock failed:', unlockErr);
+          // Still mark as unlocked - resume() may be sufficient
+          this.isUnlocked = true;
+        }
+      }
+      
+      console.log('[Soundscape] Audio context initialized, state:', this.audioContext.state);
     } catch (e) {
       console.error('[Soundscape] Failed to initialize:', e);
     }
@@ -75,28 +107,43 @@ class Soundscape {
 
   // Start a preset
   async play(presetKey) {
-    await this.init();
-    
-    if (this.currentPreset === presetKey && this.isPlaying) return;
-    
-    // Stop current sounds
-    this.stop();
-    
-    const preset = this.presets[presetKey];
-    if (!preset) {
-      console.error('[Soundscape] Unknown preset:', presetKey);
-      return;
+    try {
+      await this.init();
+      
+      // Verify AudioContext is running (iOS may still be suspended)
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        console.warn('[Soundscape] AudioContext still suspended, attempting resume...');
+        await this.audioContext.resume();
+      }
+      
+      if (!this.audioContext || this.audioContext.state !== 'running') {
+        console.error('[Soundscape] AudioContext not running, state:', this.audioContext?.state);
+        return;
+      }
+      
+      if (this.currentPreset === presetKey && this.isPlaying) return;
+      
+      // Stop current sounds
+      this.stop();
+      
+      const preset = this.presets[presetKey];
+      if (!preset) {
+        console.error('[Soundscape] Unknown preset:', presetKey);
+        return;
+      }
+      
+      this.currentPreset = presetKey;
+      this.isPlaying = true;
+      
+      // Start each sound in the preset
+      for (const soundType of preset.sounds) {
+        this.startSound(soundType);
+      }
+      
+      console.log('[Soundscape] Playing preset:', presetKey);
+    } catch (e) {
+      console.error('[Soundscape] Play error:', e);
     }
-    
-    this.currentPreset = presetKey;
-    this.isPlaying = true;
-    
-    // Start each sound in the preset
-    for (const soundType of preset.sounds) {
-      this.startSound(soundType);
-    }
-    
-    console.log('[Soundscape] Playing preset:', presetKey);
   }
 
   // Stop all sounds
@@ -129,6 +176,22 @@ class Soundscape {
     } else {
       await this.play(presetKey);
       return true;
+    }
+  }
+
+  // Handle iOS interruption (e.g., phone call, switching apps)
+  // AudioContext can become 'interrupted' on iOS and needs to be resumed
+  handleVisibilityChange() {
+    if (!this.audioContext) return;
+    
+    if (document.visibilityState === 'visible' && this.isPlaying) {
+      if (this.audioContext.state === 'suspended' || this.audioContext.state === 'interrupted') {
+        this.audioContext.resume().then(() => {
+          console.log('[Soundscape] AudioContext resumed after visibility change');
+        }).catch(e => {
+          console.warn('[Soundscape] Failed to resume after visibility change:', e);
+        });
+      }
     }
   }
 
@@ -588,3 +651,10 @@ class Soundscape {
 
 // Create global instance
 window.soundscape = new Soundscape();
+
+// Handle iOS audio interruptions (phone call, app switch, lock screen)
+document.addEventListener('visibilitychange', () => {
+  if (window.soundscape) {
+    window.soundscape.handleVisibilityChange();
+  }
+});
