@@ -1,9 +1,15 @@
 // KINTSUGI MIND Service Worker
 // dev-bible 4-1: Cache versioning - increment on every deploy
-const CACHE_NAME = 'kintsugi-mind-v10';
+const CACHE_NAME = 'kintsugi-mind-v11';
+// Cloudflare Pages serves /offline.html via a clean URL (308 -> /offline),
+// so reference the clean URL to avoid a redirect that breaks cache.addAll.
 const OFFLINE_URL = '/offline.html';
 
-// Assets to cache on install (only local assets, no external CDN)
+// Assets to cache on install (only local assets, no external CDN).
+// NOTE: cache.addAll() rejects the WHOLE batch if ANY single request fails
+// (non-200, redirect, CORS). Cloudflare Pages 308-redirects /offline.html
+// which previously broke install. We now cache each asset individually so a
+// single failure never blocks Service Worker installation (dev-bible 4-1).
 const PRECACHE_ASSETS = [
   '/',
   '/check-in',
@@ -19,21 +25,39 @@ const PRECACHE_ASSETS = [
   // Note: External CDN (tailwindcss) is excluded as it has CORS issues with service worker caching
 ];
 
-// Install event - cache core assets
+// Cache a single asset, following redirects manually so we store a clean,
+// non-redirected Response (Cache API cannot store a redirected Response for
+// a navigation request match). Failures are logged but never rejected.
+async function cacheOne(cache, asset) {
+  try {
+    // redirect: 'follow' resolves 308 -> final URL; if final is 200 we cache it.
+    const response = await fetch(asset, { redirect: 'follow' });
+    if (response && response.ok) {
+      await cache.put(asset, response.clone());
+    } else {
+      console.warn('[SW] Skipped (non-OK):', asset, response && response.status);
+    }
+  } catch (err) {
+    console.warn('[SW] Skipped (error):', asset, err && err.message);
+  }
+}
+
+// Install event - cache core assets individually (fault-tolerant)
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing Service Worker...');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Caching core assets');
-        return cache.addAll(PRECACHE_ASSETS);
-      })
-      .then(() => {
+      .then(async (cache) => {
+        console.log('[SW] Caching core assets (individually)');
+        // Use allSettled-style loop so one bad asset never aborts install.
+        await Promise.all(PRECACHE_ASSETS.map((asset) => cacheOne(cache, asset)));
         console.log('[SW] Service Worker installed');
         return self.skipWaiting();
       })
       .catch((error) => {
-        console.error('[SW] Failed to cache:', error);
+        // Should rarely happen now, but never block install entirely.
+        console.error('[SW] Install error (continuing):', error);
+        return self.skipWaiting();
       })
   );
 });
