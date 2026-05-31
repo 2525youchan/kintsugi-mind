@@ -23,6 +23,25 @@ export const renderer = jsxRenderer(({ children, title }) => {
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
         
+        {/* Dark mode early init (MUST run before Tailwind/CSS to avoid flash or
+            unapplied dark mode on navigation - dev-bible 4-1 / 7-2).
+            Sets the `dark` class on <html> synchronously in <head>. */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var saved = localStorage.getItem('kintsugi-dark-mode');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (saved === 'dark' || (saved === null && prefersDark)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            })();
+          `
+        }} />
+
         {/* Tailwind CSS */}
         <script src="https://cdn.tailwindcss.com"></script>
         

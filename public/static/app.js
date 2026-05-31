@@ -922,15 +922,10 @@ function initLogout() {
 
 const DARK_MODE_KEY = 'kintsugi-dark-mode';
 
-// Initialize dark mode on page load (before DOM ready for no flash)
-(function initDarkModeEarly() {
-  const savedMode = localStorage.getItem(DARK_MODE_KEY);
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  if (savedMode === 'dark' || (savedMode === null && prefersDark)) {
-    document.documentElement.classList.add('dark');
-  }
-})();
+// NOTE: Dark mode early initialization has been moved to an inline <script>
+// in <head> (renderer.tsx) so it runs BEFORE CSS/Tailwind and applies on every
+// navigation without flash or unapplied dark mode (dev-bible 4-1 / 7-2).
+// The single source of truth for the `dark` class on initial load lives there.
 
 // Initialize dark mode toggle after DOM ready
 function initDarkMode() {
