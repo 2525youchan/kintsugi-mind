@@ -872,20 +872,20 @@ app.get('/check-in', (c) => {
   }
   
   return c.render(
-    <div class="min-h-screen bg-ecru flex flex-col">
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] flex flex-col transition-colors duration-300" data-lang={lang}>
       <Header currentLang={lang} />
 
       {/* Check-in Content */}
       <main class="flex-1 flex items-center justify-center p-6">
         <div class="max-w-lg w-full">
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi-lg text-center">
+          <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-8 shadow-wabi-lg text-center">
             <p class="text-gold font-medium mb-2">{tx('checkin', 'welcome', lang)}</p>
-            <h1 class="text-2xl text-indigo-800 mb-8">
+            <h1 class="text-2xl text-indigo-800 dark:text-[#e8e4dc] mb-8">
               {lang === 'en' ? 'Welcome to the Tea House' : '心の茶室へようこそ'}
             </h1>
             
-            <p class="text-ink-600 mb-2 font-jp text-lg">{tx('checkin', 'question', lang)}</p>
-            <p class="text-ink-400 text-sm mb-8">
+            <p class="text-ink-600 dark:text-[#cfc9c0] mb-2 font-jp text-lg">{tx('checkin', 'question', lang)}</p>
+            <p class="text-ink-400 dark:text-[#a8a29e] text-sm mb-8">
               {lang === 'en' ? 'Select how you\'re feeling' : '今日の気分を選んでください'}
             </p>
             
@@ -899,7 +899,7 @@ app.get('/check-in', (c) => {
             <div id="weather-message" class="min-h-[80px] mb-6">
               {weather && weatherMessages[weather] && (
                 <div class="animate-fade-in">
-                  <p class="text-ink-600">{weatherMessages[weather][lang]}</p>
+                  <p class="text-ink-600 dark:text-[#cfc9c0]">{weatherMessages[weather][lang]}</p>
                 </div>
               )}
             </div>
@@ -907,7 +907,7 @@ app.get('/check-in', (c) => {
             <div id="room-suggestion" class="space-y-3">
               {weather && (
                 <div class="animate-slide-up">
-                  <p class="text-sm text-ink-500 mb-4">{tx('checkin', 'suggestedRoom', lang)}</p>
+                  <p class="text-sm text-ink-500 dark:text-[#a8a29e] mb-4">{tx('checkin', 'suggestedRoom', lang)}</p>
                   {(weather === 'stormy' || weather === 'rainy') && (
                     <a href={`/garden?lang=${lang}`} class="block p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl hover:shadow-md transition-all">
                       <div class="flex items-center gap-4">
