@@ -173,8 +173,35 @@
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #78716c;
+  color: #9b958c;
 }
+
+/* ========================================
+   Dark Mode Text Contrast Fixes (WCAG AA)
+   背景 #121212 に対し、薄色テキストを読めるレベルへ底上げ。
+   ライトモードには一切影響させない（.dark スコープ限定）。
+   ======================================== */
+
+/* 1) 明示的に指定されている暗すぎる muted グレー
+      (#78716c ≈ 2.6:1 → 不合格) を一括で明るく */
+.dark [class*="text-[#78716c]"] {
+  color: #b3ada4 !important;   /* ≈ 6.3:1 */
+}
+.dark [class*="text-[#a8a29e]"] {
+  color: #c4beb5 !important;   /* secondary 本文をやや明るく */
+}
+
+/* 2) dark: 指定が無く、ライト用の暗い ink 色のまま残っている
+      サブ/本文テキストをダーク時だけ底上げ */
+.dark .text-ink-300 { color: #cfc9c0 !important; }
+.dark .text-ink-400 { color: #b3ada4 !important; }  /* #757575 → 読める */
+.dark .text-ink-500 { color: #b3ada4 !important; }  /* #616161 → 読める */
+.dark .text-ink-600 { color: #cfc9c0 !important; }  /* #424242 → 本文として読める */
+.dark .text-ink-700 { color: #ddd7ce !important; }
+.dark .text-ink { color: #e8e4dc !important; }
+
+/* 3) ecru 系の淡色文字（曼荼羅凡例など暗背景上）も視認性確保 */
+.dark .text-ecru-300 { color: #ddd2be !important; }
 
 .dark input:focus,
 .dark textarea:focus,
