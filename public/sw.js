@@ -1,6 +1,6 @@
 // KINTSUGI MIND Service Worker
 // dev-bible 4-1: Cache versioning - increment on every deploy
-const CACHE_NAME = 'kintsugi-mind-v8';
+const CACHE_NAME = 'kintsugi-mind-v9';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache on install (only local assets, no external CDN)

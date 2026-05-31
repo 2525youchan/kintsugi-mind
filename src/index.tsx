@@ -1909,14 +1909,14 @@ app.get('/profile', (c) => {
                 {/* Reminder Settings (hidden until enabled) */}
                 <div id="reminder-settings" class="hidden space-y-4">
                   {/* Morning Reminder */}
-                  <div class="flex items-center justify-between p-3 bg-ecru-100 rounded-xl">
+                  <div class="flex items-center justify-between p-3 bg-ecru-100 dark:bg-[#2d2d2d] rounded-xl">
                     <div class="flex items-center gap-3">
                       <span class="text-xl">🌅</span>
                       <div>
-                        <p class="text-ink-700 text-sm font-medium">
+                        <p class="text-ink-700 dark:text-[#e8e4dc] text-sm font-medium">
                           {lang === 'en' ? 'Morning Check-in' : '朝のチェックイン'}
                         </p>
-                        <p class="text-ink-500 text-xs">
+                        <p class="text-ink-500 dark:text-[#a8a29e] text-xs">
                           {lang === 'en' ? 'Start your day mindfully' : '一日をマインドフルに始める'}
                         </p>
                       </div>
@@ -1925,19 +1925,19 @@ app.get('/profile', (c) => {
                       type="time" 
                       id="morning-time" 
                       value="08:00"
-                      class="px-2 py-1 bg-white border border-ecru-300 rounded-lg text-sm text-ink-700"
+                      class="px-2 py-1 bg-white dark:bg-[#1e1e1e] border border-ecru-300 dark:border-[#4a4a4a] rounded-lg text-sm text-ink-700 dark:text-[#e8e4dc]"
                     />
                   </div>
                   
                   {/* Evening Reminder */}
-                  <div class="flex items-center justify-between p-3 bg-ecru-100 rounded-xl">
+                  <div class="flex items-center justify-between p-3 bg-ecru-100 dark:bg-[#2d2d2d] rounded-xl">
                     <div class="flex items-center gap-3">
                       <span class="text-xl">🌙</span>
                       <div>
-                        <p class="text-ink-700 text-sm font-medium">
+                        <p class="text-ink-700 dark:text-[#e8e4dc] text-sm font-medium">
                           {lang === 'en' ? 'Evening Reflection' : '夜の振り返り'}
                         </p>
-                        <p class="text-ink-500 text-xs">
+                        <p class="text-ink-500 dark:text-[#a8a29e] text-xs">
                           {lang === 'en' ? 'Wind down before sleep' : '眠る前のひととき'}
                         </p>
                       </div>
@@ -1946,7 +1946,7 @@ app.get('/profile', (c) => {
                       type="time" 
                       id="evening-time" 
                       value="21:00"
-                      class="px-2 py-1 bg-white border border-ecru-300 rounded-lg text-sm text-ink-700"
+                      class="px-2 py-1 bg-white dark:bg-[#1e1e1e] border border-ecru-300 dark:border-[#4a4a4a] rounded-lg text-sm text-ink-700 dark:text-[#e8e4dc]"
                     />
                   </div>
                   
@@ -1954,7 +1954,7 @@ app.get('/profile', (c) => {
                   <div class="flex gap-2 pt-2">
                     <button 
                       id="test-notification-btn"
-                      class="flex-1 px-3 py-2 bg-ecru-200 text-ink-600 rounded-lg text-sm hover:bg-ecru-300 transition-colors"
+                      class="flex-1 px-3 py-2 bg-ecru-200 dark:bg-[#3a3a3a] text-ink-600 dark:text-[#e8e4dc] rounded-lg text-sm hover:bg-ecru-300 dark:hover:bg-[#4a4a4a] transition-colors"
                     >
                       {lang === 'en' ? 'Test Notification' : 'テスト通知'}
                     </button>
