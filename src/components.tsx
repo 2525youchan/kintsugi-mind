@@ -52,7 +52,7 @@ const MobileMenuButton = () => {
   return (
     <button 
       id="mobile-menu-btn"
-      class="md:hidden p-2 text-ink-600 hover:text-gold transition-colors"
+      class="md:hidden shrink-0 p-1.5 text-ink-600 hover:text-gold transition-colors"
       aria-label="Menu"
       onclick="toggleMobileMenu()"
     >
@@ -92,17 +92,17 @@ export const Header = ({
 
   return (
     <header class={baseClass}>
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        <a href={`/?lang=${currentLang}`} class="flex items-center gap-2 sm:gap-3">
+      <div class="max-w-6xl mx-auto px-3 sm:px-6 py-4 flex items-center justify-between gap-2">
+        <a href={`/?lang=${currentLang}`} class="flex items-center gap-2 sm:gap-3 min-w-0">
           <div class={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 aspect-square rounded-full gradient-gold ${variant === 'transparent' ? 'opacity-80' : ''}`}></div>
-          <span class={`text-lg sm:text-xl font-medium ${textClass}`}>KINTSUGI MIND</span>
+          <span class={`text-lg sm:text-xl font-medium truncate ${textClass}`}>KINTSUGI MIND</span>
         </a>
         
-        <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-1.5 sm:gap-4 shrink-0">
           {roomName && roomIcon && (
-            <div class={`flex items-center gap-2 ${variant === 'transparent' ? 'text-ecru/60' : 'text-ink-600'}`}>
+            <div class={`hidden sm:flex items-center gap-2 ${variant === 'transparent' ? 'text-ecru/60' : 'text-ink-600'}`}>
               <span class="text-xl sm:text-2xl">{roomIcon}</span>
-              <span class="font-jp hidden sm:inline">{roomName}</span>
+              <span class="font-jp">{roomName}</span>
             </div>
           )}
           
@@ -158,17 +158,17 @@ export const Header = ({
             </div>
           )}
           
-          {/* Mobile: Vessel icon link (always visible, more prominent) */}
+          {/* Mobile: Vessel icon link (icon only to save header width on small screens) */}
           {variant !== 'transparent' && (
             <a 
               href={`/profile?lang=${currentLang}`} 
-              class="md:hidden flex items-center gap-1 px-2 py-1 text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors rounded-full bg-ecru-100 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a]"
+              class="md:hidden flex items-center justify-center w-8 h-8 shrink-0 text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors rounded-full bg-ecru-100 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a]"
               title={currentLang === 'en' ? 'My Vessel' : '器'}
+              aria-label={currentLang === 'en' ? 'My Vessel' : '器'}
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="text-xs font-medium" id="mobile-vessel-text">{currentLang === 'en' ? 'Vessel' : '器'}</span>
             </a>
           )}
           
