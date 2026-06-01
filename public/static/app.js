@@ -751,6 +751,7 @@ function updateAuthUI(user) {
   const loginBtn = document.getElementById('header-login-btn');
   const userAvatar = document.getElementById('header-user-avatar');
   const userPicture = document.getElementById('header-user-picture');
+  const mobileVessel = document.getElementById('header-mobile-vessel');
   
   if (loginBtn && userAvatar && userPicture && user) {
     loginBtn.classList.add('hidden');
@@ -758,6 +759,9 @@ function updateAuthUI(user) {
     userAvatar.classList.add('flex');
     userPicture.src = user.picture;
     userPicture.alt = user.name;
+    // The avatar already links to the vessel page, so hide the redundant
+    // mobile vessel icon to save header width on small screens.
+    if (mobileVessel) mobileVessel.classList.add('hidden');
   }
   
   // Profile page account banner

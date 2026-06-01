@@ -21,29 +21,47 @@ export const DarkModeToggle = () => {
 
 // Language Switcher Component
 export const LanguageSwitcher = ({ currentLang }: { currentLang: Language }) => {
+  // On mobile we switch to the opposite language with a single globe icon
+  // to save horizontal space (and to scale gracefully for future languages).
+  const nextLang = currentLang === 'en' ? 'ja' : 'en'
   return (
-    <div class="flex items-center bg-ecru-200 dark:bg-[#2d2d2d] rounded-full p-1">
+    <>
+      {/* Desktop / tablet: EN / JP toggle */}
+      <div class="hidden sm:flex items-center bg-ecru-200 dark:bg-[#2d2d2d] rounded-full p-1 shrink-0">
+        <a 
+          href="?lang=en"
+          class={`px-3 py-1 text-sm rounded-full transition-all ${
+            currentLang === 'en' 
+              ? 'bg-indigo-800 text-ecru' 
+              : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
+          }`}
+        >
+          EN
+        </a>
+        <a 
+          href="?lang=ja"
+          class={`px-3 py-1 text-sm rounded-full transition-all ${
+            currentLang === 'ja' 
+              ? 'bg-indigo-800 text-ecru' 
+              : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
+          }`}
+        >
+          JP
+        </a>
+      </div>
+
+      {/* Mobile: single globe icon that toggles to the other language */}
       <a 
-        href="?lang=en"
-        class={`px-3 py-1 text-sm rounded-full transition-all ${
-          currentLang === 'en' 
-            ? 'bg-indigo-800 text-ecru' 
-            : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
-        }`}
+        href={`?lang=${nextLang}`}
+        class="sm:hidden flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-ecru-200 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a] text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors"
+        aria-label={currentLang === 'en' ? 'Switch to Japanese' : '英語に切り替え'}
+        title={currentLang === 'en' ? '日本語' : 'English'}
       >
-        EN
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
       </a>
-      <a 
-        href="?lang=ja"
-        class={`px-3 py-1 text-sm rounded-full transition-all ${
-          currentLang === 'ja' 
-            ? 'bg-indigo-800 text-ecru' 
-            : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
-        }`}
-      >
-        JP
-      </a>
-    </div>
+    </>
   )
 }
 
@@ -95,7 +113,7 @@ export const Header = ({
       <div class="max-w-6xl mx-auto px-3 sm:px-6 py-4 flex items-center justify-between gap-2">
         <a href={`/?lang=${currentLang}`} class="flex items-center gap-2 sm:gap-3 min-w-0">
           <div class={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 aspect-square rounded-full gradient-gold ${variant === 'transparent' ? 'opacity-80' : ''}`}></div>
-          <span class={`text-lg sm:text-xl font-medium truncate ${textClass}`}>KINTSUGI MIND</span>
+          <span class={`hidden sm:inline text-lg sm:text-xl font-medium truncate ${textClass}`}>KINTSUGI MIND</span>
         </a>
         
         <div class="flex items-center gap-1.5 sm:gap-4 shrink-0">
@@ -159,9 +177,11 @@ export const Header = ({
           )}
           
           {/* Mobile: Vessel icon link (icon only to save header width on small screens) */}
+          {/* Hidden when logged in — the user avatar already links to the vessel page */}
           {variant !== 'transparent' && (
             <a 
               href={`/profile?lang=${currentLang}`} 
+              id="header-mobile-vessel"
               class="md:hidden flex items-center justify-center w-8 h-8 shrink-0 text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors rounded-full bg-ecru-100 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a]"
               title={currentLang === 'en' ? 'My Vessel' : '器'}
               aria-label={currentLang === 'en' ? 'My Vessel' : '器'}
