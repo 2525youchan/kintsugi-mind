@@ -19,49 +19,68 @@ export const DarkModeToggle = () => {
   )
 }
 
-// Language Switcher Component
-export const LanguageSwitcher = ({ currentLang }: { currentLang: Language }) => {
-  // On mobile we switch to the opposite language with a single globe icon
-  // to save horizontal space (and to scale gracefully for future languages).
-  const nextLang = currentLang === 'en' ? 'ja' : 'en'
-  return (
-    <>
-      {/* Desktop / tablet: EN / JP toggle */}
-      <div class="hidden sm:flex items-center bg-ecru-200 dark:bg-[#2d2d2d] rounded-full p-1 shrink-0">
-        <a 
-          href="?lang=en"
-          class={`px-3 py-1 text-sm rounded-full transition-all ${
-            currentLang === 'en' 
-              ? 'bg-indigo-800 text-ecru' 
-              : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
-          }`}
-        >
-          EN
-        </a>
-        <a 
-          href="?lang=ja"
-          class={`px-3 py-1 text-sm rounded-full transition-all ${
-            currentLang === 'ja' 
-              ? 'bg-indigo-800 text-ecru' 
-              : 'text-ink-600 dark:text-[#a8a29e] hover:text-indigo-800 dark:hover:text-gold'
-          }`}
-        >
-          JP
-        </a>
-      </div>
+// Supported languages for the globe-icon language picker.
+// To add a new locale in the future, add an entry here AND a matching
+// `Language` union member in i18n.ts — the dropdown renders automatically.
+export const SUPPORTED_LANGUAGES: { code: string; label: string; native: string }[] = [
+  { code: 'ja', label: 'Japanese', native: '日本語' },
+  { code: 'en', label: 'English', native: 'English' },
+  // Future locales (uncomment / add when translations are ready):
+  // { code: 'zh', label: 'Chinese', native: '中文' },
+  // { code: 'ko', label: 'Korean', native: '한국어' },
+  // { code: 'es', label: 'Spanish', native: 'Español' },
+]
 
-      {/* Mobile: single globe icon that toggles to the other language */}
-      <a 
-        href={`?lang=${nextLang}`}
-        class="sm:hidden flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-ecru-200 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a] text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors"
-        aria-label={currentLang === 'en' ? 'Switch to Japanese' : '英語に切り替え'}
-        title={currentLang === 'en' ? '日本語' : 'English'}
+// Language Switcher Component
+// A globe icon that opens a dropdown of selectable languages. This scales
+// gracefully to many languages (unlike a simple two-way toggle).
+export const LanguageSwitcher = ({ currentLang }: { currentLang: Language }) => {
+  return (
+    <div class="relative shrink-0" id="lang-switcher">
+      <button
+        type="button"
+        id="lang-switcher-btn"
+        onclick="toggleLangMenu(event)"
+        class="flex items-center justify-center gap-1 h-8 px-2 rounded-full bg-ecru-200 dark:bg-[#2d2d2d] border border-wabi dark:border-[#4a4a4a] text-ink-600 dark:text-[#a8a29e] hover:text-gold transition-colors"
+        aria-label={currentLang === 'en' ? 'Select language' : '言語を選択'}
+        aria-haspopup="true"
+        aria-expanded="false"
+        title={currentLang === 'en' ? 'Select language' : '言語を選択'}
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-      </a>
-    </>
+        <span class="hidden sm:inline text-sm font-medium">
+          {(SUPPORTED_LANGUAGES.find((l) => l.code === currentLang) || SUPPORTED_LANGUAGES[0]).native}
+        </span>
+      </button>
+
+      {/* Dropdown menu */}
+      <div
+        id="lang-menu"
+        class="hidden absolute right-0 mt-2 min-w-[10rem] py-1 rounded-xl bg-ecru dark:bg-[#1e1e1e] border border-wabi dark:border-[#4a4a4a] shadow-lg z-[60]"
+        role="menu"
+      >
+        {SUPPORTED_LANGUAGES.map((l) => (
+          <a
+            href={`?lang=${l.code}`}
+            role="menuitem"
+            class={`flex items-center justify-between gap-3 px-4 py-2 text-sm transition-colors ${
+              l.code === currentLang
+                ? 'text-gold font-medium bg-ecru-100 dark:bg-[#2d2d2d]'
+                : 'text-ink-600 dark:text-[#e8e4dc] hover:bg-ecru-100 dark:hover:bg-[#2d2d2d]'
+            }`}
+          >
+            <span class="font-jp">{l.native}</span>
+            {l.code === currentLang && (
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </a>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -102,7 +121,7 @@ export const Header = ({
     ? 'fixed top-0 left-0 right-0 z-50 bg-ecru/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-wabi dark:border-[#4a4a4a]'
     : variant === 'transparent'
     ? 'absolute top-0 left-0 right-0 z-10'
-    : 'bg-ecru/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-wabi dark:border-[#4a4a4a]'
+    : 'relative z-40 bg-ecru/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-wabi dark:border-[#4a4a4a]'
 
   const textClass = variant === 'transparent' 
     ? 'text-ecru/80' 
@@ -113,7 +132,7 @@ export const Header = ({
       <div class="max-w-6xl mx-auto px-3 sm:px-6 py-4 flex items-center justify-between gap-2">
         <a href={`/?lang=${currentLang}`} class="flex items-center gap-2 sm:gap-3 min-w-0">
           <div class={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 aspect-square rounded-full gradient-gold ${variant === 'transparent' ? 'opacity-80' : ''}`}></div>
-          <span class={`hidden sm:inline text-lg sm:text-xl font-medium truncate ${textClass}`}>KINTSUGI MIND</span>
+          <span class={`text-base sm:text-xl font-medium truncate ${textClass}`}>KINTSUGI MIND</span>
         </a>
         
         <div class="flex items-center gap-1.5 sm:gap-4 shrink-0">

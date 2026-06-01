@@ -4841,6 +4841,9 @@ function initApp() {
   
   // Initialize mobile menu
   initMobileMenu();
+  
+  // Initialize language dropdown menu
+  initLangMenu();
 }
 
 // dev-bible 7-2: Safe initialization - if DOM already loaded, run immediately
@@ -4949,3 +4952,40 @@ function initMobileMenu() {
 
 // Make toggleMobileMenu globally accessible
 window.toggleMobileMenu = toggleMobileMenu;
+
+// ============================================
+// Language Switcher Dropdown
+// ============================================
+function toggleLangMenu(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const menu = document.getElementById('lang-menu');
+  const btn = document.getElementById('lang-switcher-btn');
+  if (!menu) return;
+  const willOpen = menu.classList.contains('hidden');
+  menu.classList.toggle('hidden');
+  if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+
+function closeLangMenu() {
+  const menu = document.getElementById('lang-menu');
+  const btn = document.getElementById('lang-switcher-btn');
+  if (menu && !menu.classList.contains('hidden')) {
+    menu.classList.add('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function initLangMenu() {
+  // Close when clicking outside the switcher
+  document.addEventListener('click', (e) => {
+    const switcher = document.getElementById('lang-switcher');
+    if (!switcher) return;
+    if (!switcher.contains(e.target)) closeLangMenu();
+  });
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLangMenu();
+  });
+}
+
+window.toggleLangMenu = toggleLangMenu;
