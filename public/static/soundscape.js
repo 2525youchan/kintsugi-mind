@@ -18,20 +18,26 @@ class Soundscape {
     
     // Sound presets for different modes
     this.presets = {
-      // TATAMI - Zen meditation sounds
+      // TATAMI - Zen meditation sounds (real recorded audio loops)
       tatami: {
         name: { en: 'Zen Space', ja: '禅の空間' },
-        sounds: ['silence', 'bell', 'wind'],
+        // Real bell (おりん) ringing at 15s intervals over silence
+        sounds: ['bell'],
+        mix: { bell: 0.8 },
         description: { en: 'Peaceful silence with occasional bell', ja: '静寂と時折響く鈴の音' }
       },
       tatamiRain: {
         name: { en: 'Rain Meditation', ja: '雨音瞑想' },
-        sounds: ['rain', 'thunder_distant'],
+        // Real rain loop (no thunder)
+        sounds: ['rain'],
+        mix: { rain: 0.6 },
         description: { en: 'Gentle rain for deep focus', ja: '集中を深める優しい雨音' }
       },
       tatamiNight: {
         name: { en: 'Night Stillness', ja: '夜の静けさ' },
-        sounds: ['crickets', 'wind_soft'],
+        // Real cricket loop (wind omitted — source unsuitable for meditation)
+        sounds: ['crickets'],
+        mix: { crickets: 0.5 },
         description: { en: 'Peaceful night ambiance', ja: '穏やかな夜の雰囲気' }
       },
       // GARDEN - Nature sounds (real recorded audio loops)
@@ -62,12 +68,17 @@ class Soundscape {
     // Real recorded audio files for the GARDEN presets.
     // These are looped via HTMLAudioElement -> MediaElementSource -> GainNode -> masterGain.
     this.audioFiles = {
+      // GARDEN
       birds: '/static/sounds/birds.mp3',
       birds_soft: '/static/sounds/birds.mp3',
       wind_leaves: '/static/sounds/leaves.mp3',
       stream: '/static/sounds/stream.mp3',
       cicadas: '/static/sounds/cicadas.mp3',
-      shishiodoshi: '/static/sounds/shishiodoshi.mp3'
+      shishiodoshi: '/static/sounds/shishiodoshi.mp3',
+      // TATAMI (real recorded audio)
+      bell: '/static/sounds/bell.mp3',
+      rain: '/static/sounds/rain.mp3',
+      crickets: '/static/sounds/crickets.mp3'
     };
 
     // Per-sound default volumes when no preset-specific mix is supplied.
@@ -77,7 +88,10 @@ class Soundscape {
       wind_leaves: 0.4,
       stream: 0.5,
       cicadas: 0.35,
-      shishiodoshi: 0.85
+      shishiodoshi: 0.85,
+      bell: 0.8,
+      rain: 0.6,
+      crickets: 0.5
     };
 
     // Track active <audio> elements + their media source nodes for cleanup.

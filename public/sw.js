@@ -1,6 +1,6 @@
 // KINTSUGI MIND Service Worker
 // dev-bible 4-1: Cache versioning - increment on every deploy
-const CACHE_NAME = 'kintsugi-mind-v15';
+const CACHE_NAME = 'kintsugi-mind-v16';
 // Cloudflare Pages serves /offline.html via a clean URL (308 -> /offline),
 // so reference the clean URL to avoid a redirect that breaks cache.addAll.
 const OFFLINE_URL = '/offline.html';
