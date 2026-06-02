@@ -3865,72 +3865,72 @@ app.get('/report', (c) => {
   }
   
   return c.render(
-    <div class="min-h-screen bg-ecru flex flex-col" data-lang={lang}>
+    <div class="min-h-screen bg-ecru dark:bg-[#121212] flex flex-col" data-lang={lang}>
       <Header currentLang={lang} />
       
       <main class="flex-1 py-8 px-4 sm:px-6">
         <div class="max-w-4xl mx-auto">
           {/* Header */}
           <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl text-indigo-800 mb-2">{t.title[lang]}</h1>
-            <p class="text-ink-500">{t.subtitle[lang]}</p>
-            <p id="report-date-range" class="text-sm text-ink-400 mt-2"></p>
+            <h1 class="text-3xl sm:text-4xl text-indigo-800 dark:text-[#e8e4dc] mb-2">{t.title[lang]}</h1>
+            <p class="text-ink-500 dark:text-[#a8a29e]">{t.subtitle[lang]}</p>
+            <p id="report-date-range" class="text-sm text-ink-400 dark:text-[#78716c] mt-2"></p>
           </div>
           
           {/* Summary Cards */}
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {/* Streak */}
-            <div class="bg-gradient-to-br from-gold/20 to-gold/10 rounded-2xl p-4 text-center shadow-wabi">
+            <div class="bg-gradient-to-br from-gold/20 to-gold/10 dark:from-[#3a3320] dark:to-[#2d2810] rounded-2xl p-4 text-center shadow-wabi">
               <p class="text-3xl sm:text-4xl text-gold font-light" id="report-streak">0</p>
-              <p class="text-xs sm:text-sm text-ink-500">{t.streak[lang]}</p>
+              <p class="text-xs sm:text-sm text-ink-500 dark:text-[#a8a29e]">{t.streak[lang]}</p>
               <p class="text-gold text-lg mt-1">🔥</p>
             </div>
             
             {/* Total Sessions */}
-            <div class="bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-2xl p-4 text-center shadow-wabi">
-              <p class="text-3xl sm:text-4xl text-indigo-700 font-light" id="report-total-sessions">0</p>
-              <p class="text-xs sm:text-sm text-ink-500">{t.totalSessions[lang]}</p>
+            <div class="bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-[#1e2438] dark:to-[#181c2d] rounded-2xl p-4 text-center shadow-wabi">
+              <p class="text-3xl sm:text-4xl text-indigo-700 dark:text-[#a5b4e8] font-light" id="report-total-sessions">0</p>
+              <p class="text-xs sm:text-sm text-ink-500 dark:text-[#a8a29e]">{t.totalSessions[lang]}</p>
             </div>
             
             {/* Golden Repairs */}
-            <div class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-2xl p-4 text-center shadow-wabi">
-              <p class="text-3xl sm:text-4xl text-amber-600 font-light" id="report-repairs">0</p>
-              <p class="text-xs sm:text-sm text-ink-500">{t.repairs[lang]}</p>
+            <div class="bg-gradient-to-br from-amber-100 to-amber-50 dark:from-[#3a3017] dark:to-[#2d2510] rounded-2xl p-4 text-center shadow-wabi">
+              <p class="text-3xl sm:text-4xl text-amber-600 dark:text-[#e0b057] font-light" id="report-repairs">0</p>
+              <p class="text-xs sm:text-sm text-ink-500 dark:text-[#a8a29e]">{t.repairs[lang]}</p>
               <p class="text-amber-500 text-lg mt-1">✦</p>
             </div>
             
             {/* Most Active Mode */}
-            <div class="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl p-4 text-center shadow-wabi">
+            <div class="bg-gradient-to-br from-green-100 to-green-50 dark:from-[#1c2e1f] dark:to-[#172517] rounded-2xl p-4 text-center shadow-wabi">
               <p class="text-2xl sm:text-3xl" id="report-most-active-icon">🌱</p>
-              <p class="text-xs sm:text-sm text-ink-500">{t.mostActive[lang]}</p>
-              <p class="text-green-700 text-sm font-medium mt-1" id="report-most-active-name">{t.garden[lang]}</p>
+              <p class="text-xs sm:text-sm text-ink-500 dark:text-[#a8a29e]">{t.mostActive[lang]}</p>
+              <p class="text-green-700 dark:text-[#8fc99a] text-sm font-medium mt-1" id="report-most-active-name">{t.garden[lang]}</p>
             </div>
           </div>
           
           {/* Weekly Calendar */}
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi mb-8">
-            <h2 class="text-lg text-indigo-800 mb-4">{t.dailyActivity[lang]}</h2>
+          <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi mb-8">
+            <h2 class="text-lg text-indigo-800 dark:text-[#e8e4dc] mb-4">{t.dailyActivity[lang]}</h2>
             <div class="grid grid-cols-7 gap-2" id="weekly-calendar">
               {/* Days will be rendered by JS */}
               {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => (
                 <div class="text-center">
-                  <p class="text-xs text-ink-400 mb-2">
+                  <p class="text-xs text-ink-400 dark:text-[#78716c] mb-2">
                     {lang === 'en' ? t.days[dayIndex] : t.daysJa[dayIndex]}
                   </p>
                   <div 
                     id={`day-${dayIndex}`}
-                    class="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-xl bg-ecru-200 flex items-center justify-center transition-all"
+                    class="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-xl bg-ecru-200 dark:bg-[#2d2d2d] flex items-center justify-center transition-all"
                   >
-                    <span class="text-xs text-ink-400" id={`day-${dayIndex}-content`}>-</span>
+                    <span class="text-xs text-ink-400 dark:text-[#78716c]" id={`day-${dayIndex}-content`}>-</span>
                   </div>
                 </div>
               ))}
             </div>
             
             {/* Legend */}
-            <div class="flex flex-wrap justify-center gap-4 mt-6 text-xs text-ink-500">
+            <div class="flex flex-wrap justify-center gap-4 mt-6 text-xs text-ink-500 dark:text-[#a8a29e]">
               <div class="flex items-center gap-1">
-                <div class="w-3 h-3 rounded bg-ecru-200"></div>
+                <div class="w-3 h-3 rounded bg-ecru-200 dark:bg-[#2d2d2d]"></div>
                 <span>{lang === 'en' ? 'No activity' : '活動なし'}</span>
               </div>
               <div class="flex items-center gap-1">
@@ -3949,18 +3949,18 @@ app.get('/report', (c) => {
           </div>
           
           {/* Activity Breakdown */}
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi mb-8">
-            <h2 class="text-lg text-indigo-800 mb-4">{t.activities[lang]}</h2>
+          <div class="bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl p-6 shadow-wabi mb-8">
+            <h2 class="text-lg text-indigo-800 dark:text-[#e8e4dc] mb-4">{t.activities[lang]}</h2>
             <div class="space-y-4">
               {/* Garden */}
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl">🌱</div>
+                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-[#1c2e1f] flex items-center justify-center text-2xl">🌱</div>
                 <div class="flex-1">
                   <div class="flex justify-between mb-1">
-                    <span class="text-ink-700">{t.garden[lang]}</span>
-                    <span class="text-green-700 font-medium" id="report-garden-count">0</span>
+                    <span class="text-ink-700 dark:text-[#e8e4dc]">{t.garden[lang]}</span>
+                    <span class="text-green-700 dark:text-[#8fc99a] font-medium" id="report-garden-count">0</span>
                   </div>
-                  <div class="h-2 bg-ecru-200 rounded-full overflow-hidden">
+                  <div class="h-2 bg-ecru-200 dark:bg-[#2d2d2d] rounded-full overflow-hidden">
                     <div id="report-garden-bar" class="h-full bg-green-500 rounded-full transition-all duration-500" style="width: 0%"></div>
                   </div>
                 </div>
@@ -3968,13 +3968,13 @@ app.get('/report', (c) => {
               
               {/* Study */}
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-2xl">📚</div>
+                <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-[#3a3017] flex items-center justify-center text-2xl">📚</div>
                 <div class="flex-1">
                   <div class="flex justify-between mb-1">
-                    <span class="text-ink-700">{t.study[lang]}</span>
-                    <span class="text-amber-700 font-medium" id="report-study-count">0</span>
+                    <span class="text-ink-700 dark:text-[#e8e4dc]">{t.study[lang]}</span>
+                    <span class="text-amber-700 dark:text-[#e0b057] font-medium" id="report-study-count">0</span>
                   </div>
-                  <div class="h-2 bg-ecru-200 rounded-full overflow-hidden">
+                  <div class="h-2 bg-ecru-200 dark:bg-[#2d2d2d] rounded-full overflow-hidden">
                     <div id="report-study-bar" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width: 0%"></div>
                   </div>
                 </div>
@@ -3982,13 +3982,13 @@ app.get('/report', (c) => {
               
               {/* Tatami */}
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-2xl">🧘</div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-[#1e2438] flex items-center justify-center text-2xl">🧘</div>
                 <div class="flex-1">
                   <div class="flex justify-between mb-1">
-                    <span class="text-ink-700">{t.tatami[lang]}</span>
-                    <span class="text-indigo-700 font-medium" id="report-tatami-count">0</span>
+                    <span class="text-ink-700 dark:text-[#e8e4dc]">{t.tatami[lang]}</span>
+                    <span class="text-indigo-700 dark:text-[#a5b4e8] font-medium" id="report-tatami-count">0</span>
                   </div>
-                  <div class="h-2 bg-ecru-200 rounded-full overflow-hidden">
+                  <div class="h-2 bg-ecru-200 dark:bg-[#2d2d2d] rounded-full overflow-hidden">
                     <div id="report-tatami-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
                   </div>
                 </div>
@@ -3997,9 +3997,9 @@ app.get('/report', (c) => {
           </div>
           
           {/* Weekly Encouragement */}
-          <div class="bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 rounded-2xl p-6 shadow-wabi mb-8 text-center">
-            <h2 class="text-lg text-indigo-800 mb-3">{t.encouragement[lang]}</h2>
-            <p id="weekly-encouragement" class="text-ink-600 italic">
+          <div class="bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 dark:from-[#3a3320] dark:via-[#2d2810] dark:to-[#3a3320] rounded-2xl p-6 shadow-wabi mb-8 text-center">
+            <h2 class="text-lg text-indigo-800 dark:text-[#e8e4dc] mb-3">{t.encouragement[lang]}</h2>
+            <p id="weekly-encouragement" class="text-ink-600 dark:text-[#c4bdb6] italic">
               {lang === 'en' 
                 ? '"Every step forward, no matter how small, is progress."'
                 : '「どんなに小さくても、前への一歩は進歩です。」'}
