@@ -34,23 +34,56 @@ class Soundscape {
         sounds: ['crickets', 'wind_soft'],
         description: { en: 'Peaceful night ambiance', ja: '穏やかな夜の雰囲気' }
       },
-      // GARDEN - Nature sounds
+      // GARDEN - Nature sounds (real recorded audio loops)
       garden: {
         name: { en: 'Garden Morning', ja: '朝の庭' },
+        // birds + leaves(wind) + stream — real mp3 loops
         sounds: ['birds', 'wind_leaves', 'stream'],
+        mix: { birds: 0.6, wind_leaves: 0.4, stream: 0.5 },
         description: { en: 'Morning garden atmosphere', ja: '朝の庭の雰囲気' }
       },
       gardenForest: {
         name: { en: 'Forest Bathing', ja: '森林浴' },
+        // birds + leaves(wind) + cicadas (ヒグラシ) — real mp3 loops
         sounds: ['birds', 'wind_leaves', 'cicadas'],
+        mix: { birds: 0.5, wind_leaves: 0.4, cicadas: 0.35 },
         description: { en: 'Deep forest immersion', ja: '深い森の中に浸る' }
       },
       gardenWater: {
         name: { en: 'Water Garden', ja: '水の庭' },
-        sounds: ['stream', 'fountain', 'birds_soft'],
+        // shishiodoshi.mp3 already contains the stream mixed in, so we do NOT
+        // add a separate stream here. Soft birds layered underneath.
+        sounds: ['shishiodoshi', 'birds_soft'],
+        mix: { shishiodoshi: 0.85, birds_soft: 0.25 },
         description: { en: 'Flowing water tranquility', ja: '流れる水の静けさ' }
       }
     };
+
+    // Real recorded audio files for the GARDEN presets.
+    // These are looped via HTMLAudioElement -> MediaElementSource -> GainNode -> masterGain.
+    this.audioFiles = {
+      birds: '/static/sounds/birds.mp3',
+      birds_soft: '/static/sounds/birds.mp3',
+      wind_leaves: '/static/sounds/leaves.mp3',
+      stream: '/static/sounds/stream.mp3',
+      cicadas: '/static/sounds/cicadas.mp3',
+      shishiodoshi: '/static/sounds/shishiodoshi.mp3'
+    };
+
+    // Per-sound default volumes when no preset-specific mix is supplied.
+    this.audioVolumes = {
+      birds: 0.6,
+      birds_soft: 0.25,
+      wind_leaves: 0.4,
+      stream: 0.5,
+      cicadas: 0.35,
+      shishiodoshi: 0.85
+    };
+
+    // Track active <audio> elements + their media source nodes for cleanup.
+    this.audioElements = {};
+    // Per-play mix overrides (set in play()).
+    this.activeMix = null;
   }
 
   // Initialize Audio Context (must be called after user interaction)
@@ -134,6 +167,7 @@ class Soundscape {
       
       this.currentPreset = presetKey;
       this.isPlaying = true;
+      this.activeMix = preset.mix || null;
       
       // Start each sound in the preset
       for (const soundType of preset.sounds) {
@@ -150,8 +184,9 @@ class Soundscape {
   stop() {
     this.isPlaying = false;
     this.currentPreset = null;
+    this.activeMix = null;
     
-    // Stop and disconnect all sounds
+    // Stop and disconnect all synthesized sounds
     for (const key of Object.keys(this.sounds)) {
       try {
         if (this.sounds[key].stop) {
@@ -165,6 +200,27 @@ class Soundscape {
       }
     }
     this.sounds = {};
+    
+    // Pause and clean up real <audio> loops (garden presets)
+    for (const key of Object.keys(this.audioElements)) {
+      const entry = this.audioElements[key];
+      try {
+        if (entry.gain) entry.gain.disconnect();
+      } catch (e) { /* ignore */ }
+      try {
+        if (entry.source) entry.source.disconnect();
+      } catch (e) { /* ignore */ }
+      try {
+        if (entry.audio) {
+          entry.audio.pause();
+          entry.audio.currentTime = 0;
+          entry.audio.src = '';
+          entry.audio.load();
+        }
+      } catch (e) { /* ignore */ }
+    }
+    this.audioElements = {};
+    
     console.log('[Soundscape] Stopped');
   }
 
@@ -195,10 +251,68 @@ class Soundscape {
     }
   }
 
+  // Resolve the playback volume for a given sound type, honoring the
+  // current preset mix override, then falling back to per-sound defaults.
+  resolveVolume(type) {
+    if (this.activeMix && typeof this.activeMix[type] === 'number') {
+      return this.activeMix[type];
+    }
+    if (typeof this.audioVolumes[type] === 'number') {
+      return this.audioVolumes[type];
+    }
+    return 0.5;
+  }
+
+  // Start a real recorded audio loop:
+  //   <audio loop> -> MediaElementSource -> GainNode -> masterGain
+  // iOS: the AudioContext is already unlocked in init(); HTMLAudioElement
+  // playback is triggered from the same user gesture chain.
+  startAudioLoop(type) {
+    if (!this.audioContext || !this.isPlaying) return;
+    const url = this.audioFiles[type];
+    if (!url) return;
+    
+    try {
+      const audio = new Audio();
+      audio.src = url;
+      audio.loop = true;
+      audio.crossOrigin = 'anonymous';
+      audio.preload = 'auto';
+      // playsInline avoids iOS forcing fullscreen for media
+      audio.setAttribute('playsinline', '');
+      
+      const source = this.audioContext.createMediaElementSource(audio);
+      const gain = this.audioContext.createGain();
+      gain.gain.value = this.resolveVolume(type);
+      
+      source.connect(gain);
+      gain.connect(this.masterGain);
+      
+      const playPromise = audio.play();
+      if (playPromise && playPromise.catch) {
+        playPromise.catch((err) => {
+          console.warn('[Soundscape] Audio loop play failed for', type, err);
+        });
+      }
+      
+      this.audioElements[type] = { audio, source, gain };
+      console.log('[Soundscape] Started real audio loop:', type, url);
+    } catch (e) {
+      console.error('[Soundscape] startAudioLoop error for', type, e);
+    }
+  }
+
   // Start individual sound generator
   startSound(type) {
     if (!this.audioContext || !this.isPlaying) return;
     
+    // GARDEN presets use real recorded audio loops
+    if (this.audioFiles[type]) {
+      this.startAudioLoop(type);
+      return;
+    }
+    
+    // TATAMI presets remain synthesized via Web Audio
     switch (type) {
       case 'silence':
         // Just silence - no sound
@@ -212,32 +326,14 @@ class Soundscape {
       case 'wind_soft':
         this.createWindSound(0.08);
         break;
-      case 'wind_leaves':
-        this.createWindLeavesSound();
-        break;
       case 'rain':
         this.createRainSound();
         break;
       case 'thunder_distant':
         this.createDistantThunder();
         break;
-      case 'birds':
-        this.createBirdSound(0.3);
-        break;
-      case 'birds_soft':
-        this.createBirdSound(0.15);
-        break;
-      case 'stream':
-        this.createStreamSound();
-        break;
-      case 'fountain':
-        this.createFountainSound();
-        break;
       case 'crickets':
         this.createCricketsSound();
-        break;
-      case 'cicadas':
-        this.createCicadasSound();
         break;
     }
   }
